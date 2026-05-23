@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Ubiqui_Shield",
+  "version": "1.0.0",
+  "description": "Browser privacy and threat protection extension.",
+
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+
+  "host_permissions": [
+    "<all_urls>"
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "action": {
+    "default_title": "Ubiqui_Shield",
+    "default_popup": "popup.html"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}
