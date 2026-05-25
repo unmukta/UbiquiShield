@@ -1,19 +1,50 @@
+import { useEffect, useState } from "react"
 import GlassCard from "../ui/GlassCard"
 import { ShieldCheck } from "lucide-react"
 
 function WebsiteStatusCard() {
+
+  const [website, setWebsite] = useState("Unknown")
+
+  useEffect(() => {
+
+    if (
+      typeof chrome !== "undefined" &&
+      chrome.storage &&
+      chrome.storage.local
+    ) {
+
+      chrome.storage.local.get(
+        ["currentWebsite"],
+        (result) => {
+
+          if (result.currentWebsite) {
+            setWebsite(result.currentWebsite)
+          }
+
+        }
+      )
+
+    } else {
+
+      setWebsite(window.location.hostname)
+
+    }
+
+  }, [])
+
   return (
     <GlassCard>
 
       <div className="flex items-center justify-between">
-        
+
         <div>
           <h2 className="text-xl font-semibold text-cyan-300">
             Current Website
           </h2>
 
           <p className="text-gray-400 mt-2">
-            github.com
+            {website}
           </p>
         </div>
 
@@ -37,11 +68,10 @@ function WebsiteStatusCard() {
 
       </div>
 
-      {/* Status */}
       <div className="mt-8">
 
         <div className="flex items-center gap-3">
-          
+
           <div className="
             w-3
             h-3
@@ -57,8 +87,7 @@ function WebsiteStatusCard() {
         </div>
 
         <p className="text-gray-400 mt-3 text-sm leading-relaxed">
-          No phishing indicators, malicious scripts,
-          or suspicious trackers detected.
+          Live website monitoring is active.
         </p>
 
       </div>
