@@ -1,31 +1,42 @@
-const trackers = []
+const knownTrackers = [
+  "google-analytics",
+  "googletagmanager",
+  "doubleclick",
+  "facebook",
+  "hotjar",
+  "mixpanel",
+  "segment",
+  "analytics",
+  "tracker",
+  "ads"
+]
 
+const detectedTrackers = []
+
+// Scan all scripts
 const scripts = document.querySelectorAll("script")
 
 scripts.forEach((script) => {
 
-  const src = script.src.toLowerCase()
+  const src = (script.src || "").toLowerCase()
 
-  if (src.includes("google-analytics")) {
-    trackers.push("Google Analytics")
-  }
+  for (const tracker of knownTrackers) {
 
-  if (src.includes("googletagmanager")) {
-    trackers.push("Google Tag Manager")
-  }
+    if (src.includes(tracker)) {
 
-  if (src.includes("facebook")) {
-    trackers.push("Facebook Tracker")
-  }
+      if (!detectedTrackers.includes(tracker)) {
+        detectedTrackers.push(tracker)
+      }
 
-  if (src.includes("doubleclick")) {
-    trackers.push("DoubleClick Ads")
+    }
+
   }
 
 })
 
+// Save trackers
 chrome.storage.local.set({
-  detectedTrackers: trackers,
+  trackers: detectedTrackers
 })
 
-console.log("Detected trackers:", trackers)
+console.log("Detected trackers:", detectedTrackers)

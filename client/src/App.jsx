@@ -1,17 +1,52 @@
+import { useEffect, useState } from "react"
+
 import AnimatedBackground from "./components/animations/AnimatedBackground"
+
 import WebsiteStatusCard from "./components/dashboard/WebsiteStatusCard"
 import TrackerIntelligenceCard from "./components/dashboard/TrackerIntelligenceCard"
 import ProtectionStatusCard from "./components/dashboard/ProtectionStatusCard"
+import DetectedTrackersCard from "./components/dashboard/DetectedTrackersCard"
+
 import NeonButton from "./components/ui/NeonButton"
 
 function App() {
+
+  // Live trackers state
+  const [trackers, setTrackers] = useState([])
+
+  useEffect(() => {
+
+    // Initial load
+    chrome.storage.local.get(["trackers"], (result) => {
+
+      if (result.trackers) {
+        setTrackers(result.trackers)
+      }
+
+    })
+
+    // LIVE updates listener
+    chrome.storage.onChanged.addListener((changes, area) => {
+
+      if (
+        area === "local" &&
+        changes.trackers
+      ) {
+
+        setTrackers(changes.trackers.newValue || [])
+
+      }
+
+    })
+
+  }, [])
+
   return (
     <>
       <AnimatedBackground />
 
       <div className="min-h-screen flex items-center justify-center p-6">
 
-        {/* Extension Popup */}
         <div
           className="
             w-[380px]
@@ -39,12 +74,14 @@ function App() {
                 </p>
               </div>
 
-              <div className="
-                w-3
-                h-3
-                rounded-full
-                bg-green-400
-              " />
+              <div
+                className="
+                  w-3
+                  h-3
+                  rounded-full
+                  bg-green-400
+                "
+              />
 
             </div>
 
@@ -55,11 +92,13 @@ function App() {
 
             <WebsiteStatusCard />
 
-            <TrackerIntelligenceCard />
+            <TrackerIntelligenceCard trackers={trackers} />
+
+            <DetectedTrackersCard trackers={trackers} />
 
             <ProtectionStatusCard />
 
-            {/* Action Buttons */}
+            {/* Buttons */}
             <div className="grid grid-cols-2 gap-3">
 
               <NeonButton className="text-sm py-2">

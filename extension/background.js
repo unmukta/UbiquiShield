@@ -1,27 +1,56 @@
-chrome.tabs.onActivated.addListener(async () => {
-  updateCurrentTab()
-})
+const knownTrackers = [
+  "google-analytics",
+  "doubleclick",
+  "facebook",
+  "hotjar",
+  "segment",
+  "mixpanel",
+  "adsystem",
+  "tracker"
+]
 
-chrome.tabs.onUpdated.addListener(() => {
-  updateCurrentTab()
-})
+chrome.webRequest.onBeforeRequest.addListener(
+  (details) => {
 
-async function updateCurrentTab() {
+    const url = details.url.toLowerCase()
 
-  const tabs = await chrome.tabs.query({
-    active: true,
-    currentWindow: true,
-  })
+    let detected = null
 
-  const activeTab = tabs[0]
+    for (const tracker of knownTrackers) {
 
-  if (!activeTab || !activeTab.url) return
+      if (url.includes(tracker)) {
+        detected = tracker
+        break
+      }
 
-  const url = new URL(activeTab.url)
+    }
 
-  chrome.storage.local.set({
-    currentWebsite: url.hostname,
-  })
+    if (detected) {
 
-  console.log("Current website:", url.hostname)
-}
+      chrome.storage.local.get(
+        ["trackers"],
+        (result) => {
+
+          let trackers = result.trackers || []
+
+          // Prevent duplicates
+          if (!trackers.includes(detected)) {
+            trackers.push(detected)
+          }
+
+          chrome.storage.local.set({
+            trackers: trackers
+          })
+
+          console.log("Tracker detected:", detected)
+
+        }
+      )
+
+    }
+
+  },
+  {
+    urls: ["<all_urls>"]
+  }
+)
