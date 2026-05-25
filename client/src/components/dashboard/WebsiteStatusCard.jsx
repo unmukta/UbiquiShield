@@ -8,25 +8,40 @@ function WebsiteStatusCard() {
 
   useEffect(() => {
 
+    // Chrome Extension Environment
     if (
       typeof chrome !== "undefined" &&
-      chrome.storage &&
-      chrome.storage.local
+      chrome.tabs
     ) {
 
-      chrome.storage.local.get(
-        ["currentWebsite"],
-        (result) => {
+      chrome.tabs.query(
+        {
+          active: true,
+          currentWindow: true
+        },
+        (tabs) => {
 
-          if (result.currentWebsite) {
-            setWebsite(result.currentWebsite)
+          if (tabs && tabs[0] && tabs[0].url) {
+
+            try {
+
+              const url = new URL(tabs[0].url)
+
+              setWebsite(
+                url.hostname.replace("www.", "")
+              )
+
+            } catch (error) {
+
+              setWebsite("Unknown")
+            }
           }
-
         }
       )
 
     } else {
 
+      // Fallback for localhost/dev mode
       setWebsite(window.location.hostname)
 
     }
@@ -39,6 +54,7 @@ function WebsiteStatusCard() {
       <div className="flex items-center justify-between">
 
         <div>
+
           <h2 className="text-xl font-semibold text-cyan-300">
             Current Website
           </h2>
@@ -46,6 +62,7 @@ function WebsiteStatusCard() {
           <p className="text-gray-400 mt-2">
             {website}
           </p>
+
         </div>
 
         <div
@@ -60,10 +77,12 @@ function WebsiteStatusCard() {
             border border-green-400/20
           "
         >
+
           <ShieldCheck
             className="text-green-400"
             size={28}
           />
+
         </div>
 
       </div>
@@ -72,13 +91,15 @@ function WebsiteStatusCard() {
 
         <div className="flex items-center gap-3">
 
-          <div className="
-            w-3
-            h-3
-            rounded-full
-            bg-green-400
-            animate-pulse
-          " />
+          <div
+            className="
+              w-3
+              h-3
+              rounded-full
+              bg-green-400
+              animate-pulse
+            "
+          />
 
           <span className="text-green-400 font-medium">
             Secure Connection

@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Ubiqui_Shield",
+  "version": "1.0",
+
+  "description": "Browser protection extension",
+
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "storage"
+  ],
+
+  "action": {
+    "default_popup": "index.html"
+  }
+}
