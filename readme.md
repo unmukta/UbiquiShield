@@ -1,58 +1,145 @@
 # Ubiqui_Shield
 
-A modern cybersecurity-focused browser extension built using React, Vite, TailwindCSS, and Chrome Extension APIs.
+A modern browser security and privacy extension focused on:
 
-Ubiqui_Shield provides:
-
-* real-time website monitoring
-* tracker detection
+* real-time tracker intelligence
 * browser telemetry analysis
-* live risk intelligence
-* cybersecurity dashboard UI
+* website risk scoring
+* privacy monitoring
+* cybersecurity-focused browser protection
+
+Built using React, Vite, TailwindCSS, and Chrome Extension APIs.
 
 ---
 
-# 🚀 Features
+# 🚀 Current Status
 
-## ✅ Live Website Monitoring
+## Project Stage
 
-Detects and displays the currently active website in real time.
+```txt id="qf4f8j"
+Early MVP / Functional Prototype
+```
 
-## ✅ Tracker Detection Engine
+Ubiqui_Shield has evolved from:
+
+```txt id="j9sh6s"
+frontend dashboard concept
+```
+
+into:
+
+```txt id="j3kr6v"
+real browser extension security architecture
+```
+
+---
+
+# 🔥 Features
+
+## ✅ Browser Security Dashboard
+
+Modern Brave-inspired extension popup UI.
+
+### Includes:
+
+* Website monitoring
+* Tracker intelligence
+* Risk intelligence
+* Protection status
+* Real-time telemetry cards
+
+---
+
+# ✅ Live Website Monitoring
+
+Detects:
+
+* current active website
+* active browser tab
+* website hostname
+
+Using:
+
+```js id="4g65fp"
+chrome.tabs
+```
+
+---
+
+# ✅ Tracker Detection Engine
 
 Scans websites for:
 
 * Google Analytics
 * DoubleClick
-* Facebook trackers
-* TikTok pixels
-* Hotjar scripts
-* advertising/tracking scripts
+* Facebook Pixel
+* TikTok Tracker
+* Hotjar
+* telemetry scripts
+* analytics scripts
 
-## ✅ Real-Time Telemetry
+### Detection Methods
 
-Uses browser storage synchronization to display live tracker updates inside the extension popup.
-
-## ✅ Risk Intelligence System
-
-Generates a basic website threat score based on:
-
-* detected trackers
-* telemetry indicators
-* suspicious activity
-
-## ✅ Cybersecurity Dashboard UI
-
-Modern glassmorphism/neon UI inspired by:
-
-* Brave Shields
-* Ghostery
-* Malwarebytes Browser Guard
-* Cyberpunk-style dashboards
+* script inspection
+* DOM scanning
+* telemetry heuristics
 
 ---
 
-# 🛠 Tech Stack
+# ✅ Real-Time Telemetry System
+
+Extension currently supports:
+
+* content script injection
+* browser telemetry collection
+* storage synchronization
+* live popup rendering
+
+Using:
+
+```js id="q2pnm5"
+chrome.storage.local
+```
+
+---
+
+# ✅ Risk Intelligence System
+
+Calculates website risk scores based on:
+
+* detected trackers
+* telemetry indicators
+* suspicious website activity
+
+### Threat Levels
+
+* Safe
+* Low Risk
+* Suspicious
+* Dangerous
+
+---
+
+# ✅ Brave-Style Modern UI
+
+UI redesigned to feel similar to:
+
+* Brave Software Shields
+* Malwarebytes Browser Guard
+* Ghostery
+* DuckDuckGo Privacy Essentials
+
+### Design Philosophy
+
+* clean
+* minimal
+* trustworthy
+* browser-native
+* modern dark UI
+
+---
+
+# 🛠 Technology Stack
 
 ## Frontend
 
@@ -60,48 +147,55 @@ Modern glassmorphism/neon UI inspired by:
 * Vite
 * TailwindCSS
 
+---
+
 ## Browser Extension APIs
 
-* chrome.storage
 * chrome.tabs
+* chrome.storage
 * content scripts
 * service workers
 * Manifest V3
 
+---
+
 ## Cybersecurity Concepts
 
 * browser telemetry
-* tracker fingerprinting
 * heuristic detection
+* tracker intelligence
 * passive reconnaissance
 * script inspection
-* runtime analysis
+* risk scoring
 
 ---
 
 # 📁 Project Structure
 
-```txt
+```txt id="f9q4cf"
 Ubiqui_Shield/
 │
 ├── client/
+│   │
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── animations/
 │   │   │   ├── dashboard/
-│   │   │   └── ui/
+│   │   │   ├── ui/
+│   │   │   └── animations/
 │   │   │
 │   │   ├── App.jsx
 │   │   ├── main.jsx
 │   │   └── index.css
 │   │
-│   ├── public/
 │   ├── dist/
+│   │   ├── manifest.json
+│   │   ├── background.js
+│   │   ├── content.js
+│   │   └── assets/
+│   │
 │   ├── package.json
 │   └── vite.config.js
 │
-├── extension/
-├── server/
 └── README.md
 ```
 
@@ -111,15 +205,15 @@ Ubiqui_Shield/
 
 ## 1️⃣ Clone Repository
 
-```bash
+```bash id="xhzs7d"
 git clone https://github.com/unmukta/UbiquiShield.git
 ```
 
 ---
 
-## 2️⃣ Open Project
+## 2️⃣ Open Client Folder
 
-```bash
+```bash id="8zqv24"
 cd UbiquiShield/client
 ```
 
@@ -127,7 +221,7 @@ cd UbiquiShield/client
 
 ## 3️⃣ Install Dependencies
 
-```bash
+```bash id="c5pd7k"
 npm install
 ```
 
@@ -135,13 +229,13 @@ npm install
 
 # ▶️ Run Development Server
 
-```bash
+```bash id="2ax4k9"
 npm run dev
 ```
 
-Vite development server will start on:
+Local development server:
 
-```txt
+```txt id="kg7j99"
 http://localhost:5173
 ```
 
@@ -151,15 +245,15 @@ http://localhost:5173
 
 IMPORTANT:
 
-The extension loads from:
+Extension loads from:
 
-```txt
+```txt id="vtl9l4"
 client/dist
 ```
 
-So after every React/UI change:
+After changing React code:
 
-```bash
+```bash id="8rwxhl"
 npm run build
 ```
 
@@ -169,13 +263,13 @@ npm run build
 
 ## Open:
 
-```txt
+```txt id="8dklqp"
 brave://extensions
 ```
 
 OR
 
-```txt
+```txt id="zhb5vy"
 chrome://extensions
 ```
 
@@ -183,132 +277,144 @@ chrome://extensions
 
 ## Enable:
 
-* Developer Mode
+```txt id="eh9n4z"
+Developer Mode
+```
 
 ---
 
 ## Click:
 
-* Load Unpacked
+```txt id="x0n2wb"
+Load unpacked
+```
 
 ---
 
 ## Select:
 
-```txt
+```txt id="vq0sh6"
 client/dist
 ```
 
 ---
 
-# 🔥 Current Working Features
+# 🔍 Current Working Systems
 
-## Browser Protection
+## Extension Systems
 
-* active website detection
-* secure connection UI
-* protection status cards
-
-## Tracker Intelligence
-
-* tracker detection
-* telemetry synchronization
-* detected tracker list
-* tracker classification
-
-## Risk Intelligence
-
-* risk scoring
-* threat level system
-* live dashboard updates
+✅ popup UI
+✅ Manifest V3
+✅ content scripts
+✅ background service worker
+✅ extension storage
+✅ browser API integration
 
 ---
 
-# 🧠 How Tracker Detection Works
+## Telemetry Systems
 
-The extension injects a content script into websites and scans:
-
-```js
-document.querySelectorAll("script")
-```
-
-for:
-
-* tracking domains
-* analytics scripts
-* advertising frameworks
-* telemetry libraries
-
-Detected trackers are stored using:
-
-```js
-chrome.storage.local
-```
-
-and displayed inside the popup UI in real time.
+✅ tracker scanning
+✅ script inspection
+✅ telemetry rendering
+✅ risk scoring
+✅ live synchronization
 
 ---
 
-# 📌 Current Detected Trackers
+## UI Systems
 
-Supported detections:
-
-* Google Analytics
-* DoubleClick
-* Facebook Tracker
-* TikTok Pixel
-* Hotjar
+✅ Brave-style redesign
+✅ soft dark UI
+✅ responsive cards
+✅ modern typography
+✅ consistent spacing
 
 ---
 
-# 🔮 Planned Features
+# ⚠️ Current Limitations
 
-## Next Phase — Advanced Security Intelligence
+## Tracker Detection
 
-* phishing heuristics
-* suspicious script analysis
-* malicious domain scoring
+⚠️ detection still inconsistent on some modern websites
+
+Reason:
+
+* trackers load dynamically
+* Brave blocks some telemetry
+* many trackers use fetch/XHR instead of scripts
+
+---
+
+## Live Synchronization
+
+⚠️ popup timing and storage refresh still being improved
+
+---
+
+## Request Monitoring
+
+❌ not implemented yet
+
+---
+
+## Active Blocking
+
+❌ not implemented yet
+
+---
+
+# 🚀 Planned Features
+
+Planned:
+
+* request inspection
+* network telemetry
+* third-party request analysis
+* tracker origin detection
+* phishing detection
+* suspicious domain heuristics
+* malicious script analysis
 * obfuscated JS detection
+* tracker blocking
+* malicious request blocking
+* anti-fingerprinting basics
+* privacy protection controls
 
 ---
 
-
-
-## Dashboard Features
-
-* Tracker Intelligence
-* Risk Intelligence
-* Protection Status
-* Website Monitoring
-* Real-Time Telemetry
-
----
-
-# 🎯 Project Goals
-
-Ubiqui_Shield is designed as:
-
-* a cybersecurity learning project
-* a real browser telemetry system
-* a portfolio-grade extension
-* a browser security analysis platform
-
----
-
-# 📚 Learning Outcomes
+# 🧠 Learning Outcomes
 
 This project demonstrates:
 
 * React engineering
 * browser extension development
 * Chrome Extension APIs
-* cybersecurity concepts
-* telemetry systems
+* cybersecurity fundamentals
+* browser telemetry systems
 * real-time UI synchronization
 * browser monitoring architecture
 
+
 ---
 
+# 🎯 Project Goal
+
+Ubiqui_Shield aims to become:
+
+```txt id="y00rkf"
+a browser security intelligence platform
+```
+
+focused on:
+
+* privacy
+* telemetry analysis
+* browser security
+* tracker intelligence
+* website risk analysis
+
+---
 
 # ⚠️ Disclaimer
 
@@ -324,13 +430,12 @@ Do not use for malicious purposes.
 
 # ⭐ Future Vision
 
-Long-term goal:
+Long-term vision includes:
 
-Transform Ubiqui_Shield into a full browser security platform capable of:
-
-* threat intelligence
+* advanced telemetry systems
+* browser threat intelligence
 * phishing detection
-* tracker blocking
-* malicious script analysis
-* privacy protection
-* browser security analytics
+* request monitoring
+* privacy scoring
+* active browser protection
+* anti-tracking systems
