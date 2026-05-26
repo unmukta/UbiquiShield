@@ -1,203 +1,163 @@
 # Ubiqui_Shield
 
-Cybersecurity-focused browser protection extension built using React + Vite.
+A modern cybersecurity-focused browser extension built using React, Vite, TailwindCSS, and Chrome Extension APIs.
+
+Ubiqui_Shield provides:
+
+* real-time website monitoring
+* tracker detection
+* browser telemetry analysis
+* live risk intelligence
+* cybersecurity dashboard UI
 
 ---
 
-# Current Project Status
+# 🚀 Features
 
-## Project Type
+## ✅ Live Website Monitoring
 
-Browser Extension (Chrome Extension)
+Detects and displays the currently active website in real time.
 
-## Frontend Stack
+## ✅ Tracker Detection Engine
+
+Scans websites for:
+
+* Google Analytics
+* DoubleClick
+* Facebook trackers
+* TikTok pixels
+* Hotjar scripts
+* advertising/tracking scripts
+
+## ✅ Real-Time Telemetry
+
+Uses browser storage synchronization to display live tracker updates inside the extension popup.
+
+## ✅ Risk Intelligence System
+
+Generates a basic website threat score based on:
+
+* detected trackers
+* telemetry indicators
+* suspicious activity
+
+## ✅ Cybersecurity Dashboard UI
+
+Modern glassmorphism/neon UI inspired by:
+
+* Brave Shields
+* Ghostery
+* Malwarebytes Browser Guard
+* Cyberpunk-style dashboards
+
+---
+
+# 🛠 Tech Stack
+
+## Frontend
 
 * React
 * Vite
-* Tailwind CSS
-* Lucide React Icons
+* TailwindCSS
 
-## Current Features Implemented
+## Browser Extension APIs
 
-### 1. Modern Cybersecurity Dashboard UI
+* chrome.storage
+* chrome.tabs
+* content scripts
+* service workers
+* Manifest V3
 
-Implemented a glassmorphism-style security dashboard.
+## Cybersecurity Concepts
 
-### 2. Current Website Detection
-
-The extension now detects the currently active website using:
-
-```js
-chrome.tabs.query()
-```
-
-It displays domains such as:
-
-* chatgpt.com
-* youtube.com
-* github.com
-* google.com
-
-### 3. Secure Connection Status
-
-Displays a live secure connection indicator.
-
-### 4. Tracker Intelligence Card
-
-Basic tracker monitoring card added.
-
-### 5. Chrome Extension Support
-
-Configured Chrome Extension Manifest V3.
-
-Implemented:
-
-* manifest.json
-* extension permissions
-* popup support
-* active tab detection
-
-### 6. Storage Integration
-
-Using:
-
-```js
-chrome.storage.local
-```
-
-for extension data handling.
+* browser telemetry
+* tracker fingerprinting
+* heuristic detection
+* passive reconnaissance
+* script inspection
+* runtime analysis
 
 ---
 
-# Current Folder Structure
+# 📁 Project Structure
 
 ```txt
-ubiqui_shield/
+Ubiqui_Shield/
 │
 ├── client/
-│   ├── public/
-│   │   └── manifest.json
-│   │
 │   ├── src/
 │   │   ├── components/
+│   │   │   ├── animations/
 │   │   │   ├── dashboard/
-│   │   │   │   ├── WebsiteStatusCard.jsx
-│   │   │   │   ├── TrackerIntelligenceCard.jsx
-│   │   │   │   └── ProtectionStatusCard.jsx
-│   │   │   │
 │   │   │   └── ui/
-│   │   │       └── GlassCard.jsx
 │   │   │
 │   │   ├── App.jsx
-│   │   └── main.jsx
+│   │   ├── main.jsx
+│   │   └── index.css
 │   │
+│   ├── public/
+│   ├── dist/
 │   ├── package.json
 │   └── vite.config.js
 │
-└── package.json
+├── extension/
+├── server/
+└── README.md
 ```
 
 ---
 
-# Chrome Extension Permissions
+# ⚙️ Installation
 
-```json
-"permissions": [
-  "tabs",
-  "activeTab",
-  "storage"
-]
+## 1️⃣ Clone Repository
+
+```bash
+git clone https://github.com/unmukta/UbiquiShield.git
 ```
 
 ---
 
-# Current UI Sections
+## 2️⃣ Open Project
 
-## Current Website
-
-Shows active website domain.
-
-## Secure Connection
-
-Shows live secure monitoring state.
-
-## Tracker Intelligence
-
-Displays tracker monitoring status.
-
-## Protection Status
-
-Security monitoring dashboard section.
-
----
-
-# Issues Solved During Development
-
-## Fixed localhost Website Detection
-
-Problem:
-
-```txt
-Extension showed localhost instead of current tab
-```
-
-Solution:
-
-Replaced:
-
-```js
-window.location.hostname
-```
-
-With:
-
-```js
-chrome.tabs.query()
+```bash
+cd UbiquiShield/client
 ```
 
 ---
 
-## Fixed Broken package.json
-
-Solved JSON parsing issues causing:
-
-```txt
-Unexpected end of JSON input
-```
-
----
-
-## Fixed Missing manifest.json
-
-Solved:
-
-```txt
-Manifest file is missing or unreadable
-```
-
-by adding:
-
-```txt
-client/public/manifest.json
-```
-
----
-
-# Current Build Process
-
-## Install Dependencies
+## 3️⃣ Install Dependencies
 
 ```bash
 npm install
 ```
 
-## Run Development Server
+---
+
+# ▶️ Run Development Server
 
 ```bash
 npm run dev
 ```
 
-## Build Extension
+Vite development server will start on:
+
+```txt
+http://localhost:5173
+```
+
+---
+
+# 🏗 Build Extension
+
+IMPORTANT:
+
+The extension loads from:
+
+```txt
+client/dist
+```
+
+So after every React/UI change:
 
 ```bash
 npm run build
@@ -205,23 +165,35 @@ npm run build
 
 ---
 
-# Loading Extension in Chrome
+# 🧩 Load Extension in Brave/Chrome
 
-1. Open:
+## Open:
+
+```txt
+brave://extensions
+```
+
+OR
 
 ```txt
 chrome://extensions
 ```
 
-2. Enable Developer Mode
+---
 
-3. Click:
+## Enable:
 
-```txt
-Load unpacked
-```
+* Developer Mode
 
-4. Select:
+---
+
+## Click:
+
+* Load Unpacked
+
+---
+
+## Select:
 
 ```txt
 client/dist
@@ -229,58 +201,136 @@ client/dist
 
 ---
 
-# Planned Features
+# 🔥 Current Working Features
 
-## Cybersecurity Features
+## Browser Protection
 
-* Real tracker detection
-* Phishing detection
-* Malicious URL scanning
-* HTTPS verification
-* Suspicious script detection
-* Scam page detection
-* Site reputation engine
-* AI-based warning system
+* active website detection
+* secure connection UI
+* protection status cards
 
-## UI Improvements
+## Tracker Intelligence
 
-* Live activity graphs
-* Animated security alerts
-* Website favicon display
-* Threat severity indicators
-* Dark neon cybersecurity theme
+* tracker detection
+* telemetry synchronization
+* detected tracker list
+* tracker classification
 
-## Browser Features
+## Risk Intelligence
 
-* Ad blocker
-* Privacy protection
-* Cookie tracker analysis
-* Fingerprinting detection
-* Safe browsing warnings
+* risk scoring
+* threat level system
+* live dashboard updates
 
 ---
 
-# Future Goals
+# 🧠 How Tracker Detection Works
 
-Ubiqui_Shield aims to become a lightweight AI-powered cybersecurity browser assistant capable of:
+The extension injects a content script into websites and scans:
 
-* Protecting users from phishing and scams
-* Detecting trackers and malicious scripts
-* Providing privacy insights
-* Giving real-time website risk analysis
-* Acting as an AI browser security companion
+```js
+document.querySelectorAll("script")
+```
+
+for:
+
+* tracking domains
+* analytics scripts
+* advertising frameworks
+* telemetry libraries
+
+Detected trackers are stored using:
+
+```js
+chrome.storage.local
+```
+
+and displayed inside the popup UI in real time.
 
 ---
 
-# Current Development Status
+# 📌 Current Detected Trackers
 
-Status: Active Development
+Supported detections:
 
-Core dashboard and Chrome extension integration completed.
+* Google Analytics
+* DoubleClick
+* Facebook Tracker
+* TikTok Pixel
+* Hotjar
 
-Next Phase:
+---
 
-* Real cybersecurity engine
-* AI analysis system
-* Threat intelligence integration
-* Live monitoring
+# 🔮 Planned Features
+
+## Next Phase — Advanced Security Intelligence
+
+* phishing heuristics
+* suspicious script analysis
+* malicious domain scoring
+* obfuscated JS detection
+
+---
+
+
+
+## Dashboard Features
+
+* Tracker Intelligence
+* Risk Intelligence
+* Protection Status
+* Website Monitoring
+* Real-Time Telemetry
+
+---
+
+# 🎯 Project Goals
+
+Ubiqui_Shield is designed as:
+
+* a cybersecurity learning project
+* a real browser telemetry system
+* a portfolio-grade extension
+* a browser security analysis platform
+
+---
+
+# 📚 Learning Outcomes
+
+This project demonstrates:
+
+* React engineering
+* browser extension development
+* Chrome Extension APIs
+* cybersecurity concepts
+* telemetry systems
+* real-time UI synchronization
+* browser monitoring architecture
+
+---
+
+
+# ⚠️ Disclaimer
+
+Ubiqui_Shield is an educational cybersecurity project intended for:
+
+* learning
+* research
+* browser security experimentation
+
+Do not use for malicious purposes.
+
+---
+
+# ⭐ Future Vision
+
+Long-term goal:
+
+Transform Ubiqui_Shield into a full browser security platform capable of:
+
+* threat intelligence
+* phishing detection
+* tracker blocking
+* malicious script analysis
+* privacy protection
+* browser security analytics

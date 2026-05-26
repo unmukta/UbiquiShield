@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react"
 
 import AnimatedBackground from "./components/animations/AnimatedBackground"
-
 import WebsiteStatusCard from "./components/dashboard/WebsiteStatusCard"
 import TrackerIntelligenceCard from "./components/dashboard/TrackerIntelligenceCard"
 import ProtectionStatusCard from "./components/dashboard/ProtectionStatusCard"
 import DetectedTrackersCard from "./components/dashboard/DetectedTrackersCard"
-
 import NeonButton from "./components/ui/NeonButton"
+import RiskScoreCard from "./components/dashboard/RiskScoreCard"
 
 function App() {
 
@@ -95,6 +94,7 @@ function App() {
             <TrackerIntelligenceCard trackers={trackers} />
 
             <DetectedTrackersCard trackers={trackers} />
+            <RiskScoreCard trackers={trackers} />
 
             <ProtectionStatusCard />
 
