@@ -1,127 +1,118 @@
 import {
-  ShieldCheck,
-  Lock,
-  EyeOff,
-  Globe,
+  Shield,
+  Fingerprint,
+  Cookie,
+  Code
 } from "lucide-react"
+
+import ToggleSwitch from "../ui/ToggleSwitch"
+import GlassCard from "../ui/GlassCard"
 
 function ProtectionStatusCard() {
 
   return (
 
-    <div
-      className="
-        rounded-2xl
-        border border-white/5
-        bg-[#2a2a2d]
-        p-5
-      "
-    >
+    <GlassCard>
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="space-y-5">
 
+        {/* Title */}
         <div>
 
-          <h2 className="text-base font-semibold text-white">
-            Protection Status
+          <h2 className="text-xl font-semibold text-white">
+            Protection Settings
           </h2>
 
           <p className="text-sm text-gray-400 mt-1">
-            Browser defenses active
+            Active website protections
           </p>
 
         </div>
 
-        <div
-          className="
-            w-11
-            h-11
-            rounded-xl
-            bg-[#3b3b40]
-            flex
-            items-center
-            justify-center
-          "
-        >
+        {/* Option 1 */}
+        <div className="flex items-center justify-between">
 
-          <ShieldCheck
-            className="text-green-300"
-            size={20}
-          />
+          <div className="flex items-center gap-3">
+
+            <Shield
+              size={20}
+              className="text-gray-300"
+            />
+
+            <span className="text-gray-200">
+              Block Ads & Trackers
+            </span>
+
+          </div>
+
+          <ToggleSwitch enabled={true} />
+
+        </div>
+
+        {/* Option 2 */}
+        <div className="flex items-center justify-between">
+
+          <div className="flex items-center gap-3">
+
+            <Fingerprint
+              size={20}
+              className="text-gray-300"
+            />
+
+            <span className="text-gray-200">
+              Fingerprint Protection
+            </span>
+
+          </div>
+
+          <ToggleSwitch enabled={true} />
+
+        </div>
+
+        {/* Option 3 */}
+        <div className="flex items-center justify-between">
+
+          <div className="flex items-center gap-3">
+
+            <Cookie
+              size={20}
+              className="text-gray-300"
+            />
+
+            <span className="text-gray-200">
+              Block Third-Party Cookies
+            </span>
+
+          </div>
+
+          <ToggleSwitch enabled={false} />
+
+        </div>
+
+        {/* Option 4 */}
+        <div className="flex items-center justify-between">
+
+          <div className="flex items-center gap-3">
+
+            <Code
+              size={20}
+              className="text-gray-300"
+            />
+
+            <span className="text-gray-200">
+              Script Protection
+            </span>
+
+          </div>
+
+          <ToggleSwitch enabled={true} />
 
         </div>
 
       </div>
 
-      {/* Protection List */}
-      <div className="mt-5 space-y-3">
-
-        <ProtectionItem
-          icon={<Lock size={15} />}
-          label="HTTPS Protection"
-          status="Enabled"
-        />
-
-        <ProtectionItem
-          icon={<EyeOff size={15} />}
-          label="Tracker Blocking"
-          status="Active"
-        />
-
-        <ProtectionItem
-          icon={<Globe size={15} />}
-          label="Safe Browsing"
-          status="Protected"
-        />
-
-      </div>
-
-    </div>
-
+    </GlassCard>
   )
-
-}
-
-function ProtectionItem({ icon, label, status }) {
-
-  return (
-
-    <div
-      className="
-        flex
-        items-center
-        justify-between
-        rounded-xl
-        border border-white/5
-        bg-[#1f1f22]
-        px-4
-        py-3
-      "
-    >
-
-      {/* Left */}
-      <div className="flex items-center gap-3">
-
-        <div className="text-[#7c5cff]">
-          {icon}
-        </div>
-
-        <span className="text-white text-sm">
-          {label}
-        </span>
-
-      </div>
-
-      {/* Right */}
-      <span className="text-green-300 text-sm font-medium">
-        {status}
-      </span>
-
-    </div>
-
-  )
-
 }
 
 export default ProtectionStatusCard

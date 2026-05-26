@@ -1,147 +1,174 @@
-function RiskScoreCard({ trackers }) {
+import { useEffect, useState } from "react"
+import GlassCard from "../ui/GlassCard"
 
-  let riskScore = 0
+function RiskScoreCard() {
 
-  // Tracker-based scoring
-  riskScore += trackers.length * 15
+  const [website, setWebsite] = useState("")
+  const [risk, setRisk] = useState("Low")
+  const [score, setScore] = useState(10)
 
-  // Maximum limit
-  if (riskScore > 100) {
-    riskScore = 100
-  }
+  useEffect(() => {
 
-  // Risk level
-  let riskLevel = "Safe"
+    if (
+      typeof chrome !== "undefined" &&
+      chrome.tabs
+    ) {
 
-  if (riskScore >= 30) {
-    riskLevel = "Low Risk"
-  }
+      chrome.tabs.query(
+        {
+          active: true,
+          currentWindow: true
+        },
+        (tabs) => {
 
-  if (riskScore >= 60) {
-    riskLevel = "Suspicious"
-  }
+          if (tabs[0]?.url) {
 
-  if (riskScore >= 90) {
-    riskLevel = "Dangerous"
+            const url = tabs[0].url
+            setWebsite(url)
+
+            analyzeRisk(url)
+
+          }
+
+        }
+      )
+
+    }
+
+  }, [])
+
+  function analyzeRisk(url) {
+
+    let calculatedScore = 10
+
+    const suspiciousWords = [
+      "login",
+      "verify",
+      "secure",
+      "bank",
+      "crypto",
+      "bonus",
+      "gift",
+      "free",
+      "airdrop",
+      "wallet"
+    ]
+
+    suspiciousWords.forEach((word) => {
+
+      if (
+        url.toLowerCase().includes(word)
+      ) {
+
+        calculatedScore += 10
+
+      }
+
+    })
+
+    if (url.includes(".xyz")) {
+      calculatedScore += 20
+    }
+
+    if (url.length > 60) {
+      calculatedScore += 15
+    }
+
+    if (url.includes("@")) {
+      calculatedScore += 25
+    }
+
+    if (calculatedScore >= 60) {
+
+      setRisk("High")
+
+    } else if (calculatedScore >= 30) {
+
+      setRisk("Medium")
+
+    } else {
+
+      setRisk("Low")
+
+    }
+
+    setScore(calculatedScore)
+
   }
 
   return (
 
-    <div
-      className="
-        rounded-2xl
-        border border-white/5
-        bg-[#2a2a2d]
-        p-5
-      "
-    >
+    <GlassCard>
 
-      {/* Header */}
       <div className="flex items-center justify-between">
 
         <div>
 
-          <h2 className="text-base font-semibold text-white">
-            Risk Intelligence
+          <h2 className="text-xl font-semibold text-white">
+            Website Risk Score
           </h2>
 
-          <p className="text-gray-400 text-sm mt-1">
-            Website threat analysis
+          <p className="text-sm text-gray-400 mt-1">
+            AI-powered phishing analysis
           </p>
 
         </div>
 
-        {/* Score Box */}
         <div
           className="
-            w-14
-            h-14
+            w-16
+            h-16
             rounded-2xl
-            bg-[#3b3b40]
             flex
             items-center
             justify-center
+            bg-[#2a2b35]
+            text-white
+            text-xl
+            font-bold
           "
         >
-
-          <span className="text-white text-lg font-semibold">
-            {riskScore}
-          </span>
-
+          {score}
         </div>
 
       </div>
 
-      {/* Threat Level */}
       <div className="mt-5">
 
-        <div className="flex items-center justify-between mb-2">
-
-          <span className="text-gray-400 text-sm">
-            Threat Level
-          </span>
-
-          <span
-            className="
-              text-[#7c5cff]
-              text-sm
-              font-medium
-            "
-          >
-            {riskLevel}
-          </span>
-
-        </div>
-
-        {/* Progress Bar */}
         <div
-          className="
-            h-2.5
-            rounded-full
-            bg-[#1f1f22]
-            overflow-hidden
-          "
+          className={`
+            rounded-2xl
+            px-4
+            py-4
+            border
+            ${
+              risk === "Low"
+                ? "bg-green-500/10 border-green-500/20 text-green-400"
+                : risk === "Medium"
+                ? "bg-yellow-500/10 border-yellow-500/20 text-yellow-400"
+                : "bg-red-500/10 border-red-500/20 text-red-400"
+            }
+          `}
         >
 
-          <div
-            className="
-              h-full
-              bg-[#7c5cff]
-              rounded-full
-              transition-all
-            "
-            style={{
-              width: `${riskScore}%`
-            }}
-          />
+          <div className="flex items-center justify-between">
+
+            <span className="font-medium">
+              Threat Level
+            </span>
+
+            <span className="font-bold">
+              {risk}
+            </span>
+
+          </div>
 
         </div>
 
       </div>
 
-      {/* Footer */}
-      <div
-        className="
-          mt-5
-          rounded-xl
-          border border-white/5
-          bg-[#1f1f22]
-          px-4
-          py-3
-        "
-      >
-
-        <p className="text-gray-400 text-sm leading-relaxed">
-          Risk score is calculated using detected trackers
-          and website telemetry indicators.
-        </p>
-
-      </div>
-
-    </div>
-
+    </GlassCard>
   )
-
 }
 
 export default RiskScoreCard

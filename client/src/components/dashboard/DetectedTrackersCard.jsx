@@ -1,45 +1,40 @@
-function DetectedTrackersCard({ trackers }) {
+import GlassCard from "../ui/GlassCard"
+
+function DetectedTrackersCard({ trackers = [] }) {
 
   return (
 
-    <div
-      className="
-        rounded-2xl
-        border border-white/5
-        bg-[#2a2a2d]
-        p-5
-      "
-    >
+    <GlassCard>
 
-      {/* Header */}
       <div className="flex items-center justify-between">
 
         <div>
 
-          <h2 className="text-base font-semibold text-white">
+          <h2 className="text-xl font-semibold text-white">
             Detected Trackers
           </h2>
 
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-sm text-gray-400 mt-1">
             Live website analysis
           </p>
 
         </div>
 
-        {/* Counter */}
         <div
           className="
-            bg-[#3b3b40]
-            rounded-xl
-            px-4
-            py-2
+            min-w-[52px]
+            h-[52px]
+            rounded-2xl
+            bg-[#2a2b35]
+            flex
+            items-center
+            justify-center
+            text-white
+            text-2xl
+            font-semibold
           "
         >
-
-          <span className="text-white font-semibold text-lg">
-            {trackers.length}
-          </span>
-
+          {trackers.length}
         </div>
 
       </div>
@@ -51,18 +46,16 @@ function DetectedTrackersCard({ trackers }) {
 
           <div
             className="
-              rounded-xl
+              bg-[#15161d]
               border border-white/5
-              bg-[#1f1f22]
+              rounded-2xl
               px-4
-              py-3
+              py-4
+              text-gray-400
+              text-sm
             "
           >
-
-            <p className="text-gray-400 text-sm">
-              No trackers detected
-            </p>
-
+            No trackers detected
           </div>
 
         ) : (
@@ -75,29 +68,39 @@ function DetectedTrackersCard({ trackers }) {
                 flex
                 items-center
                 justify-between
-                rounded-xl
+                bg-[#15161d]
                 border border-white/5
-                bg-[#1f1f22]
+                rounded-2xl
                 px-4
                 py-3
               "
             >
 
-              {/* Tracker Name */}
-              <span className="text-white text-sm">
-                {tracker}
-              </span>
+              <div>
 
-              {/* Status */}
-              <span
+                <p className="text-white text-sm font-medium">
+                  {tracker}
+                </p>
+
+                <p className="text-xs text-gray-500 mt-1">
+                  Tracking script detected
+                </p>
+
+              </div>
+
+              <div
                 className="
+                  px-3
+                  py-1
+                  rounded-full
+                  bg-red-500/10
+                  text-red-400
                   text-xs
-                  text-[#7c5cff]
-                  font-medium
+                  border border-red-500/20
                 "
               >
-                Active
-              </span>
+                blocked
+              </div>
 
             </div>
 
@@ -107,10 +110,8 @@ function DetectedTrackersCard({ trackers }) {
 
       </div>
 
-    </div>
-
+    </GlassCard>
   )
-
 }
 
 export default DetectedTrackersCard

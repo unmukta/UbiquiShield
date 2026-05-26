@@ -1,21 +1,24 @@
 function GlassCard({ children, className = "" }) {
+
   return (
+
     <div
       className={`
-        bg-white/5
-        backdrop-blur-xl
-        border border-cyan-500/20
-        rounded-2xl
-        shadow-[0_0_25px_rgba(0,191,255,0.15)]
+        bg-[#1b1b23]
+        border border-white/5
+        rounded-[28px]
         p-6
+        shadow-lg
         transition-all
         duration-300
-        hover:border-cyan-400/40
-        hover:shadow-[0_0_35px_rgba(0,191,255,0.25)]
+        hover:border-white/10
+        hover:bg-[#20202a]
         ${className}
       `}
     >
+
       {children}
+
     </div>
   )
 }
