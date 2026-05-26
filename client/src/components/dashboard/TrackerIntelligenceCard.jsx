@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import GlassCard from "../ui/GlassCard"
 
 function TrackerIntelligenceCard() {
 
@@ -7,66 +6,107 @@ function TrackerIntelligenceCard() {
 
   useEffect(() => {
 
-    if (
-      typeof chrome !== "undefined" &&
-      chrome.storage &&
-      chrome.storage.local
-    ) {
+    function loadTrackers() {
 
-      chrome.storage.local.get(
-        ["detectedTrackers"],
-        (result) => {
+      if (
+        typeof chrome !== "undefined" &&
+        chrome.storage &&
+        chrome.storage.local
+      ) {
 
-          if (result.detectedTrackers) {
-            setTrackers(result.detectedTrackers)
+        chrome.storage.local.get(
+          ["trackers"],
+          (result) => {
+
+            if (result.trackers) {
+              setTrackers(result.trackers)
+            } else {
+              setTrackers([])
+            }
+
           }
+        )
 
-        }
-      )
+      }
 
     }
+
+    // Initial load
+    loadTrackers()
+
+    // Live updates
+    const interval = setInterval(() => {
+      loadTrackers()
+    }, 1000)
+
+    return () => clearInterval(interval)
 
   }, [])
 
   return (
-    <GlassCard>
 
+    <div
+      className="
+        rounded-2xl
+        border border-white/5
+        bg-[#2a2a2d]
+        p-5
+      "
+    >
+
+      {/* Header */}
       <div className="flex items-center justify-between">
 
         <div>
-          <h2 className="text-2xl font-bold text-cyan-300">
+
+          <h2 className="text-base font-semibold text-white">
             Tracker Intelligence
           </h2>
 
-          <p className="text-gray-400 mt-2">
-            Real-time tracker detection
+          <p className="text-gray-400 text-sm mt-1">
+            Real-time tracker analysis
           </p>
+
         </div>
 
+        {/* Counter */}
         <div
           className="
-            px-5
-            py-3
+            bg-[#3b3b40]
             rounded-xl
-            border
-            border-cyan-500/20
-            bg-cyan-500/10
+            px-4
+            py-2
           "
         >
-          <span className="text-cyan-300 font-bold text-2xl">
+
+          <span className="text-white font-semibold text-lg">
             {trackers.length}
           </span>
+
         </div>
 
       </div>
 
-      <div className="mt-8 space-y-4">
+      {/* Tracker List */}
+      <div className="mt-5 space-y-3">
 
         {trackers.length === 0 ? (
 
-          <p className="text-gray-400">
-            No trackers detected.
-          </p>
+          <div
+            className="
+              rounded-xl
+              border border-white/5
+              bg-[#1f1f22]
+              px-4
+              py-3
+            "
+          >
+
+            <p className="text-gray-400 text-sm">
+              No trackers detected
+            </p>
+
+          </div>
 
         ) : (
 
@@ -78,18 +118,28 @@ function TrackerIntelligenceCard() {
                 flex
                 items-center
                 justify-between
-                border-b
-                border-white/5
-                pb-3
+                rounded-xl
+                border border-white/5
+                bg-[#1f1f22]
+                px-4
+                py-3
               "
             >
-              <span className="text-gray-300">
+
+              <span className="text-white text-sm">
                 {tracker}
               </span>
 
-              <span className="text-red-400 text-sm">
-                detected
+              <span
+                className="
+                  text-xs
+                  text-[#7c5cff]
+                  font-medium
+                "
+              >
+                Active
               </span>
+
             </div>
 
           ))
@@ -98,8 +148,10 @@ function TrackerIntelligenceCard() {
 
       </div>
 
-    </GlassCard>
+    </div>
+
   )
+
 }
 
 export default TrackerIntelligenceCard

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 
-import AnimatedBackground from "./components/animations/AnimatedBackground"
 import WebsiteStatusCard from "./components/dashboard/WebsiteStatusCard"
 import TrackerIntelligenceCard from "./components/dashboard/TrackerIntelligenceCard"
 import ProtectionStatusCard from "./components/dashboard/ProtectionStatusCard"
@@ -42,18 +41,18 @@ function App() {
 
   return (
     <>
-      <AnimatedBackground />
+      
 
       <div className="min-h-screen flex items-center justify-center p-6">
 
         <div
           className="
             w-[380px]
-            rounded-3xl
+            rounded-2xl
             border border-white/10
-            bg-[#0d1117]/95
+            bg-[#1c1c1e]
             backdrop-blur-xl
-            shadow-2xl
+            shadow-lg
             overflow-hidden
           "
         >

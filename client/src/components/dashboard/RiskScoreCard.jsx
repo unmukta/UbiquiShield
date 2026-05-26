@@ -5,19 +5,24 @@ function RiskScoreCard({ trackers }) {
   // Tracker-based scoring
   riskScore += trackers.length * 15
 
+  // Maximum limit
+  if (riskScore > 100) {
+    riskScore = 100
+  }
+
   // Risk level
-  let riskLevel = "SAFE"
+  let riskLevel = "Safe"
 
   if (riskScore >= 30) {
-    riskLevel = "LOW RISK"
+    riskLevel = "Low Risk"
   }
 
   if (riskScore >= 60) {
-    riskLevel = "SUSPICIOUS"
+    riskLevel = "Suspicious"
   }
 
   if (riskScore >= 90) {
-    riskLevel = "DANGEROUS"
+    riskLevel = "Dangerous"
   }
 
   return (
@@ -25,17 +30,18 @@ function RiskScoreCard({ trackers }) {
     <div
       className="
         rounded-2xl
-        border border-cyan-500/20
-        bg-[#131a24]
+        border border-white/5
+        bg-[#2a2a2d]
         p-5
       "
     >
 
+      {/* Header */}
       <div className="flex items-center justify-between">
 
         <div>
 
-          <h2 className="text-cyan-300 text-2xl font-bold">
+          <h2 className="text-base font-semibold text-white">
             Risk Intelligence
           </h2>
 
@@ -45,42 +51,54 @@ function RiskScoreCard({ trackers }) {
 
         </div>
 
+        {/* Score Box */}
         <div
           className="
-            w-16
-            h-16
+            w-14
+            h-14
             rounded-2xl
-            border border-cyan-500/20
-            flex items-center justify-center
-            text-cyan-300
-            text-2xl
-            font-bold
+            bg-[#3b3b40]
+            flex
+            items-center
+            justify-center
           "
         >
-          {riskScore}
+
+          <span className="text-white text-lg font-semibold">
+            {riskScore}
+          </span>
+
         </div>
 
       </div>
 
+      {/* Threat Level */}
       <div className="mt-5">
 
-        <div className="flex justify-between mb-2">
+        <div className="flex items-center justify-between mb-2">
 
-          <span className="text-gray-400">
+          <span className="text-gray-400 text-sm">
             Threat Level
           </span>
 
-          <span className="text-cyan-300 font-semibold">
+          <span
+            className="
+              text-[#7c5cff]
+              text-sm
+              font-medium
+            "
+          >
             {riskLevel}
           </span>
 
         </div>
 
+        {/* Progress Bar */}
         <div
           className="
-            h-3
+            h-2.5
             rounded-full
-            bg-white/5
+            bg-[#1f1f22]
             overflow-hidden
           "
         >
@@ -88,15 +106,35 @@ function RiskScoreCard({ trackers }) {
           <div
             className="
               h-full
-              bg-cyan-400
+              bg-[#7c5cff]
               rounded-full
+              transition-all
             "
             style={{
-              width: `${Math.min(riskScore, 100)}%`
+              width: `${riskScore}%`
             }}
           />
 
         </div>
+
+      </div>
+
+      {/* Footer */}
+      <div
+        className="
+          mt-5
+          rounded-xl
+          border border-white/5
+          bg-[#1f1f22]
+          px-4
+          py-3
+        "
+      >
+
+        <p className="text-gray-400 text-sm leading-relaxed">
+          Risk score is calculated using detected trackers
+          and website telemetry indicators.
+        </p>
 
       </div>
 
