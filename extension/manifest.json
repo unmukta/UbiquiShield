@@ -1,33 +1,49 @@
 {
   "manifest_version": 3,
+
   "name": "Ubiqui_Shield",
-  "version": "1.0.0",
-  "description": "Browser privacy and threat protection extension.",
+
+  "version": "1.0",
+
+  "description": "Browser security and privacy protection extension",
 
   "permissions": [
     "tabs",
     "activeTab",
-    "storage",
-    "scripting"
+    "storage"
   ],
 
   "host_permissions": [
     "<all_urls>"
   ],
 
-  "background": {
-    "service_worker": "background.js"
+  "action": {
+    "default_popup": "index.html",
+
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
   },
 
-  "action": {
-    "default_title": "Ubiqui_Shield",
-    "default_popup": "popup.html"
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "background": {
+    "service_worker": "background.js"
   },
 
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": ["content.js"],
+      "run_at": "document_idle"
     }
   ]
 }

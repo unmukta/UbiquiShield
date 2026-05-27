@@ -1,42 +1,82 @@
-const knownTrackers = [
-  "google-analytics",
-  "googletagmanager",
-  "doubleclick",
-  "facebook",
-  "hotjar",
-  "mixpanel",
-  "segment",
-  "analytics",
-  "tracker",
-  "ads"
-]
+console.log("Ubiqui_Shield content script active")
 
-const detectedTrackers = []
+function scanTrackers() {
 
-// Scan all scripts
-const scripts = document.querySelectorAll("script")
+  const detectedTrackers = []
 
-scripts.forEach((script) => {
+  document.querySelectorAll("script").forEach((script) => {
 
-  const src = (script.src || "").toLowerCase()
+    const src = (script.src || "").toLowerCase()
 
-  for (const tracker of knownTrackers) {
+    console.log("SCRIPT:", src)
 
-    if (src.includes(tracker)) {
-
-      if (!detectedTrackers.includes(tracker)) {
-        detectedTrackers.push(tracker)
-      }
-
+    // Google Analytics
+    if (
+      src.includes("google-analytics") ||
+      src.includes("googletagmanager") ||
+      src.includes("gtag")
+    ) {
+      detectedTrackers.push("Google Analytics")
     }
 
-  }
+    // DoubleClick
+    if (
+      src.includes("doubleclick")
+    ) {
+      detectedTrackers.push("DoubleClick")
+    }
+
+    // Facebook
+    if (
+      src.includes("facebook") ||
+      src.includes("connect.facebook.net")
+    ) {
+      detectedTrackers.push("Facebook Tracker")
+    }
+
+    // Hotjar
+    if (
+      src.includes("hotjar")
+    ) {
+      detectedTrackers.push("Hotjar")
+    }
+
+    // TikTok
+    if (
+      src.includes("tiktok")
+    ) {
+      detectedTrackers.push("TikTok Pixel")
+    }
+
+  })
+
+  // Remove duplicates
+  const uniqueTrackers = [...new Set(detectedTrackers)]
+
+  console.log("TRACKERS FOUND:", uniqueTrackers)
+
+  // Save locally
+  chrome.storage.local.set({
+    detectedTrackers: uniqueTrackers
+  })
+
+  // Send live update
+  chrome.runtime.sendMessage({
+    type: "TRACKERS_UPDATED",
+    trackers: uniqueTrackers
+  })
+
+}
+
+// Wait for page load
+window.addEventListener("load", () => {
+
+  console.log("PAGE LOADED — scanning")
+
+  setTimeout(() => {
+
+    scanTrackers()
+
+  }, 3000)
 
 })
-
-// Save trackers
-chrome.storage.local.set({
-  trackers: detectedTrackers
-})
-
-console.log("Detected trackers:", detectedTrackers)

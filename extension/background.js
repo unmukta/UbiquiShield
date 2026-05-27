@@ -1,56 +1,29 @@
-const knownTrackers = [
-  "google-analytics",
-  "doubleclick",
-  "facebook",
-  "hotjar",
-  "segment",
-  "mixpanel",
-  "adsystem",
-  "tracker"
-]
+console.log("Ubiqui_Shield background active")
 
-chrome.webRequest.onBeforeRequest.addListener(
-  (details) => {
+chrome.runtime.onInstalled.addListener(() => {
 
-    const url = details.url.toLowerCase()
+  console.log("Ubiqui_Shield installed")
 
-    let detected = null
+})
 
-    for (const tracker of knownTrackers) {
+chrome.runtime.onMessage.addListener(
 
-      if (url.includes(tracker)) {
-        detected = tracker
-        break
-      }
+  (message, sender, sendResponse) => {
 
-    }
+    // Live tracker updates
+    if (message.type === "TRACKERS_UPDATED") {
 
-    if (detected) {
-
-      chrome.storage.local.get(
-        ["trackers"],
-        (result) => {
-
-          let trackers = result.trackers || []
-
-          // Prevent duplicates
-          if (!trackers.includes(detected)) {
-            trackers.push(detected)
-          }
-
-          chrome.storage.local.set({
-            trackers: trackers
-          })
-
-          console.log("Tracker detected:", detected)
-
-        }
+      console.log(
+        "LIVE TRACKERS:",
+        message.trackers
       )
 
+      chrome.storage.local.set({
+        detectedTrackers: message.trackers
+      })
+
     }
 
-  },
-  {
-    urls: ["<all_urls>"]
   }
+
 )
