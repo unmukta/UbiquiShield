@@ -1,17 +1,21 @@
 import { useEffect, useState } from "react"
 
-import WebsiteStatusCard from "./components/dashboard/WebsiteStatusCard"
-import TrackerIntelligenceCard from "./components/dashboard/TrackerIntelligenceCard"
 import ProtectionStatusCard from "./components/dashboard/ProtectionStatusCard"
 import DetectedTrackersCard from "./components/dashboard/DetectedTrackersCard"
-import RiskScoreCard from "./components/dashboard/RiskScoreCard"
 
 function App() {
 
-  const [trackers, setTrackers] = useState([])
+  const [trackers, setTrackers] =
+    useState([])
 
   const [blockedCount, setBlockedCount] =
     useState(0)
+
+  const [website, setWebsite] =
+    useState("Loading...")
+
+  const [shieldsEnabled, setShieldsEnabled] =
+    useState(true)
 
   useEffect(() => {
 
@@ -22,6 +26,47 @@ function App() {
     ) {
       return
     }
+
+    // Load active website
+    chrome.tabs.query(
+      {
+        active: true,
+        currentWindow: true
+      },
+      (tabs) => {
+
+        if (
+          tabs &&
+          tabs[0] &&
+          tabs[0].url
+        ) {
+
+          try {
+
+            const url =
+              new URL(
+                tabs[0].url
+              )
+
+            setWebsite(
+              url.hostname.replace(
+                "www.",
+                ""
+              )
+            )
+
+          } catch {
+
+            setWebsite(
+              "Unknown"
+            )
+
+          }
+
+        }
+
+      }
+    )
 
     // Load trackers
     chrome.storage.local.get(
@@ -47,6 +92,22 @@ function App() {
         setBlockedCount(
           result.blockedCount || 0
         )
+
+      }
+    )
+
+    // Load shields state
+    chrome.storage.local.get(
+      ["shieldsEnabled"],
+      (result) => {
+
+        if (
+          result.shieldsEnabled === false
+        ) {
+
+          setShieldsEnabled(false)
+
+        }
 
       }
     )
@@ -81,6 +142,18 @@ function App() {
 
       }
 
+      // Shields toggle
+      if (
+        area === "local" &&
+        changes.shieldsEnabled
+      ) {
+
+        setShieldsEnabled(
+          changes.shieldsEnabled.newValue
+        )
+
+      }
+
     }
 
     chrome.storage.onChanged.addListener(
@@ -103,7 +176,7 @@ function App() {
     <div
       className="
         w-[400px]
-        min-h-[600px]
+        min-h-[520px]
         bg-[#0f1014]
         p-3
         overflow-x-hidden
@@ -125,63 +198,111 @@ function App() {
         <div
           className="
             px-5
-            py-4
-            border-b
-            border-[#23252d]
+            py-5
           "
         >
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-start justify-between">
 
-            <div>
+            {/* Left */}
+            <div className="flex items-start gap-3">
 
-              <h1
+              {/* Logo */}
+              <div
                 className="
-                  text-[18px]
-                  font-semibold
-                  text-white
-                  tracking-tight
+                  w-10
+                  h-10
+                  rounded-xl
+                  bg-[#1b1c25]
+                  flex
+                  items-center
+                  justify-center
+                  overflow-hidden
                 "
               >
-                Ubiqui_Shield
-              </h1>
 
-              <p
-                className="
-                  text-sm
-                  text-gray-400
-                  mt-1
-                "
-              >
-                {blockedCount} trackers blocked
-              </p>
+                <img
+                  src="/icons/icon48.png"
+                  alt="logo"
+                  className="w-6 h-6"
+                />
+
+              </div>
+
+              {/* Website */}
+              <div>
+
+                <h1
+                  className="
+                    text-[18px]
+                    font-semibold
+                    text-white
+                    tracking-tight
+                  "
+                >
+                  {website}
+                </h1>
+
+                <p
+                  className="
+                    text-sm
+                    text-gray-400
+                    mt-1
+                  "
+                >
+                  Shields up for this site
+                </p>
+
+              </div>
 
             </div>
 
-            {/* Toggle */}
+            {/* Real Toggle */}
             <div
-              className="
-                w-12
-                h-7
+              onClick={() => {
+
+                const newValue =
+                  !shieldsEnabled
+
+                setShieldsEnabled(
+                  newValue
+                )
+
+                chrome.storage.local.set({
+                  shieldsEnabled: newValue
+                })
+
+              }}
+              className={`
+                w-14
+                h-8
                 rounded-full
-                bg-[#4f46e5]
                 relative
                 cursor-pointer
                 transition-all
-                flex
-                items-center
-              "
+                ${
+                  shieldsEnabled
+                    ? "bg-[#4f46e5]"
+                    : "bg-[#2a2b35]"
+                }
+              `}
             >
 
               <div
-                className="
+                className={`
                   absolute
-                  right-1
-                  w-5
-                  h-5
+                  top-1
+                  w-6
+                  h-6
                   rounded-full
                   bg-white
-                "
+                  transition-all
+                  ${
+                    shieldsEnabled
+                      ? "right-1"
+                      : "left-1"
+                  }
+                `}
               />
 
             </div>
@@ -190,46 +311,78 @@ function App() {
 
         </div>
 
-        {/* Content */}
+        {/* Block Counter */}
+        <div className="px-4">
+
+          <div
+            className="
+              bg-[#16171f]
+              rounded-2xl
+              border border-[#23252d]
+              px-5
+              py-6
+              text-center
+            "
+          >
+
+            <div
+              className="
+                text-5xl
+                font-semibold
+                text-white
+              "
+            >
+              {blockedCount}
+            </div>
+
+            <p
+              className="
+                text-gray-300
+                text-sm
+                mt-2
+              "
+            >
+              trackers, ads, and more blocked
+            </p>
+
+          </div>
+
+        </div>
+
+        {/* Body */}
         <div className="p-4 space-y-4">
 
-          {/* Website Status */}
-          <WebsiteStatusCard />
-
-          {/* Tracker Intelligence */}
-          <TrackerIntelligenceCard
-            trackers={trackers}
-          />
-
-          {/* Detected Trackers */}
+          {/* Compact Tracker List */}
           <DetectedTrackersCard
             trackers={trackers}
           />
 
-          {/* Risk Intelligence */}
-          <RiskScoreCard
-            trackers={trackers}
-          />
-
-          {/* Protection Status */}
+          {/* Protection Settings */}
           <ProtectionStatusCard />
 
-          {/* Footer Button */}
-          <button
+        </div>
+
+        {/* Footer */}
+        <div
+          className="
+            border-t
+            border-[#23252d]
+            px-5
+            py-4
+            text-center
+          "
+        >
+
+          <p
             className="
-              w-full
-              py-3
-              rounded-2xl
-              bg-[#1a1b22]
-              border border-[#2a2c35]
-              text-sm
-              text-gray-200
-              hover:bg-[#23242d]
-              transition-all
+              text-xs
+              text-gray-500
+              leading-relaxed
             "
           >
-            Open Protection Settings
-          </button>
+            If this site seems broken,
+            try Shields down.
+          </p>
 
         </div>
 
