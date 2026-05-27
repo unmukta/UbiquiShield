@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react"
 
 import ProtectionStatusCard from "./components/dashboard/ProtectionStatusCard"
-import DetectedTrackersCard from "./components/dashboard/DetectedTrackersCard"
+import PrivacyRelayCard from "./components/dashboard/PrivacyRelayCard"
 
 function App() {
-
-  const [trackers, setTrackers] =
-    useState([])
 
   const [blockedCount, setBlockedCount] =
     useState(0)
@@ -14,7 +11,13 @@ function App() {
   const [website, setWebsite] =
     useState("Loading...")
 
+  const [favicon, setFavicon] =
+    useState("")
+
   const [shieldsEnabled, setShieldsEnabled] =
+    useState(true)
+
+  const [relayEnabled, setRelayEnabled] =
     useState(true)
 
   useEffect(() => {
@@ -48,11 +51,17 @@ function App() {
                 tabs[0].url
               )
 
-            setWebsite(
+            const hostname =
               url.hostname.replace(
                 "www.",
                 ""
               )
+
+            setWebsite(hostname)
+
+            // Dynamic favicon
+            setFavicon(
+              `https://www.google.com/s2/favicons?domain=${hostname}&sz=64`
             )
 
           } catch {
@@ -62,22 +71,6 @@ function App() {
             )
 
           }
-
-        }
-
-      }
-    )
-
-    // Load trackers
-    chrome.storage.local.get(
-      ["detectedTrackers"],
-      (result) => {
-
-        if (result.detectedTrackers) {
-
-          setTrackers(
-            result.detectedTrackers
-          )
 
         }
 
@@ -117,18 +110,6 @@ function App() {
       changes,
       area
     ) => {
-
-      // Trackers
-      if (
-        area === "local" &&
-        changes.detectedTrackers
-      ) {
-
-        setTrackers(
-          changes.detectedTrackers.newValue || []
-        )
-
-      }
 
       // Blocked count
       if (
@@ -176,7 +157,7 @@ function App() {
     <div
       className="
         w-[400px]
-        min-h-[520px]
+        min-h-[620px]
         bg-[#0f1014]
         p-3
         overflow-x-hidden
@@ -188,7 +169,7 @@ function App() {
         className="
           w-full
           bg-[#111217]
-          rounded-[28px]
+          rounded-[32px]
           border border-[#23252d]
           overflow-hidden
         "
@@ -207,7 +188,7 @@ function App() {
             {/* Left */}
             <div className="flex items-start gap-3">
 
-              {/* Logo */}
+              {/* Dynamic Website Icon */}
               <div
                 className="
                   w-10
@@ -222,9 +203,16 @@ function App() {
               >
 
                 <img
-                  src="/icons/icon48.png"
-                  alt="logo"
-                  className="w-6 h-6"
+                  src={
+                    favicon ||
+                    "/icons/icon48.png"
+                  }
+                  alt="favicon"
+                  className="
+                    w-6
+                    h-6
+                    rounded-md
+                  "
                 />
 
               </div>
@@ -257,7 +245,7 @@ function App() {
 
             </div>
 
-            {/* Real Toggle */}
+            {/* Shields Toggle */}
             <div
               onClick={() => {
 
@@ -282,7 +270,7 @@ function App() {
                 transition-all
                 ${
                   shieldsEnabled
-                    ? "bg-[#4f46e5]"
+                    ? "bg-[#5b4dff]"
                     : "bg-[#2a2b35]"
                 }
               `}
@@ -317,7 +305,7 @@ function App() {
           <div
             className="
               bg-[#16171f]
-              rounded-2xl
+              rounded-3xl
               border border-[#23252d]
               px-5
               py-6
@@ -349,15 +337,24 @@ function App() {
 
         </div>
 
-        {/* Body */}
-        <div className="p-4 space-y-4">
+        {/* Privacy Relay Hero */}
+        <div className="px-4 mt-4">
 
-          {/* Compact Tracker List */}
-          <DetectedTrackersCard
-            trackers={trackers}
+          <PrivacyRelayCard
+
+            relayEnabled={relayEnabled}
+
+            setRelayEnabled={
+              setRelayEnabled
+            }
+
           />
 
-          {/* Protection Settings */}
+        </div>
+
+        {/* Protection Settings */}
+        <div className="p-4">
+
           <ProtectionStatusCard />
 
         </div>
@@ -380,8 +377,8 @@ function App() {
               leading-relaxed
             "
           >
-            If this site seems broken,
-            try Shields down.
+            Your privacy is protected by
+            Ubiqui_Shield Relay.
           </p>
 
         </div>
