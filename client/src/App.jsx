@@ -213,6 +213,12 @@ function App() {
                     h-6
                     rounded-md
                   "
+                  onError={(e) => {
+
+                    e.currentTarget.src =
+                      "/icons/icon48.png"
+
+                  }}
                 />
 
               </div>
@@ -337,7 +343,7 @@ function App() {
 
         </div>
 
-        {/* Privacy Relay Hero */}
+        {/* Privacy Relay */}
         <div className="px-4 mt-4">
 
           <PrivacyRelayCard
