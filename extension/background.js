@@ -1,29 +1,40 @@
-console.log("Ubiqui_Shield background active")
+console.log(
+  "Ubiqui_Shield background active"
+)
 
+// Install
 chrome.runtime.onInstalled.addListener(() => {
 
-  console.log("Ubiqui_Shield installed")
+  console.log(
+    "Ubiqui_Shield installed"
+  )
 
 })
 
-chrome.runtime.onMessage.addListener(
+// Track blocked requests
+chrome.declarativeNetRequest.onRuleMatchedDebug
+  .addListener((info) => {
 
-  (message, sender, sendResponse) => {
+    chrome.storage.local.get(
+      ["blockedCount"],
+      (result) => {
 
-    // Live tracker updates
-    if (message.type === "TRACKERS_UPDATED") {
+        const current =
+          result.blockedCount || 0
 
-      console.log(
-        "LIVE TRACKERS:",
-        message.trackers
-      )
+        chrome.storage.local.set({
 
-      chrome.storage.local.set({
-        detectedTrackers: message.trackers
-      })
+          blockedCount:
+            current + 1
 
-    }
+        })
 
-  }
+      }
+    )
 
-)
+    console.log(
+      "BLOCKED:",
+      info
+    )
+
+  })

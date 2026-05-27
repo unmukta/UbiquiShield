@@ -10,6 +10,9 @@ function App() {
 
   const [trackers, setTrackers] = useState([])
 
+  const [blockedCount, setBlockedCount] =
+    useState(0)
+
   useEffect(() => {
 
     // Extension safety check
@@ -20,7 +23,7 @@ function App() {
       return
     }
 
-    // Initial tracker load
+    // Load trackers
     chrome.storage.local.get(
       ["detectedTrackers"],
       (result) => {
@@ -36,12 +39,25 @@ function App() {
       }
     )
 
-    // Live tracker updates
+    // Load blocked count
+    chrome.storage.local.get(
+      ["blockedCount"],
+      (result) => {
+
+        setBlockedCount(
+          result.blockedCount || 0
+        )
+
+      }
+    )
+
+    // Live updates
     const listener = (
       changes,
       area
     ) => {
 
+      // Trackers
       if (
         area === "local" &&
         changes.detectedTrackers
@@ -49,6 +65,18 @@ function App() {
 
         setTrackers(
           changes.detectedTrackers.newValue || []
+        )
+
+      }
+
+      // Blocked count
+      if (
+        area === "local" &&
+        changes.blockedCount
+      ) {
+
+        setBlockedCount(
+          changes.blockedCount.newValue || 0
         )
 
       }
@@ -125,12 +153,12 @@ function App() {
                   mt-1
                 "
               >
-                Shields up for this site
+                {blockedCount} trackers blocked
               </p>
 
             </div>
 
-            {/* Brave Style Toggle */}
+            {/* Toggle */}
             <div
               className="
                 w-12

@@ -1,14 +1,17 @@
-console.log("Ubiqui_Shield content script active")
+console.log(
+  "Ubiqui_Shield content script active"
+)
 
-function scanTrackers() {
+const detectedTrackers = []
 
-  const detectedTrackers = []
+// ALL scripts
+document
+  .querySelectorAll("script")
+  .forEach((script) => {
 
-  document.querySelectorAll("script").forEach((script) => {
-
-    const src = (script.src || "").toLowerCase()
-
-    console.log("SCRIPT:", src)
+    const src = (
+      script.src || ""
+    ).toLowerCase()
 
     // Google Analytics
     if (
@@ -16,14 +19,22 @@ function scanTrackers() {
       src.includes("googletagmanager") ||
       src.includes("gtag")
     ) {
-      detectedTrackers.push("Google Analytics")
+
+      detectedTrackers.push(
+        "Google Analytics"
+      )
+
     }
 
     // DoubleClick
     if (
       src.includes("doubleclick")
     ) {
-      detectedTrackers.push("DoubleClick")
+
+      detectedTrackers.push(
+        "DoubleClick"
+      )
+
     }
 
     // Facebook
@@ -31,52 +42,40 @@ function scanTrackers() {
       src.includes("facebook") ||
       src.includes("connect.facebook.net")
     ) {
-      detectedTrackers.push("Facebook Tracker")
+
+      detectedTrackers.push(
+        "Facebook Tracker"
+      )
+
     }
 
     // Hotjar
     if (
       src.includes("hotjar")
     ) {
-      detectedTrackers.push("Hotjar")
-    }
 
-    // TikTok
-    if (
-      src.includes("tiktok")
-    ) {
-      detectedTrackers.push("TikTok Pixel")
+      detectedTrackers.push(
+        "Hotjar"
+      )
+
     }
 
   })
 
-  // Remove duplicates
-  const uniqueTrackers = [...new Set(detectedTrackers)]
+// Remove duplicates
+const uniqueTrackers = [
+  ...new Set(detectedTrackers)
+]
 
-  console.log("TRACKERS FOUND:", uniqueTrackers)
+// Save
+chrome.storage.local.set({
 
-  // Save locally
-  chrome.storage.local.set({
-    detectedTrackers: uniqueTrackers
-  })
-
-  // Send live update
-  chrome.runtime.sendMessage({
-    type: "TRACKERS_UPDATED",
-    trackers: uniqueTrackers
-  })
-
-}
-
-// Wait for page load
-window.addEventListener("load", () => {
-
-  console.log("PAGE LOADED — scanning")
-
-  setTimeout(() => {
-
-    scanTrackers()
-
-  }, 3000)
+  detectedTrackers:
+    uniqueTrackers
 
 })
+
+console.log(
+  "TRACKERS:",
+  uniqueTrackers
+)
