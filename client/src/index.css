@@ -9,14 +9,12 @@ body,
   width: 400px;
   min-width: 400px;
 
-  min-height: 600px;
-
   margin: 0;
   padding: 0;
 
-  overflow-x: hidden;
+  overflow: hidden;
 
-  background: #0f1014;
+  background: transparent;
 
   font-family:
     Inter,
@@ -27,6 +25,41 @@ body,
 
 }
 
+body {
+
+  display: inline-block;
+
+  background: transparent;
+
+}
+
+/* Better sizing */
+
 * {
+
   box-sizing: border-box;
+
+}
+
+/* Remove Scrollbars */
+
+::-webkit-scrollbar {
+
+  width: 0;
+  height: 0;
+
+}
+
+::-webkit-scrollbar-thumb {
+
+  background: transparent;
+
+}
+
+/* Remove default popup spacing */
+
+html {
+
+  overflow: hidden;
+
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 
-import ProtectionStatusCard from "./components/dashboard/ProtectionStatusCard"
 import PrivacyRelayCard from "./components/dashboard/PrivacyRelayCard"
+import AdvancedOptions from "./components/dashboard/AdvancedOptions"
 
 function App() {
 
@@ -59,9 +59,9 @@ function App() {
 
             setWebsite(hostname)
 
-            // Dynamic favicon
+            // Better favicon system
             setFavicon(
-              `https://www.google.com/s2/favicons?domain=${hostname}&sz=64`
+              `https://${hostname}/favicon.ico`
             )
 
           } catch {
@@ -157,10 +157,7 @@ function App() {
     <div
       className="
         w-[400px]
-        min-h-[620px]
-        bg-[#0f1014]
-        p-3
-        overflow-x-hidden
+        bg-transparent
       "
     >
 
@@ -168,9 +165,9 @@ function App() {
       <div
         className="
           w-full
-          bg-[#111217]
-          rounded-[32px]
-          border border-[#23252d]
+          bg-[#0f1014]
+          rounded-[22px]
+          border border-[#1c1d25]
           overflow-hidden
         "
       >
@@ -179,7 +176,8 @@ function App() {
         <div
           className="
             px-5
-            py-5
+            pt-5
+            pb-4
           "
         >
 
@@ -199,6 +197,7 @@ function App() {
                   items-center
                   justify-center
                   overflow-hidden
+                  flex-shrink-0
                 "
               >
 
@@ -232,6 +231,7 @@ function App() {
                     font-semibold
                     text-white
                     tracking-tight
+                    leading-none
                   "
                 >
                   {website}
@@ -241,7 +241,7 @@ function App() {
                   className="
                     text-sm
                     text-gray-400
-                    mt-1
+                    mt-2
                   "
                 >
                   Shields up for this site
@@ -274,6 +274,7 @@ function App() {
                 relative
                 cursor-pointer
                 transition-all
+                flex-shrink-0
                 ${
                   shieldsEnabled
                     ? "bg-[#5b4dff]"
@@ -311,7 +312,7 @@ function App() {
           <div
             className="
               bg-[#16171f]
-              rounded-3xl
+              rounded-[26px]
               border border-[#23252d]
               px-5
               py-6
@@ -321,7 +322,8 @@ function App() {
 
             <div
               className="
-                text-5xl
+                text-[56px]
+                leading-none
                 font-semibold
                 text-white
               "
@@ -333,7 +335,7 @@ function App() {
               className="
                 text-gray-300
                 text-sm
-                mt-2
+                mt-3
               "
             >
               trackers, ads, and more blocked
@@ -358,10 +360,10 @@ function App() {
 
         </div>
 
-        {/* Protection Settings */}
-        <div className="p-4">
+        {/* Advanced Options */}
+        <div className="px-4 mt-4">
 
-          <ProtectionStatusCard />
+          <AdvancedOptions />
 
         </div>
 
@@ -369,7 +371,8 @@ function App() {
         <div
           className="
             border-t
-            border-[#23252d]
+            border-[#1c1d25]
+            mt-4
             px-5
             py-4
             text-center
