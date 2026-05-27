@@ -132,16 +132,27 @@ Error generating stack: `+u.message+`
           justify-between\r
           px-5\r
           py-4\r
+          transition-colors\r
+          duration-200\r
+          hover:bg-[#141620]\r
         `,children:[C.jsxs("div",{className:"flex items-center gap-3",children:[C.jsx(Ki,{size:18,className:`\r
               text-gray-300\r
             `}),C.jsx("span",{className:`\r
               text-white\r
               text-[16px]\r
+              font-medium\r
             `,children:"Advanced options"})]}),C.jsx(ic,{size:18,className:`
             text-gray-400
             transition-transform
+            duration-300
             ${e?"rotate-180":""}
-          `})]}),e&&C.jsx("div",{className:`\r
+          `})]}),C.jsx("div",{className:`
+          overflow-hidden
+          transition-all
+          duration-300
+          ease-in-out
+          ${e?"max-h-[500px] opacity-100":"max-h-0 opacity-0"}
+        `,children:C.jsx("div",{className:`\r
             border-t\r
             border-[#23252d]\r
             px-5\r
@@ -172,11 +183,16 @@ Error generating stack: `+u.message+`
                 Block third-party cookies\r
               `,right:`\r
                 Cross-site\r
-              `,dropdown:!0})]})})]})}function Kl({icon:e,label:t,right:n,dropdown:r}){return C.jsxs("div",{className:`\r
+              `,dropdown:!0})]})})})]})}function Kl({icon:e,label:t,right:n,dropdown:r}){return C.jsxs("div",{className:`\r
         flex\r
         items-center\r
         justify-between\r
         py-3\r
+        px-2\r
+        rounded-xl\r
+        transition-colors\r
+        duration-200\r
+        hover:bg-[#171922]\r
       `,children:[C.jsxs("div",{className:"flex items-center gap-3",children:[e,C.jsx("span",{className:`\r
             text-white\r
             text-[15px]\r
@@ -190,6 +206,11 @@ Error generating stack: `+u.message+`
         items-center\r
         justify-between\r
         py-3\r
+        px-2\r
+        rounded-xl\r
+        transition-colors\r
+        duration-200\r
+        hover:bg-[#171922]\r
       `,children:[C.jsxs("div",{className:"flex items-center gap-3",children:[e,C.jsx("span",{className:`\r
             text-white\r
             text-[15px]\r
@@ -202,6 +223,7 @@ Error generating stack: `+u.message+`
             relative
             cursor-pointer
             transition-all
+            duration-200
             ${n?"bg-[#5b4dff]":"bg-[#3a3b45]"}
           `,children:C.jsx("div",{className:`
               absolute
@@ -211,46 +233,45 @@ Error generating stack: `+u.message+`
               rounded-full
               bg-white
               transition-all
+              duration-200
               ${n?"right-[2px]":"left-[2px]"}
-            `})})]})]})}function rp(){const[e,t]=b.useState(0),[n,r]=b.useState("Loading..."),[l,u]=b.useState(""),[o,i]=b.useState(!0),[s,c]=b.useState(!0);return b.useEffect(()=>{if(typeof chrome>"u"||!chrome.storage)return;chrome.tabs.query({active:!0,currentWindow:!0},m=>{if(m&&m[0]&&m[0].url)try{const g=new URL(m[0].url).hostname.replace("www.","");r(g),u(`https://www.google.com/s2/favicons?domain=${g}&sz=64`)}catch{r("Unknown")}}),chrome.storage.local.get(["blockedCount"],m=>{t(m.blockedCount||0)}),chrome.storage.local.get(["shieldsEnabled"],m=>{m.shieldsEnabled===!1&&i(!1)});const h=(m,p)=>{p==="local"&&m.blockedCount&&t(m.blockedCount.newValue||0),p==="local"&&m.shieldsEnabled&&i(m.shieldsEnabled.newValue)};return chrome.storage.onChanged.addListener(h),()=>{chrome.storage.onChanged.removeListener(h)}},[]),C.jsx("div",{className:`
-        w-[400px]
-        bg-[#0f1014]
-        p-2
-      `,children:C.jsxs("div",{className:`
-          w-full
-          inline-block
-          bg-[#111217]
-          rounded-[32px]
-          border border-[#23252d]
-          overflow-hidden
-        `,children:[C.jsx("div",{className:`
-            px-5
-            pt-5
-            pb-4
-          `,children:C.jsxs("div",{className:"flex items-start justify-between",children:[C.jsxs("div",{className:"flex items-start gap-3",children:[C.jsx("div",{className:`
-                  w-10
-                  h-10
-                  rounded-xl
-                  bg-[#1b1c25]
-                  flex
-                  items-center
-                  justify-center
-                  overflow-hidden
-                  flex-shrink-0
-                `,children:C.jsx("img",{src:l||"/icons/icon48.png",alt:"favicon",className:`
-                    w-6
-                    h-6
-                    rounded-md
-                  `,onError:h=>{h.currentTarget.src="/icons/icon48.png"}})}),C.jsxs("div",{children:[C.jsx("h1",{className:`
-                    text-[18px]
-                    font-semibold
-                    text-white
-                    tracking-tight
-                    leading-none
-                  `,children:n}),C.jsx("p",{className:`
-                    text-sm
-                    text-gray-400
-                    mt-2
+            `})})]})]})}function rp(){const[e,t]=b.useState(0),[n,r]=b.useState("Loading..."),[l,u]=b.useState(""),[o,i]=b.useState(!0),[s,c]=b.useState(!0);return b.useEffect(()=>{if(typeof chrome>"u"||!chrome.storage)return;chrome.tabs.query({active:!0,currentWindow:!0},m=>{if(m&&m[0]&&m[0].url)try{const g=new URL(m[0].url).hostname.replace("www.","");r(g),u(`https://${g}/favicon.ico`)}catch{r("Unknown")}}),chrome.storage.local.get(["blockedCount"],m=>{t(m.blockedCount||0)}),chrome.storage.local.get(["shieldsEnabled"],m=>{m.shieldsEnabled===!1&&i(!1)});const h=(m,p)=>{p==="local"&&m.blockedCount&&t(m.blockedCount.newValue||0),p==="local"&&m.shieldsEnabled&&i(m.shieldsEnabled.newValue)};return chrome.storage.onChanged.addListener(h),()=>{chrome.storage.onChanged.removeListener(h)}},[]),C.jsx("div",{className:`\r
+        w-[400px]\r
+        bg-transparent\r
+      `,children:C.jsxs("div",{className:`\r
+          w-full\r
+          bg-[#0f1014]\r
+          rounded-[22px]\r
+          border border-[#1c1d25]\r
+          overflow-hidden\r
+        `,children:[C.jsx("div",{className:`\r
+            px-5\r
+            pt-5\r
+            pb-4\r
+          `,children:C.jsxs("div",{className:"flex items-start justify-between",children:[C.jsxs("div",{className:"flex items-start gap-3",children:[C.jsx("div",{className:`\r
+                  w-10\r
+                  h-10\r
+                  rounded-xl\r
+                  bg-[#1b1c25]\r
+                  flex\r
+                  items-center\r
+                  justify-center\r
+                  overflow-hidden\r
+                  flex-shrink-0\r
+                `,children:C.jsx("img",{src:l||"/icons/icon48.png",alt:"favicon",className:`\r
+                    w-6\r
+                    h-6\r
+                    rounded-md\r
+                  `,onError:h=>{h.currentTarget.src="/icons/icon48.png"}})}),C.jsxs("div",{children:[C.jsx("h1",{className:`\r
+                    text-[18px]\r
+                    font-semibold\r
+                    text-white\r
+                    tracking-tight\r
+                    leading-none\r
+                  `,children:n}),C.jsx("p",{className:`\r
+                    text-sm\r
+                    text-gray-400\r
+                    mt-2\r
                   `,children:"Shields up for this site"})]})]}),C.jsx("div",{onClick:()=>{const h=!o;i(h),chrome.storage.local.set({shieldsEnabled:h})},className:`
                 w-14
                 h-8
@@ -269,31 +290,31 @@ Error generating stack: `+u.message+`
                   bg-white
                   transition-all
                   ${o?"right-1":"left-1"}
-                `})})]})}),C.jsx("div",{className:"px-4",children:C.jsxs("div",{className:`
-              bg-[#16171f]
-              rounded-[28px]
-              border border-[#23252d]
-              px-5
-              py-6
-              text-center
-            `,children:[C.jsx("div",{className:`
-                text-[56px]
-                leading-none
-                font-semibold
-                text-white
-              `,children:e}),C.jsx("p",{className:`
-                text-gray-300
-                text-sm
-                mt-3
-              `,children:"trackers, ads, and more blocked"})]})}),C.jsx("div",{className:"px-4 mt-4",children:C.jsx(Ud,{relayEnabled:s,setRelayEnabled:c})}),C.jsx("div",{className:"px-4 mt-4",children:C.jsx(np,{})}),C.jsx("div",{className:`
-            border-t
-            border-[#23252d]
-            mt-4
-            px-5
-            py-4
-            text-center
-          `,children:C.jsx("p",{className:`
-              text-xs
-              text-gray-500
-              leading-relaxed
+                `})})]})}),C.jsx("div",{className:"px-4",children:C.jsxs("div",{className:`\r
+              bg-[#16171f]\r
+              rounded-[26px]\r
+              border border-[#23252d]\r
+              px-5\r
+              py-6\r
+              text-center\r
+            `,children:[C.jsx("div",{className:`\r
+                text-[56px]\r
+                leading-none\r
+                font-semibold\r
+                text-white\r
+              `,children:e}),C.jsx("p",{className:`\r
+                text-gray-300\r
+                text-sm\r
+                mt-3\r
+              `,children:"trackers, ads, and more blocked"})]})}),C.jsx("div",{className:"px-4 mt-4",children:C.jsx(Ud,{relayEnabled:s,setRelayEnabled:c})}),C.jsx("div",{className:"px-4 mt-4",children:C.jsx(np,{})}),C.jsx("div",{className:`\r
+            border-t\r
+            border-[#1c1d25]\r
+            mt-4\r
+            px-5\r
+            py-4\r
+            text-center\r
+          `,children:C.jsx("p",{className:`\r
+              text-xs\r
+              text-gray-500\r
+              leading-relaxed\r
             `,children:"Your privacy is protected by Ubiqui_Shield Relay."})})]})})}Yl.createRoot(document.getElementById("root")).render(C.jsx(_c.StrictMode,{children:C.jsx(rp,{})}));
