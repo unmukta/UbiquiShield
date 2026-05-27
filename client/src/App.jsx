@@ -20,7 +20,7 @@ function App() {
       return
     }
 
-    // INITIAL LOAD
+    // Initial tracker load
     chrome.storage.local.get(
       ["detectedTrackers"],
       (result) => {
@@ -36,7 +36,7 @@ function App() {
       }
     )
 
-    // LIVE TRACKER UPDATES
+    // Live tracker updates
     const listener = (
       changes,
       area
@@ -59,7 +59,7 @@ function App() {
       listener
     )
 
-    // CLEANUP
+    // Cleanup
     return () => {
 
       chrome.storage.onChanged.removeListener(
@@ -74,17 +74,18 @@ function App() {
 
     <div
       className="
-        min-h-screen
+        w-[400px]
+        min-h-[600px]
         bg-[#0f1014]
         p-3
+        overflow-x-hidden
       "
     >
 
       {/* Main Popup */}
       <div
         className="
-          w-[380px]
-          mx-auto
+          w-full
           bg-[#111217]
           rounded-[28px]
           border border-[#23252d]
@@ -129,7 +130,7 @@ function App() {
 
             </div>
 
-            {/* Toggle */}
+            {/* Brave Style Toggle */}
             <div
               className="
                 w-12
@@ -139,13 +140,14 @@ function App() {
                 relative
                 cursor-pointer
                 transition-all
+                flex
+                items-center
               "
             >
 
               <div
                 className="
                   absolute
-                  top-1
                   right-1
                   w-5
                   h-5
@@ -160,10 +162,10 @@ function App() {
 
         </div>
 
-        {/* Body */}
+        {/* Content */}
         <div className="p-4 space-y-4">
 
-          {/* Website */}
+          {/* Website Status */}
           <WebsiteStatusCard />
 
           {/* Tracker Intelligence */}
@@ -181,7 +183,7 @@ function App() {
             trackers={trackers}
           />
 
-          {/* Protection */}
+          {/* Protection Status */}
           <ProtectionStatusCard />
 
           {/* Footer Button */}

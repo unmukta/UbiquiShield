@@ -213,12 +213,13 @@ Error generating stack: `+u.message+`
             border
             ${n==="Low"?"bg-green-500/10 border-green-500/20 text-green-400":n==="Medium"?"bg-yellow-500/10 border-yellow-500/20 text-yellow-400":"bg-red-500/10 border-red-500/20 text-red-400"}
           `,children:v.jsxs("div",{className:"flex items-center justify-between",children:[v.jsx("span",{className:"font-medium",children:"Threat Level"}),v.jsx("span",{className:"font-bold",children:n})]})})})]})}function ep(){const[e,t]=J.useState([]);return J.useEffect(()=>{if(typeof chrome>"u"||!chrome.storage)return;chrome.storage.local.get(["detectedTrackers"],r=>{r.detectedTrackers&&t(r.detectedTrackers)});const n=(r,l)=>{l==="local"&&r.detectedTrackers&&t(r.detectedTrackers.newValue||[])};return chrome.storage.onChanged.addListener(n),()=>{chrome.storage.onChanged.removeListener(n)}},[]),v.jsx("div",{className:`
-        min-h-screen
+        w-[400px]
+        min-h-[600px]
         bg-[#0f1014]
         p-3
+        overflow-x-hidden
       `,children:v.jsxs("div",{className:`
-          w-[380px]
-          mx-auto
+          w-full
           bg-[#111217]
           rounded-[28px]
           border border-[#23252d]
@@ -245,9 +246,10 @@ Error generating stack: `+u.message+`
                 relative
                 cursor-pointer
                 transition-all
+                flex
+                items-center
               `,children:v.jsx("div",{className:`
                   absolute
-                  top-1
                   right-1
                   w-5
                   h-5
