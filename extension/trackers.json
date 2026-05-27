@@ -1,0 +1,36 @@
+{
+  "doubleclick": {
+    "name": "DoubleClick",
+    "company": "Google",
+    "category": "Advertising",
+    "risk": "Medium"
+  },
+
+  "google-analytics": {
+    "name": "Google Analytics",
+    "company": "Google",
+    "category": "Analytics",
+    "risk": "Low"
+  },
+
+  "googletagmanager": {
+    "name": "Google Tag Manager",
+    "company": "Google",
+    "category": "Analytics",
+    "risk": "Medium"
+  },
+
+  "facebook": {
+    "name": "Facebook Tracker",
+    "company": "Meta",
+    "category": "Social Tracking",
+    "risk": "High"
+  },
+
+  "hotjar": {
+    "name": "Hotjar",
+    "company": "Hotjar Ltd",
+    "category": "User Behavior Tracking",
+    "risk": "Medium"
+  }
+}

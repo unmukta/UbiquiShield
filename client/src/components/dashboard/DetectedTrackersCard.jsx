@@ -1,25 +1,41 @@
 import GlassCard from "../ui/GlassCard"
 
-function DetectedTrackersCard({ trackers = [] }) {
+function DetectedTrackersCard({
+  trackers = []
+}) {
 
   return (
 
     <GlassCard>
 
+      {/* Header */}
       <div className="flex items-center justify-between">
 
         <div>
 
-          <h2 className="text-xl font-semibold text-white">
+          <h2
+            className="
+              text-xl
+              font-semibold
+              text-white
+            "
+          >
             Detected Trackers
           </h2>
 
-          <p className="text-sm text-gray-400 mt-1">
+          <p
+            className="
+              text-sm
+              text-gray-400
+              mt-1
+            "
+          >
             Live website analysis
           </p>
 
         </div>
 
+        {/* Count */}
         <div
           className="
             min-w-[52px]
@@ -60,7 +76,10 @@ function DetectedTrackersCard({ trackers = [] }) {
 
         ) : (
 
-          trackers.map((tracker, index) => (
+          trackers.map((
+            tracker,
+            index
+          ) => (
 
             <div
               key={index}
@@ -76,18 +95,45 @@ function DetectedTrackersCard({ trackers = [] }) {
               "
             >
 
+              {/* Left Side */}
               <div>
 
-                <p className="text-white text-sm font-medium">
-                  {tracker}
+                {/* Tracker Name */}
+                <p
+                  className="
+                    text-white
+                    text-sm
+                    font-medium
+                  "
+                >
+                  {tracker.name}
                 </p>
 
-                <p className="text-xs text-gray-500 mt-1">
-                  Tracking script detected
+                {/* Category */}
+                <p
+                  className="
+                    text-xs
+                    text-gray-500
+                    mt-1
+                  "
+                >
+                  {tracker.category}
+                </p>
+
+                {/* Company */}
+                <p
+                  className="
+                    text-xs
+                    text-gray-500
+                    mt-1
+                  "
+                >
+                  Owned by {tracker.company}
                 </p>
 
               </div>
 
+              {/* Status */}
               <div
                 className="
                   px-3
@@ -111,7 +157,9 @@ function DetectedTrackersCard({ trackers = [] }) {
       </div>
 
     </GlassCard>
+
   )
+
 }
 
 export default DetectedTrackersCard

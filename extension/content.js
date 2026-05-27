@@ -2,80 +2,130 @@ console.log(
   "Ubiqui_Shield content script active"
 )
 
-const detectedTrackers = []
+// TRACKER DATABASE
+const trackerDB = {
 
-// ALL scripts
-document
-  .querySelectorAll("script")
-  .forEach((script) => {
+  "doubleclick": {
+    name: "DoubleClick",
+    company: "Google",
+    category: "Advertising",
+    risk: "Medium"
+  },
 
-    const src = (
-      script.src || ""
-    ).toLowerCase()
+  "google-analytics": {
+    name: "Google Analytics",
+    company: "Google",
+    category: "Analytics",
+    risk: "Low"
+  },
 
-    // Google Analytics
-    if (
-      src.includes("google-analytics") ||
-      src.includes("googletagmanager") ||
-      src.includes("gtag")
-    ) {
+  "googletagmanager": {
+    name: "Google Tag Manager",
+    company: "Google",
+    category: "Analytics",
+    risk: "Medium"
+  },
 
-      detectedTrackers.push(
-        "Google Analytics"
-      )
+  "facebook": {
+    name: "Facebook Tracker",
+    company: "Meta",
+    category: "Social Tracking",
+    risk: "High"
+  },
 
-    }
+  "hotjar": {
+    name: "Hotjar",
+    company: "Hotjar Ltd",
+    category: "Behavior Analytics",
+    risk: "Medium"
+  }
 
-    // DoubleClick
-    if (
-      src.includes("doubleclick")
-    ) {
+}
 
-      detectedTrackers.push(
-        "DoubleClick"
-      )
+function scanTrackers() {
 
-    }
+  const detectedTrackers = []
 
-    // Facebook
-    if (
-      src.includes("facebook") ||
-      src.includes("connect.facebook.net")
-    ) {
+  // SCAN SCRIPTS
+  document
+    .querySelectorAll("script")
+    .forEach((script) => {
 
-      detectedTrackers.push(
-        "Facebook Tracker"
-      )
+      const src = (
+        script.src || ""
+      ).toLowerCase()
 
-    }
+      Object.keys(trackerDB)
+        .forEach((key) => {
 
-    // Hotjar
-    if (
-      src.includes("hotjar")
-    ) {
+          if (
+            src.includes(key)
+          ) {
 
-      detectedTrackers.push(
-        "Hotjar"
-      )
+            detectedTrackers.push({
 
-    }
+              id: key,
+
+              ...trackerDB[key],
+
+              blocked: true
+
+            })
+
+          }
+
+        })
+
+    })
+
+  // REMOVE DUPLICATES
+  const uniqueTrackers =
+    detectedTrackers.filter(
+      (
+        tracker,
+        index,
+        self
+      ) =>
+        index ===
+        self.findIndex(
+          (t) =>
+            t.id === tracker.id
+        )
+    )
+
+  // SAVE
+  chrome.storage.local.set({
+
+    detectedTrackers:
+      uniqueTrackers
 
   })
 
-// Remove duplicates
-const uniqueTrackers = [
-  ...new Set(detectedTrackers)
-]
-
-// Save
-chrome.storage.local.set({
-
-  detectedTrackers:
+  console.log(
+    "TRACKERS:",
     uniqueTrackers
+  )
 
-})
+}
 
-console.log(
-  "TRACKERS:",
-  uniqueTrackers
+// INITIAL SCAN
+scanTrackers()
+
+// LIVE MONITORING
+const observer =
+  new MutationObserver(() => {
+
+    scanTrackers()
+
+  })
+
+observer.observe(
+  document.documentElement,
+  {
+
+    childList: true,
+
+    subtree: true
+
+  }
 )
