@@ -2,63 +2,43 @@
   {
     "id": 1,
     "priority": 1,
-
     "action": {
       "type": "block"
     },
-
     "condition": {
-      "urlFilter": "googletagmanager",
+      "urlFilter": "doubleclick.net",
       "resourceTypes": [
-        "script"
+        "script",
+        "image",
+        "xmlhttprequest"
       ]
     }
   },
-
   {
     "id": 2,
     "priority": 1,
-
     "action": {
       "type": "block"
     },
-
     "condition": {
-      "urlFilter": "google-analytics",
+      "urlFilter": "google-analytics.com",
       "resourceTypes": [
-        "script"
+        "script",
+        "xmlhttprequest"
       ]
     }
   },
-
   {
     "id": 3,
     "priority": 1,
-
     "action": {
       "type": "block"
     },
-
     "condition": {
-      "urlFilter": "doubleclick",
+      "urlFilter": "googletagmanager.com",
       "resourceTypes": [
-        "script"
-      ]
-    }
-  },
-
-  {
-    "id": 4,
-    "priority": 1,
-
-    "action": {
-      "type": "block"
-    },
-
-    "condition": {
-      "urlFilter": "facebook.net",
-      "resourceTypes": [
-        "script"
+        "script",
+        "xmlhttprequest"
       ]
     }
   }

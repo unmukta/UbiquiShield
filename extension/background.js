@@ -1,8 +1,49 @@
 let shieldsEnabled = true
 
+let currentWebsite = ""
+
 console.log(
   "Ubiqui_Shield background active"
 )
+
+// ENABLE / DISABLE RULESETS
+async function updateShieldRules() {
+
+  if (shieldsEnabled) {
+
+    // ENABLE blocking rules
+    await chrome.declarativeNetRequest
+      .updateEnabledRulesets({
+
+        enableRulesetIds: ["ruleset_1"],
+
+        disableRulesetIds: []
+
+      })
+
+    console.log(
+      "Blocking ENABLED"
+    )
+
+  } else {
+
+    // DISABLE blocking rules
+    await chrome.declarativeNetRequest
+      .updateEnabledRulesets({
+
+        enableRulesetIds: [],
+
+        disableRulesetIds: ["ruleset_1"]
+
+      })
+
+    console.log(
+      "Blocking DISABLED"
+    )
+
+  }
+
+}
 
 // Load saved shields state
 chrome.storage.local.get(
@@ -16,6 +57,8 @@ chrome.storage.local.get(
       shieldsEnabled = false
 
     }
+
+    updateShieldRules()
 
   }
 )
@@ -58,6 +101,8 @@ chrome.storage.onChanged.addListener(
           ? "ENABLED"
           : "DISABLED"
       )
+
+      updateShieldRules()
 
     }
 
@@ -114,6 +159,13 @@ chrome.declarativeNetRequest
         "Google Analytics"
 
     } else if (
+      url.includes("googletagmanager")
+    ) {
+
+      trackerName =
+        "Google Tag Manager"
+
+    } else if (
       url.includes("facebook")
     ) {
 
@@ -167,3 +219,127 @@ chrome.declarativeNetRequest
     )
 
   })
+
+// Detect active tab changes
+chrome.tabs.onActivated.addListener(
+  async () => {
+
+    chrome.tabs.query(
+      {
+        active: true,
+        currentWindow: true
+      },
+      (tabs) => {
+
+        if (
+          !tabs ||
+          !tabs[0] ||
+          !tabs[0].url
+        ) {
+          return
+        }
+
+        try {
+
+          const url =
+            new URL(
+              tabs[0].url
+            )
+
+          const hostname =
+            url.hostname
+
+          // Website changed
+          if (
+            hostname !== currentWebsite
+          ) {
+
+            currentWebsite =
+              hostname
+
+            console.log(
+              "Website changed:",
+              hostname
+            )
+
+            // RESET TRACKERS
+            chrome.storage.local.set({
+
+              blockedCount: 0,
+
+              detectedTrackers: []
+
+            })
+
+          }
+
+        } catch (error) {
+
+          console.log(
+            "Tab parse error"
+          )
+
+        }
+
+      }
+    )
+
+  }
+)
+
+// Detect page updates/reloads
+chrome.tabs.onUpdated.addListener(
+  (
+    tabId,
+    changeInfo,
+    tab
+  ) => {
+
+    if (
+      changeInfo.status === "loading" &&
+      tab.active &&
+      tab.url
+    ) {
+
+      try {
+
+        const url =
+          new URL(tab.url)
+
+        const hostname =
+          url.hostname
+
+        if (
+          hostname !== currentWebsite
+        ) {
+
+          currentWebsite =
+            hostname
+
+          console.log(
+            "Reload/new page:",
+            hostname
+          )
+
+          chrome.storage.local.set({
+
+            blockedCount: 0,
+
+            detectedTrackers: []
+
+          })
+
+        }
+
+      } catch (error) {
+
+        console.log(
+          "Update parse error"
+        )
+
+      }
+
+    }
+
+  }
+)
