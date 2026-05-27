@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 
-import PrivacyRelayCard from "./components/dashboard/PrivacyRelayCard"
 import AdvancedOptions from "./components/dashboard/AdvancedOptions"
 
 function App() {
@@ -10,6 +9,9 @@ function App() {
 
   const [website, setWebsite] =
     useState("Loading...")
+
+  const [hostname, setHostname] =
+    useState("")
 
   const [favicon, setFavicon] =
     useState("")
@@ -22,7 +24,6 @@ function App() {
 
   useEffect(() => {
 
-    // Extension safety check
     if (
       typeof chrome === "undefined" ||
       !chrome.storage
@@ -30,7 +31,7 @@ function App() {
       return
     }
 
-    // Load active website
+    // Active Website
     chrome.tabs.query(
       {
         active: true,
@@ -51,17 +52,60 @@ function App() {
                 tabs[0].url
               )
 
-            const hostname =
+            const cleanHostname =
               url.hostname.replace(
                 "www.",
                 ""
               )
 
-            setWebsite(hostname)
+            setWebsite(
+              cleanHostname
+            )
 
-            // Better favicon system
+            setHostname(
+              cleanHostname
+            )
+
             setFavicon(
-              `https://${hostname}/favicon.ico`
+              `https://${cleanHostname}/favicon.ico`
+            )
+
+            chrome.storage.local.get(
+              [
+                "siteSettings",
+                "relayEnabled"
+              ],
+              (result) => {
+
+                const settings =
+                  result.siteSettings || {}
+
+                if (
+                  settings[
+                    cleanHostname
+                  ]
+                ) {
+
+                  setShieldsEnabled(
+                    settings[
+                      cleanHostname
+                    ].shieldsEnabled
+                  )
+
+                }
+
+                if (
+                  result.relayEnabled !==
+                  undefined
+                ) {
+
+                  setRelayEnabled(
+                    result.relayEnabled
+                  )
+
+                }
+
+              }
             )
 
           } catch {
@@ -77,7 +121,7 @@ function App() {
       }
     )
 
-    // Load blocked count
+    // Block Counter
     chrome.storage.local.get(
       ["blockedCount"],
       (result) => {
@@ -89,29 +133,12 @@ function App() {
       }
     )
 
-    // Load shields state
-    chrome.storage.local.get(
-      ["shieldsEnabled"],
-      (result) => {
-
-        if (
-          result.shieldsEnabled === false
-        ) {
-
-          setShieldsEnabled(false)
-
-        }
-
-      }
-    )
-
-    // Live updates
+    // Live Updates
     const listener = (
       changes,
       area
     ) => {
 
-      // Blocked count
       if (
         area === "local" &&
         changes.blockedCount
@@ -123,25 +150,12 @@ function App() {
 
       }
 
-      // Shields toggle
-      if (
-        area === "local" &&
-        changes.shieldsEnabled
-      ) {
-
-        setShieldsEnabled(
-          changes.shieldsEnabled.newValue
-        )
-
-      }
-
     }
 
     chrome.storage.onChanged.addListener(
       listener
     )
 
-    // Cleanup
     return () => {
 
       chrome.storage.onChanged.removeListener(
@@ -156,43 +170,39 @@ function App() {
 
     <div
       className="
-        w-[400px]
-        bg-transparent
+        w-[420px]
+        bg-[#0f1014]
+        p-2
       "
     >
 
-      {/* Main Popup */}
+      {/* Main Container */}
       <div
         className="
           w-full
+          rounded-[28px]
+          border
+          border-[#1f212b]
           bg-[#0f1014]
-          rounded-[22px]
-          border border-[#1c1d25]
           overflow-hidden
         "
       >
 
         {/* Header */}
-        <div
-          className="
-            px-5
-            pt-5
-            pb-4
-          "
-        >
+        <div className="px-5 pt-5 pb-4">
 
           <div className="flex items-start justify-between">
 
             {/* Left */}
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-4">
 
-              {/* Dynamic Website Icon */}
+              {/* Website Icon */}
               <div
                 className="
-                  w-10
-                  h-10
-                  rounded-xl
-                  bg-[#1b1c25]
+                  w-12
+                  h-12
+                  rounded-2xl
+                  bg-[#181a22]
                   flex
                   items-center
                   justify-center
@@ -208,9 +218,9 @@ function App() {
                   }
                   alt="favicon"
                   className="
-                    w-6
-                    h-6
-                    rounded-md
+                    w-7
+                    h-7
+                    rounded-lg
                   "
                   onError={(e) => {
 
@@ -230,28 +240,30 @@ function App() {
                     text-[18px]
                     font-semibold
                     text-white
-                    tracking-tight
-                    leading-none
                   "
                 >
                   {website}
                 </h1>
 
                 <p
-                  className="
-                    text-sm
-                    text-gray-400
-                    mt-2
-                  "
+                  className={`text-sm mt-1 transition-all ${
+                    shieldsEnabled
+                      ? "text-gray-400"
+                      : "text-red-400"
+                  }`}
                 >
-                  Shields up for this site
+                  {
+                    shieldsEnabled
+                      ? "Shields up for this site"
+                      : "Shields are disabled"
+                  }
                 </p>
 
               </div>
 
             </div>
 
-            {/* Shields Toggle */}
+            {/* Toggle */}
             <div
               onClick={() => {
 
@@ -262,9 +274,29 @@ function App() {
                   newValue
                 )
 
-                chrome.storage.local.set({
-                  shieldsEnabled: newValue
-                })
+                chrome.storage.local.get(
+                  ["siteSettings"],
+                  (result) => {
+
+                    const settings =
+                      result.siteSettings || {}
+
+                    settings[hostname] = {
+
+                      shieldsEnabled:
+                        newValue
+
+                    }
+
+                    chrome.storage.local.set({
+
+                      siteSettings:
+                        settings
+
+                    })
+
+                  }
+                )
 
               }}
               className={`
@@ -274,11 +306,10 @@ function App() {
                 relative
                 cursor-pointer
                 transition-all
-                flex-shrink-0
                 ${
                   shieldsEnabled
                     ? "bg-[#5b4dff]"
-                    : "bg-[#2a2b35]"
+                    : "bg-[#2b2d37]"
                 }
               `}
             >
@@ -306,23 +337,23 @@ function App() {
 
         </div>
 
-        {/* Block Counter */}
-        <div className="px-4">
+        {/* Counter */}
+        <div className="px-5">
 
           <div
             className="
-              bg-[#16171f]
-              rounded-[26px]
-              border border-[#23252d]
-              px-5
-              py-6
+              rounded-[28px]
+              border
+              border-[#20222c]
+              bg-[#151720]
+              py-8
               text-center
             "
           >
 
             <div
               className="
-                text-[56px]
+                text-[64px]
                 leading-none
                 font-semibold
                 text-white
@@ -346,22 +377,110 @@ function App() {
         </div>
 
         {/* Privacy Relay */}
-        <div className="px-4 mt-4">
+        <div className="px-5 mt-4">
 
-          <PrivacyRelayCard
+          <div
+            className="
+              rounded-[28px]
+              border
+              border-[#20222c]
+              bg-[#151720]
+              px-6
+              py-6
+            "
+          >
 
-            relayEnabled={relayEnabled}
+            <div className="flex items-center justify-between">
 
-            setRelayEnabled={
-              setRelayEnabled
-            }
+              <div>
 
-          />
+                <h2
+                  className="
+                    text-[18px]
+                    font-semibold
+                    text-white
+                  "
+                >
+                  Privacy Relay
+                </h2>
+
+                <p
+                  className={`text-sm mt-2 transition-all ${
+                    relayEnabled
+                      ? "text-gray-400"
+                      : "text-red-400"
+                  }`}
+                >
+                  {
+                    relayEnabled
+                      ? "Protected browsing active"
+                      : "Protected browsing disabled"
+                  }
+                </p>
+
+              </div>
+
+              {/* Relay Toggle */}
+              <div
+                onClick={() => {
+
+                  const newValue =
+                    !relayEnabled
+
+                  setRelayEnabled(
+                    newValue
+                  )
+
+                  chrome.storage.local.set({
+
+                    relayEnabled:
+                      newValue
+
+                  })
+
+                }}
+                className={`
+                  w-14
+                  h-8
+                  rounded-full
+                  relative
+                  cursor-pointer
+                  transition-all
+                  ${
+                    relayEnabled
+                      ? "bg-[#5b4dff]"
+                      : "bg-[#2b2d37]"
+                  }
+                `}
+              >
+
+                <div
+                  className={`
+                    absolute
+                    top-1
+                    w-6
+                    h-6
+                    rounded-full
+                    bg-white
+                    transition-all
+                    ${
+                      relayEnabled
+                        ? "right-1"
+                        : "left-1"
+                    }
+                  `}
+                />
+
+              </div>
+
+            </div>
+
+          </div>
 
         </div>
 
-        {/* Advanced Options */}
-        <div className="px-4 mt-4">
+        {/* Advanced */}
+        <div className="px-5 mt-4">
 
           <AdvancedOptions />
 
@@ -371,10 +490,10 @@ function App() {
         <div
           className="
             border-t
-            border-[#1c1d25]
+            border-[#1f212b]
             mt-4
             px-5
-            py-4
+            py-5
             text-center
           "
         >
@@ -383,7 +502,6 @@ function App() {
             className="
               text-xs
               text-gray-500
-              leading-relaxed
             "
           >
             Your privacy is protected by
