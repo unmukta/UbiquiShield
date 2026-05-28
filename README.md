@@ -246,4 +246,3 @@ Some protections may break functionality on certain websites depending on how ag
 ## License
 
 MIT License
-
