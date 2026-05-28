@@ -1,18 +1,37 @@
 # Ubiqui_Shield
 
-Privacy-focused browser protection extension built for Chromium-based browsers.
+A lightweight privacy and tracker-blocking browser extension inspired by modern browser shields.
+
+Ubiqui_Shield focuses on clean UI, fast performance, and essential privacy protections without unnecessary bloat.
+
+---
 
 ## Features
 
-- Tracker & ad blocking
-- Fingerprint protection
-- Third-party cookie controls
-- Privacy Relay system
-- Clean modern popup UI
-- Website-specific shield controls
-- Live blocked tracker counter
-- Dynamic protection states
-- Lightweight and fast
+* Tracker and ad blocking
+* Third-party cookie blocking
+* Script blocking
+* Fingerprinting protection
+* HTTPS upgrade support
+* Live blocked request counter
+* Per-feature protection toggles
+* Website favicon and hostname detection
+* Modern popup UI inspired by Brave Shields
+
+---
+
+## Current Protection Capabilities
+
+Ubiqui_Shield currently blocks common tracking and advertising services including:
+
+* DoubleClick
+* Google Analytics
+* Google Tag Manager
+* Facebook trackers
+* Hotjar
+* Various known ad and analytics domains
+
+The extension monitors requests in real time and applies protections directly through the browser extension API.
 
 ---
 
@@ -24,97 +43,115 @@ Privacy-focused browser protection extension built for Chromium-based browsers.
 - Advanced protection controls
 
 ---
-
 ## Tech Stack
 
-- React
-- Vite
-- TailwindCSS
-- Chrome Extension Manifest V3
+### Frontend
+
+* React
+* Vite
+* Tailwind CSS
+* Lucide Icons
+
+### Extension
+
+* Chrome Extension Manifest V3
+* Chrome Declarative Net Request API
+* Chrome Storage API
+* Content Scripts
+* Background Service Workers
 
 ---
 
 ## Project Structure
 
 ```bash
-client/
-├── src/
-│   ├── components/
-│   ├── App.jsx
-│   ├── main.jsx
-│   └── index.css
+ubiqui_shield/
 │
-├── public/
-└── dist/
-
-extension/
-├── manifest.json
-├── background.js
-├── content.js
-└── icons/
+├── client/        # React popup UI
+├── extension/     # Browser extension files
+│   ├── background.js
+│   ├── content.js
+│   ├── manifest.json
+│   └── rules.json
+│
+└── README.md
 ```
 
 ---
 
 ## Installation
 
-### 1. Clone Repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/unmukta/UbiquiShield.git
+cd UbiquiShield
 ```
 
-### 2. Install Dependencies
+### 2. Install dependencies
 
 ```bash
 cd client
 npm install
 ```
 
-### 3. Run Development Server
-
-```bash
-npm run dev
-```
-
-### 4. Build Extension
+### 3. Build the popup UI
 
 ```bash
 npm run build
 ```
 
+### 4. Copy build files
+
+Copy everything from:
+
+```bash
+client/dist/
+```
+
+into:
+
+```bash
+extension/
+```
+
 ---
 
-## Load Extension in Browser
+## Load Extension in Brave / Chrome
 
 1. Open:
 
-```text
+```bash
 brave://extensions
 ```
 
 or
 
-```text
+```bash
 chrome://extensions
 ```
 
-2. Enable:
+2. Enable **Developer Mode**
 
-```text
-Developer Mode
+3. Click **Load unpacked**
+
+4. Select the `extension/` folder
+
+---
+
+## Development
+
+### Run frontend locally
+
+```bash
+cd client
+npm run dev
 ```
 
-3. Click:
+### Lint project
 
-```text
-Load unpacked
-```
-
-4. Select:
-
-```text
-extension/
+```bash
+npx eslint .
 ```
 
 ---
@@ -145,22 +182,17 @@ Then reload extension.
 
 ## Current Status
 
-### Implemented
+The extension is actively under development.
 
-- Modern popup UI
-- Dynamic site favicon support
-- Shield toggles
-- Privacy Relay card
-- Advanced protection options
-- Clean responsive layout
+Planned improvements include:
 
-### Planned
-
-- Real tracker detection
-- Threat intelligence API
-- Smart phishing detection
-- DNS protection engine
-- Secure browsing reports
+* Real filter list support
+* Cosmetic ad removal
+* Anti-adblock bypassing
+* Per-site protection settings
+* Advanced tracker intelligence
+* Performance optimizations
+* Web Store release preparation
 
 ---
 
@@ -170,10 +202,15 @@ Then reload extension.
 - Microsoft Edge
 - Chromium browsers
 
+## Disclaimer
+
+Ubiqui_Shield is an experimental privacy project intended for educational and development purposes.
+
+Some protections may break functionality on certain websites depending on how aggressively resources are blocked.
+
 ---
 
 ## License
 
 MIT License
 
----
