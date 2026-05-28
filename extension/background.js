@@ -273,7 +273,7 @@ chrome.tabs.onActivated.addListener(
 
           }
 
-        } catch (error) {
+        } catch {
 
           console.log(
             "Tab parse error"
@@ -331,7 +331,7 @@ chrome.tabs.onUpdated.addListener(
 
         }
 
-      } catch (error) {
+      } catch {
 
         console.log(
           "Update parse error"

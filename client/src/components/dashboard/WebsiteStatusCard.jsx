@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react"
-import { ShieldCheck } from "lucide-react"
+
+import {
+  ShieldCheck
+} from "lucide-react"
 
 function WebsiteStatusCard() {
 
-  const [website, setWebsite] = useState("Unknown")
+  const [website, setWebsite] =
+    useState("Unknown")
+
+  const [secure, setSecure] =
+    useState(true)
 
   useEffect(() => {
 
@@ -20,28 +27,50 @@ function WebsiteStatusCard() {
         },
         (tabs) => {
 
-          if (tabs && tabs[0] && tabs[0].url) {
+          if (
+            tabs &&
+            tabs[0] &&
+            tabs[0].url
+          ) {
 
             try {
 
-              const url = new URL(tabs[0].url)
+              const url =
+                new URL(
+                  tabs[0].url
+                )
 
               setWebsite(
-                url.hostname.replace("www.", "")
+                url.hostname.replace(
+                  "www.",
+                  ""
+                )
               )
 
-            } catch (error) {
+              setSecure(
+                url.protocol ===
+                  "https:"
+              )
 
-              setWebsite("Unknown")
+            } catch {
+
+              setWebsite(
+                "Unknown"
+              )
+
             }
+
           }
+
         }
       )
 
     } else {
 
-      // Fallback for localhost/dev mode
-      setWebsite(window.location.hostname)
+      // Dev Mode Fallback
+      setWebsite(
+        window.location.hostname
+      )
 
     }
 
@@ -52,26 +81,47 @@ function WebsiteStatusCard() {
     <div
       className="
         rounded-2xl
-        border border-white/5
+        border
+        border-white/5
         bg-[#2a2a2d]
         p-5
       "
     >
 
-      <div className="flex items-center justify-between">
+      {/* Top */}
+      <div
+        className="
+          flex
+          items-center
+          justify-between
+        "
+      >
 
         <div>
 
-          <h2 className="text-base font-semibold text-white">
+          <h2
+            className="
+              text-base
+              font-semibold
+              text-white
+            "
+          >
             Current Website
           </h2>
 
-          <p className="text-gray-400 mt-2 text-sm">
+          <p
+            className="
+              text-gray-400
+              mt-2
+              text-sm
+            "
+          >
             {website}
           </p>
 
         </div>
 
+        {/* Icon */}
         <div
           className="
             w-14
@@ -85,7 +135,11 @@ function WebsiteStatusCard() {
         >
 
           <ShieldCheck
-            className="text-green-300"
+            className={
+              secure
+                ? "text-green-300"
+                : "text-red-400"
+            }
             size={26}
           />
 
@@ -93,27 +147,62 @@ function WebsiteStatusCard() {
 
       </div>
 
+      {/* Bottom */}
       <div className="mt-6">
 
-        <div className="flex items-center gap-3">
+        <div
+          className="
+            flex
+            items-center
+            gap-3
+          "
+        >
 
           <div
-            className="
+            className={`
               w-2.5
               h-2.5
               rounded-full
-              bg-green-300
-            "
+              ${
+                secure
+                  ? "bg-green-300"
+                  : "bg-red-400"
+              }
+            `}
           />
 
-          <span className="text-green-300 text-sm font-medium">
-            Secure Connection
+          <span
+            className={`
+              text-sm
+              font-medium
+              ${
+                secure
+                  ? "text-green-300"
+                  : "text-red-400"
+              }
+            `}
+          >
+            {
+              secure
+                ? "Secure Connection"
+                : "Unsecured Connection"
+            }
           </span>
 
         </div>
 
-        <p className="text-gray-400 mt-3 text-sm">
-          Live website monitoring is active.
+        <p
+          className="
+            text-gray-400
+            mt-3
+            text-sm
+          "
+        >
+          {
+            secure
+              ? "Live website monitoring is active."
+              : "This website is not using HTTPS."
+          }
         </p>
 
       </div>
@@ -121,6 +210,7 @@ function WebsiteStatusCard() {
     </div>
 
   )
+
 }
 
 export default WebsiteStatusCard
