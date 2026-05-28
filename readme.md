@@ -79,6 +79,39 @@ ubiqui_shield/
 
 ---
 
+## Screenshots
+
+### Main Interface
+
+![Main UI](assets/ss1.png)
+
+---
+
+### Advanced Options
+
+![Advanced Options](assets/ss2.png)
+
+---
+
+### Tracker Blocking
+
+![Tracker Blocking](assets/ss3.png)
+
+
+---
+
+### ADS Blocking
+
+![HTTPS Upgrade](assets/ss4.png)
+
+---
+
+### YouTube ADS Blocking
+
+![Fingerprinting Protection](assets/ss5.png)
+
+--- 
+
 ## Installation
 
 ### 1. Clone the repository
