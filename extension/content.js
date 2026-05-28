@@ -129,3 +129,26 @@ observer.observe(
 
   }
 )
+Object.defineProperty(
+  navigator,
+  "hardwareConcurrency",
+  {
+    get: () => 4
+  }
+)
+
+Object.defineProperty(
+  navigator,
+  "deviceMemory",
+  {
+    get: () => 8
+  }
+)
+
+Object.defineProperty(
+  navigator,
+  "platform",
+  {
+    get: () => "Win32"
+  }
+)

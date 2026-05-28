@@ -255,6 +255,27 @@ function AdvancedOptions() {
 
 }
 
+function toggleTrackerBlocking(
+  enabled
+) {
+
+  chrome.declarativeNetRequest
+    .updateEnabledRulesets({
+
+      disableRulesetIds:
+        enabled
+          ? []
+          : ["ruleset_1"],
+
+      enableRulesetIds:
+        enabled
+          ? ["ruleset_1"]
+          : []
+
+    })
+
+}
+
 /* SETTINGS ROW */
 
 function SettingRow({

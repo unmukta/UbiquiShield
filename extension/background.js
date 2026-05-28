@@ -1,3 +1,42 @@
+chrome.webRequest.onBeforeRequest.addListener(
+
+  (details) => {
+
+    try {
+
+      const url =
+        new URL(details.url)
+
+      if (
+        url.protocol === "http:"
+      ) {
+
+        url.protocol = "https:"
+
+        return {
+
+          redirectUrl:
+            url.toString()
+
+        }
+
+      }
+
+    } catch {
+
+      return
+
+    }
+
+  },
+
+  {
+    urls: ["<all_urls>"]
+  },
+
+  ["blocking"]
+
+)
 chrome.declarativeNetRequest
   .onRuleMatchedDebug
   .addListener((info) => {

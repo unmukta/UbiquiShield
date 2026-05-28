@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react"
 
+import {
+  Settings2
+} from "lucide-react"
+
 import AdvancedOptions from "./components/dashboard/AdvancedOptions"
 
 function App() {
@@ -166,6 +170,83 @@ function App() {
 
   }, [])
 
+  // Shields Toggle
+  function toggleShields() {
+
+    const newValue =
+      !shieldsEnabled
+
+    setShieldsEnabled(
+      newValue
+    )
+
+    chrome.storage.local.get(
+      ["siteSettings"],
+      (result) => {
+
+        const settings =
+          result.siteSettings || {}
+
+        settings[hostname] = {
+
+          shieldsEnabled:
+            newValue
+
+        }
+
+        chrome.storage.local.set({
+
+          siteSettings:
+            settings
+
+        })
+
+      }
+    )
+
+    // Enable / Disable DNR rules
+    if (
+      chrome.declarativeNetRequest
+    ) {
+
+      chrome.declarativeNetRequest
+        .updateEnabledRulesets({
+
+          disableRulesetIds:
+            newValue
+              ? []
+              : ["ruleset_1"],
+
+          enableRulesetIds:
+            newValue
+              ? ["ruleset_1"]
+              : []
+
+        })
+
+    }
+
+  }
+
+  // Relay Toggle
+  function toggleRelay() {
+
+    const newValue =
+      !relayEnabled
+
+    setRelayEnabled(
+      newValue
+    )
+
+    chrome.storage.local.set({
+
+      relayEnabled:
+        newValue
+
+    })
+
+  }
+
   return (
 
     <div
@@ -246,59 +327,33 @@ function App() {
                 </h1>
 
                 <p
-                  className={`text-sm mt-1 transition-all ${
-                    shieldsEnabled
-                      ? "text-gray-400"
-                      : "text-red-400"
-                  }`}
+                  className={`
+                    text-sm
+                    mt-1
+                    transition-all
+                    ${
+                      shieldsEnabled
+                        ? "text-gray-400"
+                        : "text-red-400"
+                    }
+                  `}
                 >
+
                   {
                     shieldsEnabled
                       ? "Shields up for this site"
                       : "Shields are disabled"
                   }
+
                 </p>
 
               </div>
 
             </div>
 
-            {/* Toggle */}
+            {/* Shields Toggle */}
             <div
-              onClick={() => {
-
-                const newValue =
-                  !shieldsEnabled
-
-                setShieldsEnabled(
-                  newValue
-                )
-
-                chrome.storage.local.get(
-                  ["siteSettings"],
-                  (result) => {
-
-                    const settings =
-                      result.siteSettings || {}
-
-                    settings[hostname] = {
-
-                      shieldsEnabled:
-                        newValue
-
-                    }
-
-                    chrome.storage.local.set({
-
-                      siteSettings:
-                        settings
-
-                    })
-
-                  }
-                )
-
-              }}
+              onClick={toggleShields}
               className={`
                 w-14
                 h-8
@@ -405,40 +460,31 @@ function App() {
                 </h2>
 
                 <p
-                  className={`text-sm mt-2 transition-all ${
-                    relayEnabled
-                      ? "text-gray-400"
-                      : "text-red-400"
-                  }`}
+                  className={`
+                    text-sm
+                    mt-2
+                    transition-all
+                    ${
+                      relayEnabled
+                        ? "text-gray-400"
+                        : "text-red-400"
+                    }
+                  `}
                 >
+
                   {
                     relayEnabled
                       ? "Protected browsing active"
                       : "Protected browsing disabled"
                   }
+
                 </p>
 
               </div>
 
               {/* Relay Toggle */}
               <div
-                onClick={() => {
-
-                  const newValue =
-                    !relayEnabled
-
-                  setRelayEnabled(
-                    newValue
-                  )
-
-                  chrome.storage.local.set({
-
-                    relayEnabled:
-                      newValue
-
-                  })
-
-                }}
+                onClick={toggleRelay}
                 className={`
                   w-14
                   h-8
@@ -479,10 +525,85 @@ function App() {
 
         </div>
 
-        {/* Advanced */}
+        {/* Advanced Options */}
         <div className="px-5 mt-4">
 
-          <AdvancedOptions />
+          <div
+            className="
+              rounded-[28px]
+              border
+              border-[#20222c]
+              bg-[#151720]
+              overflow-hidden
+            "
+          >
+
+            {/* Header */}
+            <div
+              className="
+                flex
+                items-center
+                gap-3
+                px-6
+                py-5
+                border-b
+                border-[#20222c]
+              "
+            >
+
+              <div
+                className="
+                  w-10
+                  h-10
+                  rounded-xl
+                  bg-[#1d1f29]
+                  flex
+                  items-center
+                  justify-center
+                "
+              >
+
+                <Settings2
+                  size={20}
+                  className="text-gray-300"
+                />
+
+              </div>
+
+              <div>
+
+                <h2
+                  className="
+                    text-[18px]
+                    font-semibold
+                    text-white
+                  "
+                >
+                  Advanced Options
+                </h2>
+
+                <p
+                  className="
+                    text-sm
+                    text-gray-400
+                    mt-1
+                  "
+                >
+                  Privacy and protection controls
+                </p>
+
+              </div>
+
+            </div>
+
+            {/* Content */}
+            <AdvancedOptions
+              shieldsEnabled={
+                shieldsEnabled
+              }
+            />
+
+          </div>
 
         </div>
 
