@@ -6,12 +6,8 @@
       "type": "block"
     },
     "condition": {
-      "urlFilter": "doubleclick.net",
-      "resourceTypes": [
-        "script",
-        "image",
-        "xmlhttprequest"
-      ]
+      "urlFilter": "google-analytics.com",
+      "resourceTypes": ["script", "xmlhttprequest"]
     }
   },
   {
@@ -21,11 +17,8 @@
       "type": "block"
     },
     "condition": {
-      "urlFilter": "google-analytics.com",
-      "resourceTypes": [
-        "script",
-        "xmlhttprequest"
-      ]
+      "urlFilter": "doubleclick.net",
+      "resourceTypes": ["script", "image"]
     }
   },
   {
@@ -35,11 +28,30 @@
       "type": "block"
     },
     "condition": {
-      "urlFilter": "googletagmanager.com",
-      "resourceTypes": [
-        "script",
-        "xmlhttprequest"
-      ]
+      "urlFilter": "connect.facebook.net",
+      "resourceTypes": ["script"]
+    }
+  },
+  {
+    "id": 4,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "hotjar.com",
+      "resourceTypes": ["script"]
+    }
+  },
+  {
+    "id": 5,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "analytics.tiktok.com",
+      "resourceTypes": ["script", "xmlhttprequest"]
     }
   }
 ]

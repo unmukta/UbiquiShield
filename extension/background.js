@@ -1,3 +1,31 @@
+chrome.declarativeNetRequest
+  .onRuleMatchedDebug
+  .addListener((info) => {
+
+    chrome.storage.local.get(
+      ["blockedCount"],
+      (result) => {
+
+        const current =
+          result.blockedCount || 0
+
+        chrome.storage.local.set({
+
+          blockedCount:
+            current + 1
+
+        })
+
+      }
+    )
+
+    console.log(
+      "Blocked:",
+      info.request.url
+    )
+
+  })
+  
 let shieldsEnabled = true
 
 let currentWebsite = ""
