@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react"
 
-import {
-  Settings2
-} from "lucide-react"
-
 import AdvancedOptions from "./components/dashboard/AdvancedOptions"
 
 function App() {
@@ -125,7 +121,7 @@ function App() {
       }
     )
 
-    // Block Counter
+    // Counter
     chrome.storage.local.get(
       ["blockedCount"],
       (result) => {
@@ -204,7 +200,7 @@ function App() {
       }
     )
 
-    // Enable / Disable DNR rules
+    // Enable / Disable Rules
     if (
       chrome.declarativeNetRequest
     ) {
@@ -525,85 +521,14 @@ function App() {
 
         </div>
 
-        {/* Advanced Options */}
+        {/* ONLY ONE ADVANCED OPTIONS */}
         <div className="px-5 mt-4">
 
-          <div
-            className="
-              rounded-[28px]
-              border
-              border-[#20222c]
-              bg-[#151720]
-              overflow-hidden
-            "
-          >
-
-            {/* Header */}
-            <div
-              className="
-                flex
-                items-center
-                gap-3
-                px-6
-                py-5
-                border-b
-                border-[#20222c]
-              "
-            >
-
-              <div
-                className="
-                  w-10
-                  h-10
-                  rounded-xl
-                  bg-[#1d1f29]
-                  flex
-                  items-center
-                  justify-center
-                "
-              >
-
-                <Settings2
-                  size={20}
-                  className="text-gray-300"
-                />
-
-              </div>
-
-              <div>
-
-                <h2
-                  className="
-                    text-[18px]
-                    font-semibold
-                    text-white
-                  "
-                >
-                  Advanced Options
-                </h2>
-
-                <p
-                  className="
-                    text-sm
-                    text-gray-400
-                    mt-1
-                  "
-                >
-                  Privacy and protection controls
-                </p>
-
-              </div>
-
-            </div>
-
-            {/* Content */}
-            <AdvancedOptions
-              shieldsEnabled={
-                shieldsEnabled
-              }
-            />
-
-          </div>
+          <AdvancedOptions
+            shieldsEnabled={
+              shieldsEnabled
+            }
+          />
 
         </div>
 

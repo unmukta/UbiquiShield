@@ -1,13 +1,24 @@
-import { useState } from "react"
+import {
+  useEffect,
+  useState
+} from "react"
 
 import {
+
   ChevronDown,
-  ChevronRight,
-  Shield,
+
+  Settings2,
+
   Fingerprint,
+
   Cookie,
+
   Code,
-  Lock
+
+  Lock,
+
+  Shield
+
 } from "lucide-react"
 
 function AdvancedOptions() {
@@ -15,22 +26,83 @@ function AdvancedOptions() {
   const [expanded, setExpanded] =
     useState(false)
 
-  const [
-    blockScripts,
-    setBlockScripts
-  ] = useState(false)
+  const [settings, setSettings] =
+    useState({
 
-  const [
-    fingerprint,
-    setFingerprint
-  ] = useState(true)
+      trackerBlocking: true,
+
+      httpsUpgrade: true,
+
+      scriptBlocking: false,
+
+      fingerprintProtection: true,
+
+      thirdPartyCookies: true
+
+    })
+
+  // LOAD SETTINGS
+  useEffect(() => {
+
+    if (
+      typeof chrome === "undefined" ||
+      !chrome.storage
+    ) {
+      return
+    }
+
+    chrome.storage.local.get(
+      ["settings"],
+      (result) => {
+
+        if (
+          result.settings
+        ) {
+
+          setSettings(
+            result.settings
+          )
+
+        }
+
+      }
+    )
+
+  }, [])
+
+  // SAVE SETTINGS
+  function updateSetting(
+    key,
+    value
+  ) {
+
+    const updated = {
+
+      ...settings,
+
+      [key]: value
+
+    }
+
+    setSettings(updated)
+
+    chrome.storage.local.set({
+
+      settings: updated
+
+    })
+
+  }
 
   return (
 
     <div
       className="
-        border-t
-        border-[#23252d]
+        rounded-[28px]
+        border
+        border-[#20222c]
+        bg-[#11131a]
+        overflow-hidden
       "
     >
 
@@ -46,32 +118,57 @@ function AdvancedOptions() {
           flex
           items-center
           justify-between
-          px-5
-          py-4
-          transition-colors
-          duration-200
-          hover:bg-[#141620]
+          px-6
+          py-5
         "
       >
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
 
-          <Shield
-            size={18}
+          <div
             className="
-              text-gray-300
-            "
-          />
-
-          <span
-            className="
-              text-white
-              text-[16px]
-              font-medium
+              w-11
+              h-11
+              rounded-2xl
+              bg-[#1b1d27]
+              flex
+              items-center
+              justify-center
             "
           >
-            Advanced options
-          </span>
+
+            <Settings2
+              size={20}
+              className="
+                text-gray-300
+              "
+            />
+
+          </div>
+
+          <div className="text-left">
+
+            <h2
+              className="
+                text-[18px]
+                font-semibold
+                text-white
+              "
+            >
+              Advanced Options
+            </h2>
+
+            <p
+              className="
+                text-sm
+                text-gray-400
+                mt-1
+              "
+            >
+              Privacy and protection controls
+            </p>
+
+          </div>
 
         </div>
 
@@ -91,17 +188,16 @@ function AdvancedOptions() {
 
       </button>
 
-      {/* Animated Expand */}
+      {/* Expand */}
       <div
         className={`
           overflow-hidden
           transition-all
           duration-300
-          ease-in-out
           ${
             expanded
-              ? "max-h-[500px] opacity-100"
-              : "max-h-0 opacity-0"
+              ? "max-h-[600px]"
+              : "max-h-0"
           }
         `}
       >
@@ -109,236 +205,186 @@ function AdvancedOptions() {
         <div
           className="
             border-t
-            border-[#23252d]
+            border-[#20222c]
             px-5
-            py-3
+            py-4
+            space-y-2
           "
         >
 
-          <div className="space-y-1">
+          {/* TRACKERS */}
 
-            {/* Row */}
-            <SettingRow
+          <ToggleRow
 
-              icon={
-                <Shield
-                  size={18}
-                  className="
-                    text-gray-400
-                  "
-                />
-              }
+            icon={
+              <Shield
+                size={18}
+                className="
+                  text-gray-400
+                "
+              />
+            }
 
-              label="
-                Block trackers & ads
-              "
-
-              right="
-                Aggressive
-              "
-
-              dropdown
-
-            />
-
-            {/* Row */}
-            <SettingRow
-
-              icon={
-                <Lock
-                  size={18}
-                  className="
-                    text-gray-400
-                  "
-                />
-              }
-
-              label="
-                Upgrade connections to HTTPS
-              "
-
-              right="
-                Standard
-              "
-
-              dropdown
-
-            />
-
-            {/* Toggle Row */}
-            <ToggleRow
-
-              icon={
-                <Code
-                  size={18}
-                  className="
-                    text-gray-400
-                  "
-                />
-              }
-
-              label="
-                Block scripts
-              "
-
-              enabled={
-                blockScripts
-              }
-
-              setEnabled={
-                setBlockScripts
-              }
-
-            />
-
-            {/* Toggle Row */}
-            <ToggleRow
-
-              icon={
-                <Fingerprint
-                  size={18}
-                  className="
-                    text-gray-400
-                  "
-                />
-              }
-
-              label="
-                Block fingerprinting
-              "
-
-              enabled={
-                fingerprint
-              }
-
-              setEnabled={
-                setFingerprint
-              }
-
-              arrow
-
-            />
-
-            {/* Row */}
-            <SettingRow
-
-              icon={
-                <Cookie
-                  size={18}
-                  className="
-                    text-gray-400
-                  "
-                />
-              }
-
-              label="
-                Block third-party cookies
-              "
-
-              right="
-                Cross-site
-              "
-
-              dropdown
-
-            />
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  )
-
-}
-
-function toggleTrackerBlocking(
-  enabled
-) {
-
-  chrome.declarativeNetRequest
-    .updateEnabledRulesets({
-
-      disableRulesetIds:
-        enabled
-          ? []
-          : ["ruleset_1"],
-
-      enableRulesetIds:
-        enabled
-          ? ["ruleset_1"]
-          : []
-
-    })
-
-}
-
-/* SETTINGS ROW */
-
-function SettingRow({
-
-  icon,
-  label,
-  right,
-  dropdown
-
-}) {
-
-  return (
-
-    <div
-      className="
-        flex
-        items-center
-        justify-between
-        py-3
-        px-2
-        rounded-xl
-        transition-colors
-        duration-200
-        hover:bg-[#171922]
-      "
-    >
-
-      <div className="flex items-center gap-3">
-
-        {icon}
-
-        <span
-          className="
-            text-white
-            text-[15px]
-          "
-        >
-          {label}
-        </span>
-
-      </div>
-
-      <div className="flex items-center gap-2">
-
-        <span
-          className="
-            text-gray-400
-            text-sm
-          "
-        >
-          {right}
-        </span>
-
-        {dropdown && (
-
-          <ChevronDown
-            size={16}
-            className="
-              text-gray-500
+            label="
+              Block trackers & ads
             "
+
+            enabled={
+              settings.trackerBlocking
+            }
+
+            onToggle={() =>
+              updateSetting(
+
+                "trackerBlocking",
+
+                !settings
+                  .trackerBlocking
+
+              )
+            }
+
           />
 
-        )}
+          {/* HTTPS */}
+
+          <ToggleRow
+
+            icon={
+              <Lock
+                size={18}
+                className="
+                  text-gray-400
+                "
+              />
+            }
+
+            label="
+              Upgrade connections to HTTPS
+            "
+
+            enabled={
+              settings.httpsUpgrade
+            }
+
+            onToggle={() =>
+              updateSetting(
+
+                "httpsUpgrade",
+
+                !settings
+                  .httpsUpgrade
+
+              )
+            }
+
+          />
+
+          {/* SCRIPT BLOCKING */}
+
+          <ToggleRow
+
+            icon={
+              <Code
+                size={18}
+                className="
+                  text-gray-400
+                "
+              />
+            }
+
+            label="
+              Block scripts
+            "
+
+            enabled={
+              settings.scriptBlocking
+            }
+
+            onToggle={() =>
+              updateSetting(
+
+                "scriptBlocking",
+
+                !settings
+                  .scriptBlocking
+
+              )
+            }
+
+          />
+
+          {/* FINGERPRINT */}
+
+          <ToggleRow
+
+            icon={
+              <Fingerprint
+                size={18}
+                className="
+                  text-gray-400
+                "
+              />
+            }
+
+            label="
+              Block fingerprinting
+            "
+
+            enabled={
+              settings
+                .fingerprintProtection
+            }
+
+            onToggle={() =>
+              updateSetting(
+
+                "fingerprintProtection",
+
+                !settings
+                  .fingerprintProtection
+
+              )
+            }
+
+          />
+
+          {/* COOKIES */}
+
+          <ToggleRow
+
+            icon={
+              <Cookie
+                size={18}
+                className="
+                  text-gray-400
+                "
+              />
+            }
+
+            label="
+              Block third-party cookies
+            "
+
+            enabled={
+              settings
+                .thirdPartyCookies
+            }
+
+            onToggle={() =>
+              updateSetting(
+
+                "thirdPartyCookies",
+
+                !settings
+                  .thirdPartyCookies
+
+              )
+            }
+
+          />
+
+        </div>
 
       </div>
 
@@ -353,10 +399,12 @@ function SettingRow({
 function ToggleRow({
 
   icon,
+
   label,
+
   enabled,
-  setEnabled,
-  arrow
+
+  onToggle
 
 }) {
 
@@ -369,14 +417,14 @@ function ToggleRow({
         justify-between
         py-3
         px-2
-        rounded-xl
+        rounded-2xl
         transition-colors
         duration-200
-        hover:bg-[#171922]
+        hover:bg-[#181b24]
       "
     >
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
 
         {icon}
 
@@ -391,60 +439,42 @@ function ToggleRow({
 
       </div>
 
-      <div className="flex items-center gap-3">
-
-        {arrow && (
-
-          <ChevronRight
-            size={16}
-            className="
-              text-gray-500
-            "
-          />
-
-        )}
+      {/* Toggle */}
+      <div
+        onClick={onToggle}
+        className={`
+          w-12
+          h-7
+          rounded-full
+          relative
+          cursor-pointer
+          transition-all
+          duration-200
+          ${
+            enabled
+              ? "bg-[#5b4dff]"
+              : "bg-[#343641]"
+          }
+        `}
+      >
 
         <div
-          onClick={() =>
-            setEnabled(
-              !enabled
-            )
-          }
           className={`
-            w-11
-            h-6
+            absolute
+            top-1
+            w-5
+            h-5
             rounded-full
-            relative
-            cursor-pointer
+            bg-white
             transition-all
             duration-200
             ${
               enabled
-                ? "bg-[#5b4dff]"
-                : "bg-[#3a3b45]"
+                ? "right-1"
+                : "left-1"
             }
           `}
-        >
-
-          <div
-            className={`
-              absolute
-              top-[2px]
-              w-5
-              h-5
-              rounded-full
-              bg-white
-              transition-all
-              duration-200
-              ${
-                enabled
-                  ? "right-[2px]"
-                  : "left-[2px]"
-              }
-            `}
-          />
-
-        </div>
+        />
 
       </div>
 
