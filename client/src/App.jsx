@@ -1,243 +1,292 @@
-import { useEffect, useState } from "react"
+import {
 
-import AdvancedOptions from "./components/dashboard/AdvancedOptions"
+  useEffect,
+  useState
+
+} from "react"
+
+import {
+
+  Shield,
+  ChevronDown,
+  ChevronUp,
+  Settings2,
+  Lock,
+  Cookie,
+  Fingerprint,
+  Code2
+
+} from "lucide-react"
 
 function App() {
 
-  const [blockedCount, setBlockedCount] =
-    useState(0)
+  const [
 
-  const [website, setWebsite] =
-    useState("Loading...")
+    website,
+    setWebsite
 
-  const [hostname, setHostname] =
-    useState("")
+  ] = useState("Loading...")
 
-  const [favicon, setFavicon] =
-    useState("")
+  const [
 
-  const [shieldsEnabled, setShieldsEnabled] =
-    useState(true)
+    favicon,
+    setFavicon
 
-  const [relayEnabled, setRelayEnabled] =
-    useState(true)
+  ] = useState("icons/icon128.png")
+
+  const [
+
+    shieldsEnabled,
+    setShieldsEnabled
+
+  ] = useState(true)
+
+  const [
+
+    blockedCount,
+    setBlockedCount
+
+  ] = useState(0)
+
+  const [
+
+    advancedOpen,
+    setAdvancedOpen
+
+  ] = useState(false)
+
+  const [
+
+    settings,
+    setSettings
+
+  ] = useState({
+
+    trackerBlocking: true,
+
+    httpsUpgrade: true,
+
+    scriptBlocking: false,
+
+    fingerprintProtection: true,
+
+    thirdPartyCookies: true
+
+  })
+
+  // =========================
+  // WEBSITE INFO
+  // =========================
 
   useEffect(() => {
 
     if (
-      typeof chrome === "undefined" ||
-      !chrome.storage
+
+      typeof chrome !== "undefined" &&
+      chrome.tabs
+
     ) {
-      return
-    }
 
-    // Active Website
-    chrome.tabs.query(
-      {
-        active: true,
-        currentWindow: true
-      },
-      (tabs) => {
+      chrome.tabs.query(
 
-        if (
-          tabs &&
-          tabs[0] &&
-          tabs[0].url
-        ) {
+        {
 
-          try {
+          active: true,
+          currentWindow: true
 
-            const url =
-              new URL(
-                tabs[0].url
-              )
+        },
 
-            const cleanHostname =
-              url.hostname.replace(
-                "www.",
-                ""
-              )
+        (tabs) => {
 
-            setWebsite(
-              cleanHostname
-            )
+          if (
 
-            setHostname(
-              cleanHostname
-            )
+            tabs &&
+            tabs[0]
 
-            setFavicon(
-              `https://${cleanHostname}/favicon.ico`
-            )
+          ) {
 
-            chrome.storage.local.get(
-              [
-                "siteSettings",
-                "relayEnabled"
-              ],
-              (result) => {
+            if (
+              tabs[0].url
+            ) {
 
-                const settings =
-                  result.siteSettings || {}
+              try {
 
-                if (
-                  settings[
-                    cleanHostname
-                  ]
-                ) {
-
-                  setShieldsEnabled(
-                    settings[
-                      cleanHostname
-                    ].shieldsEnabled
+                const url =
+                  new URL(
+                    tabs[0].url
                   )
 
-                }
+                setWebsite(
 
-                if (
-                  result.relayEnabled !==
-                  undefined
-                ) {
+                  url.hostname
+                    .replace(
+                      "www.",
+                      ""
+                    )
 
-                  setRelayEnabled(
-                    result.relayEnabled
-                  )
+                )
 
-                }
+              } catch {
+
+                setWebsite(
+                  "Unknown"
+                )
 
               }
-            )
 
-          } catch {
+            }
 
-            setWebsite(
-              "Unknown"
-            )
+            if (
+              tabs[0].favIconUrl
+            ) {
+
+              setFavicon(
+                tabs[0].favIconUrl
+              )
+
+            }
 
           }
 
         }
 
-      }
-    )
-
-    // Counter
-    chrome.storage.local.get(
-      ["blockedCount"],
-      (result) => {
-
-        setBlockedCount(
-          result.blockedCount || 0
-        )
-
-      }
-    )
-
-    // Live Updates
-    const listener = (
-      changes,
-      area
-    ) => {
-
-      if (
-        area === "local" &&
-        changes.blockedCount
-      ) {
-
-        setBlockedCount(
-          changes.blockedCount.newValue || 0
-        )
-
-      }
-
-    }
-
-    chrome.storage.onChanged.addListener(
-      listener
-    )
-
-    return () => {
-
-      chrome.storage.onChanged.removeListener(
-        listener
       )
 
     }
 
   }, [])
 
-  // Shields Toggle
-  function toggleShields() {
+  // =========================
+  // STORAGE
+  // =========================
 
-    const newValue =
-      !shieldsEnabled
-
-    setShieldsEnabled(
-      newValue
-    )
+  useEffect(() => {
 
     chrome.storage.local.get(
-      ["siteSettings"],
+
+      [
+
+        "blockedCount",
+        "settings"
+
+      ],
+
       (result) => {
 
-        const settings =
-          result.siteSettings || {}
+        setBlockedCount(
 
-        settings[hostname] = {
+          result.blockedCount || 0
 
-          shieldsEnabled:
-            newValue
+        )
+
+        if (
+          result.settings
+        ) {
+
+          setSettings(
+            result.settings
+          )
 
         }
 
-        chrome.storage.local.set({
-
-          siteSettings:
-            settings
-
-        })
-
       }
+
     )
 
-    // Enable / Disable Rules
-    if (
-      chrome.declarativeNetRequest
-    ) {
+  }, [])
 
-      chrome.declarativeNetRequest
-        .updateEnabledRulesets({
+  // =========================
+  // LIVE UPDATE
+  // =========================
 
-          disableRulesetIds:
-            newValue
-              ? []
-              : ["ruleset_1"],
+  useEffect(() => {
 
-          enableRulesetIds:
-            newValue
-              ? ["ruleset_1"]
-              : []
+    chrome.storage.onChanged
+      .addListener((changes) => {
 
-        })
+        if (
+          changes.blockedCount
+        ) {
+
+          setBlockedCount(
+
+            changes.blockedCount
+              .newValue
+
+          )
+
+        }
+
+      })
+
+  }, [])
+
+  // =========================
+  // MASTER TOGGLE
+  // =========================
+
+  function toggleShield() {
+
+    const updated =
+      !shieldsEnabled
+
+    setShieldsEnabled(
+      updated
+    )
+
+    const updatedSettings = {
+
+      trackerBlocking:
+        updated,
+
+      httpsUpgrade:
+        updated,
+
+      scriptBlocking:
+        updated,
+
+      fingerprintProtection:
+        updated,
+
+      thirdPartyCookies:
+        updated
 
     }
 
-  }
-
-  // Relay Toggle
-  function toggleRelay() {
-
-    const newValue =
-      !relayEnabled
-
-    setRelayEnabled(
-      newValue
+    setSettings(
+      updatedSettings
     )
 
     chrome.storage.local.set({
 
-      relayEnabled:
-        newValue
+      settings:
+        updatedSettings
+
+    })
+
+  }
+
+  // =========================
+  // OPTION TOGGLE
+  // =========================
+
+  function toggleSetting(key) {
+
+    const updated = {
+
+      ...settings,
+
+      [key]:
+        !settings[key]
+
+    }
+
+    setSettings(updated)
+
+    chrome.storage.local.set({
+
+      settings:
+        updated
 
     })
 
@@ -247,316 +296,496 @@ function App() {
 
     <div
       className="
-        w-[420px]
-        bg-[#0f1014]
-        p-2
+        w-[320px]
+        bg-[#0d0e16]
+        text-white
+        overflow-hidden
+        border
+        border-white/5
+        rounded-[28px]
       "
     >
 
-      {/* Main Container */}
+      {/* HEADER */}
+
       <div
         className="
-          w-full
-          rounded-[28px]
-          border
-          border-[#1f212b]
-          bg-[#0f1014]
-          overflow-hidden
+          px-5
+          pt-5
+          pb-4
+          flex
+          items-center
+          justify-between
         "
       >
 
-        {/* Header */}
-        <div className="px-5 pt-5 pb-4">
+        <div className="flex items-center gap-4 min-w-0">
 
-          <div className="flex items-start justify-between">
+          {/* WEBSITE ICON */}
 
-            {/* Left */}
-            <div className="flex items-start gap-4">
+          <div
+            className="
+              w-14
+              h-14
+              rounded-2xl
+              bg-[#171924]
+              flex
+              items-center
+              justify-center
+              shrink-0
+              overflow-hidden
+            "
+          >
 
-              {/* Website Icon */}
-              <div
-                className="
-                  w-12
-                  h-12
-                  rounded-2xl
-                  bg-[#181a22]
-                  flex
-                  items-center
-                  justify-center
-                  overflow-hidden
-                  flex-shrink-0
-                "
-              >
+            <img
 
-                <img
-                  src={
-                    favicon ||
-                    "/icons/icon48.png"
-                  }
-                  alt="favicon"
-                  className="
-                    w-7
-                    h-7
-                    rounded-lg
-                  "
-                  onError={(e) => {
+              src={favicon}
 
-                    e.currentTarget.src =
-                      "/icons/icon48.png"
+              alt="favicon"
 
-                  }}
-                />
+              className="
+                w-7
+                h-7
+                object-contain
+              "
 
-              </div>
+              onError={(e) => {
 
-              {/* Website */}
-              <div>
+                e.target.src =
+                  "icons/icon128.png"
 
-                <h1
-                  className="
-                    text-[18px]
-                    font-semibold
-                    text-white
-                  "
-                >
-                  {website}
-                </h1>
+              }}
 
-                <p
-                  className={`
-                    text-sm
-                    mt-1
-                    transition-all
-                    ${
-                      shieldsEnabled
-                        ? "text-gray-400"
-                        : "text-red-400"
-                    }
-                  `}
-                >
+            />
 
-                  {
-                    shieldsEnabled
-                      ? "Shields up for this site"
-                      : "Shields are disabled"
-                  }
+          </div>
 
-                </p>
+          {/* WEBSITE INFO */}
 
-              </div>
+          <div className="min-w-0">
 
-            </div>
+            <h1
+              className="
+                text-[16px]
+                font-semibold
+                truncate
+              "
+            >
 
-            {/* Shields Toggle */}
-            <div
-              onClick={toggleShields}
+              {website}
+
+            </h1>
+
+            <p
               className={`
-                w-14
-                h-8
-                rounded-full
-                relative
-                cursor-pointer
-                transition-all
+                text-sm
+                mt-1
                 ${
                   shieldsEnabled
-                    ? "bg-[#5b4dff]"
-                    : "bg-[#2b2d37]"
+                    ? "text-gray-400"
+                    : "text-red-400"
                 }
               `}
             >
 
-              <div
-                className={`
-                  absolute
-                  top-1
-                  w-6
-                  h-6
-                  rounded-full
-                  bg-white
-                  transition-all
-                  ${
-                    shieldsEnabled
-                      ? "right-1"
-                      : "left-1"
-                  }
-                `}
-              />
+              {
 
-            </div>
+                shieldsEnabled
+                  ? "Shields up for this site"
+                  : "Shields down for this site"
 
-          </div>
+              }
 
-        </div>
-
-        {/* Counter */}
-        <div className="px-5">
-
-          <div
-            className="
-              rounded-[28px]
-              border
-              border-[#20222c]
-              bg-[#151720]
-              py-8
-              text-center
-            "
-          >
-
-            <div
-              className="
-                text-[64px]
-                leading-none
-                font-semibold
-                text-white
-              "
-            >
-              {blockedCount}
-            </div>
-
-            <p
-              className="
-                text-gray-300
-                text-sm
-                mt-3
-              "
-            >
-              trackers, ads, and more blocked
             </p>
 
           </div>
 
         </div>
 
-        {/* Privacy Relay */}
-        <div className="px-5 mt-4">
+        {/* TOGGLE */}
+
+        <button
+
+          onClick={
+            toggleShield
+          }
+
+          className={`
+            w-16
+            h-9
+            rounded-full
+            transition-all
+            relative
+            shrink-0
+            ${
+              shieldsEnabled
+                ? "bg-[#6d5cff]"
+                : "bg-[#3b3d49]"
+            }
+          `}
+        >
 
           <div
-            className="
-              rounded-[28px]
-              border
-              border-[#20222c]
-              bg-[#151720]
-              px-6
-              py-6
-            "
-          >
-
-            <div className="flex items-center justify-between">
-
-              <div>
-
-                <h2
-                  className="
-                    text-[18px]
-                    font-semibold
-                    text-white
-                  "
-                >
-                  Privacy Relay
-                </h2>
-
-                <p
-                  className={`
-                    text-sm
-                    mt-2
-                    transition-all
-                    ${
-                      relayEnabled
-                        ? "text-gray-400"
-                        : "text-red-400"
-                    }
-                  `}
-                >
-
-                  {
-                    relayEnabled
-                      ? "Protected browsing active"
-                      : "Protected browsing disabled"
-                  }
-
-                </p>
-
-              </div>
-
-              {/* Relay Toggle */}
-              <div
-                onClick={toggleRelay}
-                className={`
-                  w-14
-                  h-8
-                  rounded-full
-                  relative
-                  cursor-pointer
-                  transition-all
-                  ${
-                    relayEnabled
-                      ? "bg-[#5b4dff]"
-                      : "bg-[#2b2d37]"
-                  }
-                `}
-              >
-
-                <div
-                  className={`
-                    absolute
-                    top-1
-                    w-6
-                    h-6
-                    rounded-full
-                    bg-white
-                    transition-all
-                    ${
-                      relayEnabled
-                        ? "right-1"
-                        : "left-1"
-                    }
-                  `}
-                />
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* ONLY ONE ADVANCED OPTIONS */}
-        <div className="px-5 mt-4">
-
-          <AdvancedOptions
-            shieldsEnabled={
-              shieldsEnabled
-            }
+            className={`
+              w-7
+              h-7
+              rounded-full
+              bg-white
+              absolute
+              top-1
+              transition-all
+              ${
+                shieldsEnabled
+                  ? "right-1"
+                  : "left-1"
+              }
+            `}
           />
 
-        </div>
+        </button>
 
-        {/* Footer */}
+      </div>
+
+      {/* BLOCK CARD */}
+
+      <div className="px-5 pb-5">
+
         <div
           className="
-            border-t
-            border-[#1f212b]
-            mt-4
-            px-5
-            py-5
+            bg-[#131520]
+            rounded-[30px]
+            py-12
+            border border-white/[0.04]
             text-center
           "
         >
 
-          <p
+          <h2
             className="
-              text-xs
-              text-gray-500
+              text-7xl
+              font-bold
+              tracking-tight
             "
           >
-            Your privacy is protected by
-            Ubiqui_Shield Relay.
+
+            {blockedCount}
+
+          </h2>
+
+          <p
+            className="
+              text-gray-300
+              mt-4
+              text-sm
+            "
+          >
+
+            trackers, ads,
+            and more blocked
+
           </p>
 
         </div>
 
       </div>
+
+      {/* ADVANCED OPTIONS */}
+
+      <div
+        className="
+          border-t
+          border-white/[0.04]
+        "
+      >
+
+        <button
+
+          onClick={() =>
+            setAdvancedOpen(
+              !advancedOpen
+            )
+          }
+
+          className="
+            w-full
+            px-5
+            py-5
+            flex
+            items-center
+            justify-between
+          "
+        >
+
+          <div className="flex items-center gap-4">
+
+            <div
+              className="
+                w-14
+                h-14
+                rounded-2xl
+                bg-[#171924]
+                flex
+                items-center
+                justify-center
+                shrink-0
+              "
+            >
+
+              <Settings2
+                size={22}
+                className="
+                  text-gray-300
+                "
+              />
+
+            </div>
+
+            <div className="text-left">
+
+              <h2
+                className="
+                  text-[15px]
+                  font-semibold
+                "
+              >
+
+                Advanced Options
+
+              </h2>
+
+              <p
+                className="
+                  text-xs
+                  text-gray-400
+                  mt-1
+                "
+              >
+
+                Privacy and protection controls
+
+              </p>
+
+            </div>
+
+          </div>
+
+          {
+
+            advancedOpen
+
+              ? <ChevronUp size={22} />
+
+              : <ChevronDown size={22} />
+
+          }
+
+        </button>
+
+        {
+
+          advancedOpen && (
+
+            <div
+              className="
+                border-t
+                border-white/[0.04]
+                px-5
+                py-5
+                space-y-5
+              "
+            >
+
+              <OptionRow
+                icon={<Shield size={18} />}
+                label="Block trackers & ads"
+                enabled={settings.trackerBlocking}
+                onClick={() =>
+                  toggleSetting(
+                    "trackerBlocking"
+                  )
+                }
+              />
+
+              <OptionRow
+                icon={<Lock size={18} />}
+                label="Upgrade HTTPS"
+                enabled={settings.httpsUpgrade}
+                onClick={() =>
+                  toggleSetting(
+                    "httpsUpgrade"
+                  )
+                }
+              />
+
+              <OptionRow
+                icon={<Code2 size={18} />}
+                label="Block scripts"
+                enabled={settings.scriptBlocking}
+                onClick={() =>
+                  toggleSetting(
+                    "scriptBlocking"
+                  )
+                }
+              />
+
+              <OptionRow
+                icon={<Fingerprint size={18} />}
+                label="Block fingerprinting"
+                enabled={settings.fingerprintProtection}
+                onClick={() =>
+                  toggleSetting(
+                    "fingerprintProtection"
+                  )
+                }
+              />
+
+              <OptionRow
+                icon={<Cookie size={18} />}
+                label="Block third-party cookies"
+                enabled={settings.thirdPartyCookies}
+                onClick={() =>
+                  toggleSetting(
+                    "thirdPartyCookies"
+                  )
+                }
+              />
+
+            </div>
+
+          )
+
+        }
+
+      </div>
+
+      {/* FOOTER */}
+
+      <div
+        className="
+          border-t
+          border-white/[0.04]
+          px-5
+          py-5
+          text-center
+        "
+      >
+
+        <p
+          className="
+            text-xs
+            text-gray-500
+            leading-relaxed
+          "
+        >
+
+          If this site seems broken,
+          try turning protection off.
+
+        </p>
+
+      </div>
+
+    </div>
+
+  )
+
+}
+
+// =========================
+// OPTION ROW
+// =========================
+
+function OptionRow({
+
+  icon,
+  label,
+  enabled,
+  onClick
+
+}) {
+
+  return (
+
+    <div
+      className="
+        flex
+        items-center
+        justify-between
+        gap-4
+      "
+    >
+
+      <div
+        className="
+          flex
+          items-center
+          gap-3
+          min-w-0
+        "
+      >
+
+        <div
+          className="
+            text-gray-300
+            shrink-0
+          "
+        >
+
+          {icon}
+
+        </div>
+
+        <span
+          className="
+            text-[15px]
+            text-white
+          "
+        >
+
+          {label}
+
+        </span>
+
+      </div>
+
+      <button
+
+        onClick={onClick}
+
+        className={`
+          w-14
+          h-8
+          rounded-full
+          transition-all
+          relative
+          shrink-0
+          ${
+            enabled
+              ? "bg-[#6d5cff]"
+              : "bg-[#3b3d49]"
+          }
+        `}
+
+      >
+
+        <div
+          className={`
+            w-6
+            h-6
+            rounded-full
+            bg-white
+            absolute
+            top-1
+            transition-all
+            ${
+              enabled
+                ? "right-1"
+                : "left-1"
+            }
+          `}
+        />
+
+      </button>
 
     </div>
 

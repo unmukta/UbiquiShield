@@ -6,68 +6,45 @@ html,
 body,
 #root {
 
-  width: 420px;
-
   margin: 0;
   padding: 0;
 
-  overflow: hidden;
+  width: 320px;
+  min-width: 320px;
+  max-width: 320px;
 
-  background:
-    #0f1014 !important;
+  background: #0d0e16;
+
+  overflow-x: hidden;
+  overflow-y: hidden;
 
   font-family:
     Inter,
     system-ui,
     sans-serif;
 
-  color: white;
-
-}
-
-/* Remove Brave forced height */
-html {
-
-  height: auto !important;
-  min-height: auto !important;
-  max-height: none !important;
-
 }
 
 body {
 
-  height: auto !important;
-  min-height: auto !important;
-  max-height: none !important;
+  display: flex;
 
-  display: inline-block;
-
-}
-
-#root {
-
-  display: inline-block;
-  height: auto !important;
+  justify-content: center;
+  align-items: flex-start;
 
 }
 
-/* Global */
 * {
 
   box-sizing: border-box;
 
 }
 
-/* Remove scrollbars */
+/* REMOVE SCROLLBAR */
+
 ::-webkit-scrollbar {
 
   width: 0;
   height: 0;
-
-}
-
-::-webkit-scrollbar-thumb {
-
-  background: transparent;
 
 }
