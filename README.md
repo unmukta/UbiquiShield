@@ -60,6 +60,14 @@ The extension monitors requests in real time and applies protections directly th
 * Content Scripts
 * Background Service Workers
 
+## Architecture
+
+- React + Vite frontend
+- Chrome Extension Manifest V3
+- Background service worker
+- Content script injection
+- Local settings storage
+
 ---
 
 ## Project Structure
@@ -229,11 +237,21 @@ Planned improvements include:
 
 ---
 
+## Current Limitations
+
+- Does not yet support full EasyList filtering
+- Cosmetic filtering is limited
+- YouTube ads are partially blocked
+- HTTPS upgrading is experimental
+---
+
 ## Browser Support
 
 - Google Chrome
 - Microsoft Edge
 - Chromium browsers
+
+---
 
 ## Disclaimer
 
