@@ -54,42 +54,6 @@
     }
   },
   {
-    "id": 7,
-    "priority": 1,
-    "action": { "type": "block" },
-    "condition": {
-      "urlFilter": "linkedin.com",
-      "resourceTypes": ["script", "xmlhttprequest"]
-    }
-  },
-  {
-    "id": 8,
-    "priority": 1,
-    "action": { "type": "block" },
-    "condition": {
-      "urlFilter": "mixpanel.com",
-      "resourceTypes": ["script", "xmlhttprequest"]
-    }
-  },
-  {
-    "id": 9,
-    "priority": 1,
-    "action": { "type": "block" },
-    "condition": {
-      "urlFilter": "segment.com",
-      "resourceTypes": ["script", "xmlhttprequest"]
-    }
-  },
-  {
-    "id": 10,
-    "priority": 1,
-    "action": { "type": "block" },
-    "condition": {
-      "urlFilter": "hubspot.com",
-      "resourceTypes": ["script", "xmlhttprequest"]
-    }
-  },
-  {
     "id": 11,
     "priority": 1,
     "action": { "type": "block" },
