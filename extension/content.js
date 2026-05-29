@@ -127,6 +127,41 @@ const defaultSettings = {
 let settings =
   defaultSettings
 
+
+  function cosmeticFiltering() {
+
+  const selectors = [
+
+    '[id*="ad"]',
+    '[class*="ad"]',
+    '[class*="banner"]',
+    '[class*="sponsor"]',
+    '[id*="sponsor"]',
+    '[class*="promoted"]',
+
+    'iframe[src*="doubleclick"]',
+    'iframe[src*="googlesyndication"]',
+    'iframe[src*="taboola"]',
+    'iframe[src*="outbrain"]',
+
+    '[data-testid="placementTracking"]'
+
+  ]
+
+  selectors.forEach((selector) => {
+
+    document
+      .querySelectorAll(selector)
+      .forEach((element) => {
+
+        element.style.display = "none"
+
+      })
+
+  })
+
+}
+
 // =========================
 // LOAD SETTINGS
 // =========================
@@ -240,24 +275,27 @@ function scanTrackers() {
       settings.scriptBlocking
     ) {
 
-      const suspicious =
-        [
-
-          "analytics",
-
-          "tracker",
-
-          "tagmanager",
-
-          "doubleclick",
-
-          "facebook",
-
-          "hotjar",
-
-          "tiktok"
-
-        ]
+      const suspicious = [
+  "analytics",
+  "tracker",
+  "tagmanager",
+  "doubleclick",
+  "facebook",
+  "hotjar",
+  "tiktok",
+  "clarity",
+  "linkedin",
+  "reddit",
+  "twitter",
+  "mixpanel",
+  "segment",
+  "hubspot",
+  "outbrain",
+  "taboola",
+  "criteo",
+  "advert",
+  "pixel"
+]
 
       const shouldBlock =
         suspicious.some(
@@ -496,6 +534,8 @@ function initializeProtection() {
 
   scanTrackers()
 
+  cosmeticFiltering()
+
 }
 
 // =========================
@@ -506,6 +546,7 @@ const observer =
   new MutationObserver(() => {
 
     scanTrackers()
+    cosmeticFiltering()
 
   })
 

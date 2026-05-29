@@ -5,32 +5,106 @@
     "category": "Advertising",
     "risk": "Medium"
   },
-
   "google-analytics": {
     "name": "Google Analytics",
     "company": "Google",
     "category": "Analytics",
     "risk": "Low"
   },
-
   "googletagmanager": {
     "name": "Google Tag Manager",
     "company": "Google",
     "category": "Analytics",
     "risk": "Medium"
   },
-
   "facebook": {
     "name": "Facebook Tracker",
     "company": "Meta",
     "category": "Social Tracking",
     "risk": "High"
   },
-
   "hotjar": {
     "name": "Hotjar",
     "company": "Hotjar Ltd",
-    "category": "User Behavior Tracking",
+    "category": "Behavior Analytics",
     "risk": "Medium"
+  },
+  "tiktok": {
+    "name": "TikTok Analytics",
+    "company": "TikTok",
+    "category": "Tracking",
+    "risk": "High"
+  },
+  "clarity": {
+    "name": "Microsoft Clarity",
+    "company": "Microsoft",
+    "category": "Analytics",
+    "risk": "Medium"
+  },
+  "linkedin": {
+    "name": "LinkedIn Insight",
+    "company": "LinkedIn",
+    "category": "Marketing",
+    "risk": "Medium"
+  },
+  "reddit": {
+    "name": "Reddit Pixel",
+    "company": "Reddit",
+    "category": "Advertising",
+    "risk": "Medium"
+  },
+  "twitter": {
+    "name": "Twitter Analytics",
+    "company": "X",
+    "category": "Analytics",
+    "risk": "Medium"
+  },
+  "snapchat": {
+    "name": "Snap Pixel",
+    "company": "Snap",
+    "category": "Advertising",
+    "risk": "Medium"
+  },
+  "pinterest": {
+    "name": "Pinterest Tag",
+    "company": "Pinterest",
+    "category": "Advertising",
+    "risk": "Medium"
+  },
+  "mixpanel": {
+    "name": "Mixpanel",
+    "company": "Mixpanel",
+    "category": "Analytics",
+    "risk": "Medium"
+  },
+  "segment": {
+    "name": "Segment",
+    "company": "Twilio",
+    "category": "Analytics",
+    "risk": "Medium"
+  },
+  "hubspot": {
+    "name": "HubSpot Tracking",
+    "company": "HubSpot",
+    "category": "Marketing",
+    "risk": "Medium"
+  },
+  "outbrain": {
+    "name": "Outbrain",
+    "company": "Outbrain",
+    "category": "Advertising",
+    "risk": "High"
+  },
+  "taboola": {
+    "name": "Taboola",
+    "company": "Taboola",
+    "category": "Advertising",
+    "risk": "High"
+  },
+  "criteo": {
+    "name": "Criteo",
+    "company": "Criteo",
+    "category": "Advertising",
+    "risk": "High"
   }
 }
