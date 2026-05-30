@@ -1,265 +1,124 @@
-# Ubiqui_Shield
+# Ubiqui Shield
 
-A lightweight privacy and tracker-blocking browser extension inspired by modern browser shields.
-
-Ubiqui_Shield focuses on clean UI, fast performance, and essential privacy protections without unnecessary bloat.
-
----
+Ubiqui Shield is a modern privacy-focused browser extension designed to improve user security and reduce online tracking.
 
 ## Features
 
-* Tracker and ad blocking
-* Third-party cookie blocking
-* Script blocking
-* Fingerprinting protection
+### Tracker & Ad Blocking
+
+* Blocks known advertising networks
+* Blocks common tracking domains
+* Real-time request filtering using Declarative Net Request rules
+* Website-specific protection controls
+
+### HTTPS Protection
+
+* Detects secure and insecure connections
+* Encourages encrypted browsing
 * HTTPS upgrade support
-* Live blocked request counter
-* Per-feature protection toggles
-* Website favicon and hostname detection
-* Modern popup UI inspired by Brave Shields
 
----
+### Script Control
 
-## Current Protection Capabilities
+* Optional script blocking for enhanced privacy
+* Helps reduce malicious or unwanted third-party scripts
 
-Ubiqui_Shield currently blocks common tracking and advertising services including:
+### Fingerprint Protection
 
-* DoubleClick
-* Google Analytics
-* Google Tag Manager
-* Facebook trackers
-* Hotjar
-* Various known ad and analytics domains
+* Hardware fingerprint reduction
+* Device memory spoofing
+* CPU core count normalization
+* Timezone normalization
+* WebGL renderer masking
+* Platform information normalization
 
-The extension monitors requests in real time and applies protections directly through the browser extension API.
+### Privacy Dashboard
 
----
+* Modern user interface
+* Per-site protection controls
+* Protection statistics
+* Current website information display
 
-### Main Dashboard
-
-- Website-specific protection
-- Privacy Relay toggle
-- Tracker statistics
-- Advanced protection controls
-
----
 ## Tech Stack
 
 ### Frontend
 
 * React
 * Vite
-* Tailwind CSS
-* Lucide Icons
+* JavaScript
+* CSS
 
-### Extension
+### Browser Extension
 
 * Chrome Extension Manifest V3
-* Chrome Declarative Net Request API
-* Chrome Storage API
-* Content Scripts
 * Background Service Workers
-
-## Architecture
-
-- React + Vite frontend
-- Chrome Extension Manifest V3
-- Background service worker
-- Content script injection
-- Local settings storage
-
----
+* Content Scripts
+* Declarative Net Request API
+* Chrome Storage API
 
 ## Project Structure
 
-```bash
+```text
 ubiqui_shield/
 │
-├── client/        # React popup UI
-├── extension/     # Browser extension files
-│   ├── background.js
-│   ├── content.js
-│   ├── manifest.json
-│   └── rules.json
+├── client/
+│   ├── src/
+│   ├── public/
+│   └── dist/
 │
-└── README.md
+└── extension/
+    ├── background.js
+    ├── content.js
+    ├── injected.js
+    ├── manifest.json
+    ├── rules.json
+    └── icons/
 ```
-
----
-
-## Screenshots
-
-### Main Interface
-
-![Main UI](assets/ss1.png)
-
----
-
-### Advanced Options
-
-![Advanced Options](assets/ss2.png)
-
----
-
-### Tracker Blocking
-
-![Tracker Blocking](assets/ss3.png)
-
-
----
-
-### ADS Blocking
-
-![HTTPS Upgrade](assets/ss4.png)
-
----
-
-### YouTube ADS Blocking
-
-![Fingerprinting Protection](assets/ss5.png)
-
---- 
 
 ## Installation
 
-### 1. Clone the repository
+### Development
 
 ```bash
-git clone https://github.com/unmukta/UbiquiShield.git
-cd UbiquiShield
-```
+git clone https://github.com/yourusername/UbiquiShield.git
 
-### 2. Install dependencies
+cd UbiquiShield/client
 
-```bash
-cd client
 npm install
-```
 
-### 3. Build the popup UI
-
-```bash
 npm run build
 ```
 
-### 4. Copy build files
+### Load Extension
 
-Copy everything from:
+1. Open Chrome or Edge
+2. Navigate to `chrome://extensions` or `edge://extensions/`
+3. Enable **Developer Mode**
+4. Click **Load Unpacked**
+5. Select the `extension` folder
 
-```bash
-client/dist/
-```
+## Current Capabilities
 
-into:
+* Ad blocking
+* Tracker blocking
+* HTTPS protection
+* Script blocking
+* Basic fingerprint protection
+* Per-site controls
+* Privacy-focused browsing enhancements
 
-```bash
-extension/
-```
+## Roadmap
 
----
+### Planned Improvements
 
-## Load Extension in Brave / Chrome
-
-1. Open:
-
-```bash
-brave://extensions
-```
-
-or
-
-```bash
-chrome://extensions
-```
-
-2. Enable **Developer Mode**
-
-3. Click **Load unpacked**
-
-4. Select the `extension/` folder
-
----
-
-## Development
-
-### Run frontend locally
-
-```bash
-cd client
-npm run dev
-```
-
-### Lint project
-
-```bash
-npx eslint .
-```
-
----
-
-## Building Production Files
-
-After every UI change:
-
-```bash
-npm run build
-```
-
-Copy contents from:
-
-```text
-client/dist/
-```
-
-into:
-
-```text
-extension/
-```
-
-Then reload extension.
-
----
-
-## Current Status
-
-The extension is actively under development.
-
-Planned improvements include:
-
-* Real filter list support
-* Cosmetic ad removal
-* Anti-adblock bypassing
-* Per-site protection settings
-* Advanced tracker intelligence
-* Performance optimizations
-* Web Store release preparation
-
----
-
-## Current Limitations
-
-- Does not yet support full EasyList filtering
-- Cosmetic filtering is limited
-- YouTube ads are partially blocked
-- HTTPS upgrading is experimental
----
-
-## Browser Support
-
-- Google Chrome
-- Microsoft Edge
-- Chromium browsers
-
----
+* Enhanced canvas fingerprint protection
+* Advanced WebGL fingerprint protection
+* Audio fingerprint protection
+* Cookie management controls
+* Privacy score system
 
 ## Disclaimer
 
-Ubiqui_Shield is an experimental privacy project intended for educational and development purposes.
-
-Some protections may break functionality on certain websites depending on how aggressively resources are blocked.
-
----
+Ubiqui Shield improves privacy and reduces common tracking techniques. No browser extension can guarantee complete anonymity or protection against every tracking method.
 
 ## License
 
