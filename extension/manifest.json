@@ -46,10 +46,25 @@
     ]
   },
 
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "injected.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_start"
     }
   ]

@@ -1,16 +1,22 @@
 console.log(
   "Ubiqui_Shield content script active"
-  if (
-  location.hostname.includes(
-    "linkedin.com"
-  )
-) {
-  console.log(
-    "LinkedIn bypass"
-  )
-  return
-}
 )
+
+const script =
+  document.createElement("script");
+
+script.src =
+  chrome.runtime.getURL(
+    "injected.js"
+  );
+
+script.onload = () =>
+  script.remove();
+
+(
+  document.head ||
+  document.documentElement
+).appendChild(script);
 
 // =========================
 // TRACKER DATABASE
@@ -371,16 +377,12 @@ function enableFingerprintProtection() {
     return
   }
 
-  // Skip sensitive websites
   const hostname =
     location.hostname
 
   const excludedSites = [
-
     "linkedin.com",
-
     "www.linkedin.com"
-
   ]
 
   if (
@@ -396,155 +398,114 @@ function enableFingerprintProtection() {
     )
 
     return
-
   }
 
   try {
 
-  // CPU threads
-  Object.defineProperty(
-    navigator,
-    "hardwareConcurrency",
-    {
-      get: () => 8
-    }
-  )
+    Object.defineProperty(
+      navigator,
+      "hardwareConcurrency",
+      {
+        get: () => 8
+      }
+    )
 
-  // RAM
-  Object.defineProperty(
-    navigator,
-    "deviceMemory",
-    {
-      get: () => 8
-    }
-  )
+    Object.defineProperty(
+      navigator,
+      "deviceMemory",
+      {
+        get: () => 8
+      }
+    )
 
-  // Platform
-  Object.defineProperty(
-    navigator,
-    "platform",
-    {
-      get: () => "Win32"
-    }
-  )
+    Object.defineProperty(
+      navigator,
+      "platform",
+      {
+        get: () => "Win32"
+      }
+    )
 
-  // Canvas protection
-  const originalToDataURL =
-    HTMLCanvasElement.prototype.toDataURL
+    const originalToDataURL =
+      HTMLCanvasElement.prototype.toDataURL
 
-  HTMLCanvasElement.prototype.toDataURL =
-    function (...args) {
+    HTMLCanvasElement.prototype.toDataURL =
+      function (...args) {
 
-      const ctx =
-        this.getContext("2d")
+        const ctx =
+          this.getContext("2d")
 
-      if (ctx) {
+        if (ctx) {
 
-        ctx.fillStyle =
-          "rgba(1,1,1,0.01)"
+          ctx.fillStyle =
+            "rgba(1,1,1,0.01)"
 
-        ctx.fillRect(
-          0,
-          0,
-          1,
-          1
+          ctx.fillRect(
+            0,
+            0,
+            1,
+            1
+          )
+        }
+
+        return originalToDataURL.apply(
+          this,
+          args
         )
-
       }
 
-      return originalToDataURL.apply(
-        this,
-        args
-      )
+    const originalGetExtension =
+      WebGLRenderingContext.prototype.getExtension
 
-    }
+    WebGLRenderingContext.prototype.getExtension =
+      function (name) {
 
-// =====================
-// WEBGL PROTECTION
-// =====================
+        if (
+          name ===
+          "WEBGL_debug_renderer_info"
+        ) {
+          return null
+        }
 
-const originalGetExtension =
-  WebGLRenderingContext.prototype.getExtension
+        return originalGetExtension.call(
+          this,
+          name
+        )
+      }
 
-WebGLRenderingContext.prototype.getExtension =
-  function(name) {
+    const originalGetParameter =
+      WebGLRenderingContext.prototype.getParameter
 
-    if (
-      name === "WEBGL_debug_renderer_info"
-    ) {
-      return null
-    }
+    WebGLRenderingContext.prototype.getParameter =
+      function (param) {
 
-    return originalGetExtension.call(
-      this,
-      name
+        if (
+          param === 37445 ||
+          param === 37446
+        ) {
+          return "Blocked"
+        }
+
+        return originalGetParameter.call(
+          this,
+          param
+        )
+      }
+
+    console.log(
+      "Advanced fingerprint protection enabled"
     )
-  }
 
-const originalGetParameter =
-  WebGLRenderingContext.prototype.getParameter
+  } catch (error) {
 
-WebGLRenderingContext.prototype.getParameter =
-  function(param) {
-
-    if (
-      param === 37445 ||
-      param === 37446
-    ) {
-
-      return "Blocked"
-    }
-
-    return originalGetParameter.call(
-      this,
-      param
+    console.log(
+      "Fingerprint spoof failed",
+      error
     )
-  }
-
-      if (param === 37445)
-        return "Intel Inc."
-
-      if (param === 37446)
-        return "Intel Iris Graphics"
-
-      return originalGetParameter.call(
-        this,
-        param
-      )
-
-    }
-
-  // Battery API
-  if (navigator.getBattery) {
-
-    navigator.getBattery =
-      async () => ({
-        charging: true,
-        chargingTime: 0,
-        dischargingTime: Infinity,
-        level: 1
-      })
 
   }
-
-  console.log(
-    "Advanced fingerprint protection enabled"
-  )
-
-} catch (error) {
-
-  console.log(
-    "Fingerprint spoof failed",
-    error
-  )
 
 }
-
-}
-
-// =========================
-// COOKIE PROTECTION
-// =========================
 
 function protectCookies() {
 
