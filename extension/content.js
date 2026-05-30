@@ -1,5 +1,15 @@
 console.log(
   "Ubiqui_Shield content script active"
+  if (
+  location.hostname.includes(
+    "linkedin.com"
+  )
+) {
+  console.log(
+    "LinkedIn bypass"
+  )
+  return
+}
 )
 
 // =========================
@@ -356,15 +366,41 @@ function scanTrackers() {
 function enableFingerprintProtection() {
 
   if (
-    !settings
-      .fingerprintProtection
+    !settings.fingerprintProtection
   ) {
     return
   }
 
+  // Skip sensitive websites
+  const hostname =
+    location.hostname
+
+  const excludedSites = [
+
+    "linkedin.com",
+
+    "www.linkedin.com"
+
+  ]
+
+  if (
+    excludedSites.some(
+      site =>
+        hostname.includes(site)
+    )
+  ) {
+
+    console.log(
+      "Fingerprint protection skipped:",
+      hostname
+    )
+
+    return
+
+  }
+
   try {
 
-    // CPU CORES
     Object.defineProperty(
       navigator,
       "hardwareConcurrency",
@@ -373,7 +409,6 @@ function enableFingerprintProtection() {
       }
     )
 
-    // MEMORY
     Object.defineProperty(
       navigator,
       "deviceMemory",
@@ -382,7 +417,6 @@ function enableFingerprintProtection() {
       }
     )
 
-    // PLATFORM
     Object.defineProperty(
       navigator,
       "platform",
@@ -390,41 +424,6 @@ function enableFingerprintProtection() {
         get: () => "Win32"
       }
     )
-
-    // CANVAS SPOOFING
-    const originalToDataURL =
-      HTMLCanvasElement
-        .prototype
-        .toDataURL
-
-    HTMLCanvasElement
-      .prototype
-      .toDataURL =
-      function () {
-
-        const context =
-          this.getContext("2d")
-
-        if (context) {
-
-          context.fillStyle =
-            "rgba(1,1,1,0.01)"
-
-          context.fillRect(
-            0,
-            0,
-            1,
-            1
-          )
-
-        }
-
-        return originalToDataURL.apply(
-          this,
-          arguments
-        )
-
-      }
 
     console.log(
       "Fingerprint protection enabled"

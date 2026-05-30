@@ -298,3 +298,101 @@ chrome.tabs.onUpdated
     }
 
   })
+
+  async function getSiteSettings() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(
+      ["siteSettings"],
+      (result) => {
+        resolve(result.siteSettings || {})
+      }
+    )
+  })
+}
+
+async function saveSiteSettings(settings) {
+  return new Promise((resolve) => {
+    chrome.storage.local.set(
+      {
+        siteSettings: settings
+      },
+      resolve
+    )
+  })
+}
+
+async function getCurrentHostname() {
+  const tabs = await chrome.tabs.query({
+    active: true,
+    currentWindow: true
+  })
+
+  if (!tabs[0]) return null
+
+  try {
+    return new URL(tabs[0].url).hostname
+  } catch {
+    return null
+  }
+}
+
+async function isProtectionEnabled(hostname) {
+  const sites =
+    await getSiteSettings()
+
+  if (
+    sites[hostname] === false
+  ) {
+    return false
+  }
+
+  return true
+}
+
+chrome.runtime.onMessage.addListener(
+  (
+    request,
+    sender,
+    sendResponse
+  ) => {
+
+    if (
+      request.action ===
+      "toggleSite"
+    ) {
+
+      chrome.storage.local.get(
+        ["siteSettings"],
+        (result) => {
+
+          const sites =
+            result.siteSettings || {}
+
+          sites[
+            request.hostname
+          ] =
+            request.enabled
+
+          chrome.storage.local.set(
+            {
+              siteSettings:
+                sites
+            },
+            () => {
+
+              sendResponse({
+                success: true
+              })
+
+            }
+          )
+
+        }
+      )
+
+      return true
+    }
+
+  }
+)
+

@@ -34,12 +34,15 @@ function App() {
 
   ] = useState("icons/icon128.png")
 
-  const [
+const [
+  shieldsEnabled,
+  setShieldsEnabled
+] = useState(true)
 
-    shieldsEnabled,
-    setShieldsEnabled
-
-  ] = useState(true)
+const [
+  hostname,
+  setHostname
+] = useState("")
 
   const [
 
@@ -221,50 +224,69 @@ function App() {
 
   }, [])
 
-  // =========================
-  // MASTER TOGGLE
-  // =========================
+// =========================
+// MASTER TOGGLE
+// =========================
 
-  function toggleShield() {
+function toggleShield() {
 
-    const updated =
-      !shieldsEnabled
+  const updated =
+    !shieldsEnabled
 
-    setShieldsEnabled(
+  setShieldsEnabled(
+    updated
+  )
+
+  const updatedSettings = {
+
+    trackerBlocking:
+      updated,
+
+    httpsUpgrade:
+      updated,
+
+    scriptBlocking:
+      updated,
+
+    fingerprintProtection:
+      updated,
+
+    thirdPartyCookies:
       updated
-    )
 
-    const updatedSettings = {
+  }
 
-      trackerBlocking:
-        updated,
+  setSettings(
+    updatedSettings
+  )
 
-      httpsUpgrade:
-        updated,
+  chrome.storage.local.set({
 
-      scriptBlocking:
-        updated,
-
-      fingerprintProtection:
-        updated,
-
-      thirdPartyCookies:
-        updated
-
-    }
-
-    setSettings(
+    settings:
       updatedSettings
-    )
 
-    chrome.storage.local.set({
+  })
 
-      settings:
-        updatedSettings
+  if (
+    hostname &&
+    chrome.runtime
+  ) {
+
+    chrome.runtime.sendMessage({
+
+      action:
+        "toggleSite",
+
+      hostname,
+
+      enabled:
+        updated
 
     })
 
   }
+
+}
 
   // =========================
   // OPTION TOGGLE
