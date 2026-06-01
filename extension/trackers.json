@@ -216,3 +216,80 @@
     "risk": "High"
   }
 }
+,
+"reddit-pixel": {
+  "name": "Reddit Pixel",
+  "company": "Reddit",
+  "category": "Advertising",
+  "risk": "Medium"
+},
+
+"twitter-pixel": {
+  "name": "Twitter Pixel",
+  "company": "X Corp",
+  "category": "Advertising",
+  "risk": "Medium"
+},
+
+"amazon-ads": {
+  "name": "Amazon Ads",
+  "company": "Amazon",
+  "category": "Advertising",
+  "risk": "Medium"
+},
+
+"scorecardresearch": {
+  "name": "Scorecard Research",
+  "company": "Comscore",
+  "category": "Analytics",
+  "risk": "Medium"
+},
+
+"quantserve": {
+  "name": "Quantserve",
+  "company": "Quantcast",
+  "category": "Analytics",
+  "risk": "Medium"
+},
+
+"appnexus": {
+  "name": "AppNexus",
+  "company": "Microsoft",
+  "category": "Advertising",
+  "risk": "High"
+},
+
+"branch": {
+  "name": "Branch Analytics",
+  "company": "Branch",
+  "category": "Analytics",
+  "risk": "Medium"
+},
+
+"amplitude": {
+  "name": "Amplitude",
+  "company": "Amplitude",
+  "category": "Analytics",
+  "risk": "Medium"
+},
+
+"crazyegg": {
+  "name": "Crazy Egg",
+  "company": "Crazy Egg",
+  "category": "Session Recording",
+  "risk": "High"
+},
+
+"fullstory": {
+  "name": "FullStory",
+  "company": "FullStory",
+  "category": "Session Recording",
+  "risk": "High"
+},
+
+"optimizely": {
+  "name": "Optimizely",
+  "company": "Optimizely",
+  "category": "Experimentation",
+  "risk": "Low"
+}

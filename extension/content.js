@@ -365,147 +365,6 @@ function scanTrackers() {
 
 }
 
-// =========================
-// FINGERPRINT PROTECTION
-// =========================
-
-function enableFingerprintProtection() {
-
-  if (
-    !settings.fingerprintProtection
-  ) {
-    return
-  }
-
-  const hostname =
-    location.hostname
-
-  const excludedSites = [
-    "linkedin.com",
-    "www.linkedin.com"
-  ]
-
-  if (
-    excludedSites.some(
-      site =>
-        hostname.includes(site)
-    )
-  ) {
-
-    console.log(
-      "Fingerprint protection skipped:",
-      hostname
-    )
-
-    return
-  }
-
-  try {
-
-    Object.defineProperty(
-      navigator,
-      "hardwareConcurrency",
-      {
-        get: () => 8
-      }
-    )
-
-    Object.defineProperty(
-      navigator,
-      "deviceMemory",
-      {
-        get: () => 8
-      }
-    )
-
-    Object.defineProperty(
-      navigator,
-      "platform",
-      {
-        get: () => "Win32"
-      }
-    )
-
-    const originalToDataURL =
-      HTMLCanvasElement.prototype.toDataURL
-
-    HTMLCanvasElement.prototype.toDataURL =
-      function (...args) {
-
-        const ctx =
-          this.getContext("2d")
-
-        if (ctx) {
-
-          ctx.fillStyle =
-            "rgba(1,1,1,0.01)"
-
-          ctx.fillRect(
-            0,
-            0,
-            1,
-            1
-          )
-        }
-
-        return originalToDataURL.apply(
-          this,
-          args
-        )
-      }
-
-    const originalGetExtension =
-      WebGLRenderingContext.prototype.getExtension
-
-    WebGLRenderingContext.prototype.getExtension =
-      function (name) {
-
-        if (
-          name ===
-          "WEBGL_debug_renderer_info"
-        ) {
-          return null
-        }
-
-        return originalGetExtension.call(
-          this,
-          name
-        )
-      }
-
-    const originalGetParameter =
-      WebGLRenderingContext.prototype.getParameter
-
-    WebGLRenderingContext.prototype.getParameter =
-      function (param) {
-
-        if (
-          param === 37445 ||
-          param === 37446
-        ) {
-          return "Blocked"
-        }
-
-        return originalGetParameter.call(
-          this,
-          param
-        )
-      }
-
-    console.log(
-      "Advanced fingerprint protection enabled"
-    )
-
-  } catch (error) {
-
-    console.log(
-      "Fingerprint spoof failed",
-      error
-    )
-
-  }
-
-}
 
 function protectCookies() {
 
@@ -605,13 +464,22 @@ function initializeProtection() {
 // LIVE DOM MONITOR
 // =========================
 
+let scanTimeout;
+
 const observer =
   new MutationObserver(() => {
 
-    scanTrackers()
-    cosmeticFiltering()
+    clearTimeout(scanTimeout);
 
-  })
+    scanTimeout =
+      setTimeout(() => {
+
+        scanTrackers();
+        cosmeticFiltering();
+
+      }, 1000);
+
+  });
 
 observer.observe(
   document.documentElement,

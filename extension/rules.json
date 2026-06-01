@@ -17,15 +17,7 @@
       "resourceTypes": ["script", "xmlhttprequest"]
     }
   },
-  {
-    "id": 3,
-    "priority": 1,
-    "action": { "type": "block" },
-    "condition": {
-      "urlFilter": "googletagmanager.com",
-      "resourceTypes": ["script"]
-    }
-  },
+
   {
     "id": 4,
     "priority": 1,
@@ -78,15 +70,6 @@
     "condition": {
       "urlFilter": "criteo.com",
       "resourceTypes": ["script", "image"]
-    }
-  },
-  {
-    "id": 14,
-    "priority": 1,
-    "action": { "type": "upgradeScheme" },
-    "condition": {
-      "urlFilter": "|http://",
-      "resourceTypes": ["main_frame", "sub_frame"]
     }
   }
 ]

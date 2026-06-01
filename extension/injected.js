@@ -106,6 +106,36 @@
 
     };
 
+    const originalToBlob =
+  HTMLCanvasElement.prototype.toBlob;
+
+HTMLCanvasElement.prototype.toBlob =
+  function(...args) {
+
+    const ctx =
+      this.getContext("2d");
+
+    if (ctx) {
+
+      ctx.fillStyle =
+        "rgba(1,1,1,0.01)";
+
+      ctx.fillRect(
+        0,
+        0,
+        1,
+        1
+      );
+
+    }
+
+    return originalToBlob.apply(
+      this,
+      args
+    );
+
+  };
+
   // Audio Fingerprinting Protection
   if (
     window.AudioBuffer &&
@@ -169,6 +199,18 @@
 
       if (parameter === 37446)
         return "ANGLE (Generic GPU)";
+
+      if (parameter === 3379)
+        return 4096;
+
+      if (parameter === 34024)
+        return 4096;
+
+      if (parameter === 7936)
+        return "WebKit";
+
+      if (parameter === 7937)
+        return "WebGL";
 
       return originalGetParameter.call(
         this,
