@@ -1,42 +1,23 @@
 # Ubiqui Shield
 
-Ubiqui Shield is a modern privacy-focused browser extension designed to improve user security and reduce online tracking.
+Modern privacy and anti-tracking browser extension.
+
+Ubiqui Shield helps users reduce online tracking by blocking known trackers, upgrading connections to HTTPS, and limiting browser fingerprinting techniques.
 
 ## Features
 
-### Tracker & Ad Blocking
+## Features
 
-* Blocks known advertising networks
-* Blocks common tracking domains
-* Real-time request filtering using Declarative Net Request rules
-* Website-specific protection controls
-
-### HTTPS Protection
-
-* Detects secure and insecure connections
-* Encourages encrypted browsing
-* HTTPS upgrade support
-
-### Script Control
-
-* Optional script blocking for enhanced privacy
-* Helps reduce malicious or unwanted third-party scripts
-
-### Fingerprint Protection
-
-* Hardware fingerprint reduction
-* Device memory spoofing
-* CPU core count normalization
-* Timezone normalization
-* WebGL renderer masking
-* Platform information normalization
-
-### Privacy Dashboard
-
-* Modern user interface
-* Per-site protection controls
-* Protection statistics
-* Current website information display
+- Tracker Blocking
+- Ad Blocking
+- HTTPS Upgrade
+- Fingerprint Protection
+- Canvas Protection
+- WebGL Protection
+- Third-Party Cookie Cleanup
+- Script Blocking
+- Per-Site Controls
+- Lightweight & Privacy Focused
 
 ## Tech Stack
 
@@ -120,6 +101,10 @@ npm run build
 
 Ubiqui Shield improves privacy and reduces common tracking techniques. No browser extension can guarantee complete anonymity or protection against every tracking method.
 
-## License
+## Version
+
+Current Release: **v1.1.0**
+
+# License
 
 MIT License

@@ -1,11 +1,46 @@
 # Privacy Policy
 
-UbiquiShield does not collect, store, or transmit personal user data.
+Last Updated: June 2026
 
-The extension operates locally in the browser to provide:
-- tracker blocking
-- script protection
-- HTTPS upgrading
-- fingerprinting protection
+Ubiqui Shield is designed with privacy as a core principle.
 
-No browsing history or personal information is sent to external servers.
+## Data Collection
+
+Ubiqui Shield does not collect, store, transmit, or sell any personal data.
+
+The extension does not:
+
+- Track browsing activity
+- Collect personal information
+- Store browsing history
+- Sell user data
+- Share user data with third parties
+
+## Local Storage
+
+The extension stores user preferences locally using the browser's storage API.
+
+Examples include:
+
+- Protection settings
+- Site preferences
+- Extension configuration
+
+This information never leaves the user's device.
+
+## Permissions
+
+Ubiqui Shield uses browser permissions only to:
+
+- Block trackers
+- Upgrade connections to HTTPS
+- Apply privacy protections
+- Manage extension settings
+
+## Third Parties
+
+Ubiqui Shield does not use analytics, telemetry, advertising, or third-party tracking services.
+
+## Contact
+
+For questions regarding this Privacy Policy, please contact the project maintainer through GitHub.
