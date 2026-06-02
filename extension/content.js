@@ -45,14 +45,24 @@ const defaultSettings = {
 let settings =
   defaultSettings
 
+let siteProtectionEnabled = true
+
 
   function cosmeticFiltering() {
 
   const selectors = [
 
-    '[id*="ad"]',
-    '[class*="ad"]',
-    '[class*="banner"]',
+    '[id^="ad-"]',
+    '[id$="-ad"]',
+    '[class*="-ad-"]',
+    '[class^="ad-"]',
+    '[class$="-ad"]',
+
+    'ins.adsbygoogle',
+    '[data-ad-slot]',
+    '[data-ad-client]',
+    '[data-ad-format]',
+
     '[class*="sponsor"]',
     '[id*="sponsor"]',
     '[class*="promoted"]',
@@ -112,7 +122,7 @@ async function loadTrackerDB() {
 loadTrackerDB().then(() => {
 
   chrome.storage.local.get(
-    ["settings"],
+    ["settings", "siteSettings"],
     (result) => {
 
       settings = {
@@ -120,6 +130,30 @@ loadTrackerDB().then(() => {
         ...defaultSettings,
 
         ...(result.settings || {})
+
+      }
+
+      const siteSettings =
+        result.siteSettings || {}
+
+      const currentHostname =
+        window.location.hostname
+
+      if (
+        siteSettings[
+          currentHostname
+        ] === false
+      ) {
+
+        siteProtectionEnabled =
+          false
+
+        console.log(
+          "Protection disabled for",
+          currentHostname
+        )
+
+        return
 
       }
 
@@ -397,6 +431,10 @@ let scanTimeout;
 
 const observer =
   new MutationObserver(() => {
+
+    if (!siteProtectionEnabled) {
+      return
+    }
 
     clearTimeout(scanTimeout);
 

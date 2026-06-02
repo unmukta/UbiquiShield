@@ -219,6 +219,65 @@ HTMLCanvasElement.prototype.toBlob =
 
     };
 
+  // WebGL2
+  if (
+    typeof WebGL2RenderingContext !==
+    "undefined"
+  ) {
+
+    const originalGetExtension2 =
+      WebGL2RenderingContext.prototype
+        .getExtension;
+
+    WebGL2RenderingContext.prototype
+      .getExtension =
+      function(name) {
+
+        if (
+          name ===
+          "WEBGL_debug_renderer_info"
+        ) {
+          return null;
+        }
+
+        return originalGetExtension2
+          .call(this, name);
+
+      };
+
+    const originalGetParameter2 =
+      WebGL2RenderingContext.prototype
+        .getParameter;
+
+    WebGL2RenderingContext.prototype
+      .getParameter =
+      function(parameter) {
+
+        if (parameter === 37445)
+          return "Google Inc.";
+
+        if (parameter === 37446)
+          return "ANGLE (Generic GPU)";
+
+        if (parameter === 3379)
+          return 16384;
+
+        if (parameter === 34024)
+          return 16384;
+
+        if (parameter === 7936)
+          return "WebKit";
+
+        if (parameter === 7937)
+          return "WebGL 2.0";
+
+        return originalGetParameter2
+          .call(this, parameter);
+
+      };
+
+  }
+
   // Battery API
   if (navigator.getBattery) {
 

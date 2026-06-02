@@ -21,6 +21,7 @@ const defaultSettings = {
 }
 
 let currentWebsite = ""
+const tabTimestamps = {}
 
 // =========================
 // INSTALL
@@ -140,44 +141,79 @@ chrome.storage.onChanged
 // TRACK BLOCKED REQUESTS
 // =========================
 
-chrome.declarativeNetRequest
-  .onRuleMatchedDebug
-  .addListener((info) => {
+// Real-time logging (dev only)
+if (
+  chrome.declarativeNetRequest
+    .onRuleMatchedDebug
+) {
 
-    chrome.storage.local.get(
-      ["blockedCount"],
-      (result) => {
+  chrome.declarativeNetRequest
+    .onRuleMatchedDebug
+    .addListener((info) => {
 
-        const current =
-          result.blockedCount || 0
+      console.log(
+        "BLOCKED:",
+        info.request.url
+      )
 
-        chrome.storage.local.set({
+    })
 
-          blockedCount:
-            current + 1
+}
 
+// Production-safe counter
+async function updateBlockedCount(
+  tabId
+) {
+
+  try {
+
+    const minTime =
+      tabTimestamps[tabId] ||
+      Date.now() - 60000
+
+    const result =
+      await chrome
+        .declarativeNetRequest
+        .getMatchedRules({
+          tabId,
+          minTimeStamp: minTime
         })
 
-      }
-    )
+    chrome.storage.local.set({
 
-    console.log(
-      "BLOCKED:",
-      info.request.url
-    )
+      blockedCount:
+        result
+          .rulesMatchedInfo
+          .length
 
-  })
+    })
+
+  } catch {
+
+    // API unavailable
+
+  }
+
+}
 
 // =========================
 // RESET WEBSITE DATA
 // =========================
 
 function resetWebsiteStats(
-  hostname
+  hostname,
+  tabId
 ) {
 
   currentWebsite =
     hostname
+
+  if (tabId) {
+
+    tabTimestamps[tabId] =
+      Date.now()
+
+  }
 
   chrome.storage.local.set({
 
@@ -232,10 +268,15 @@ chrome.tabs.onActivated
           ) {
 
             resetWebsiteStats(
-              hostname
+              hostname,
+              tabs[0].id
             )
 
           }
+
+          updateBlockedCount(
+            tabs[0].id
+          )
 
         } catch {
 
@@ -282,7 +323,8 @@ chrome.tabs.onUpdated
         ) {
 
           resetWebsiteStats(
-            hostname
+            hostname,
+            tabId
           )
 
         }
@@ -296,6 +338,25 @@ chrome.tabs.onUpdated
       }
 
     }
+
+    if (
+      changeInfo.status ===
+        "complete" &&
+      tab.active
+    ) {
+
+      updateBlockedCount(
+        tabId
+      )
+
+    }
+
+  })
+
+chrome.tabs.onRemoved
+  .addListener((tabId) => {
+
+    delete tabTimestamps[tabId]
 
   })
 
