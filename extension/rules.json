@@ -17,9 +17,8 @@
       "resourceTypes": ["script", "xmlhttprequest"]
     }
   },
-
   {
-    "id": 4,
+    "id": 3,
     "priority": 1,
     "action": { "type": "block" },
     "condition": {
@@ -28,7 +27,7 @@
     }
   },
   {
-    "id": 5,
+    "id": 4,
     "priority": 1,
     "action": { "type": "block" },
     "condition": {
@@ -37,7 +36,7 @@
     }
   },
   {
-    "id": 6,
+    "id": 5,
     "priority": 1,
     "action": { "type": "block" },
     "condition": {
@@ -46,7 +45,7 @@
     }
   },
   {
-    "id": 11,
+    "id": 6,
     "priority": 1,
     "action": { "type": "block" },
     "condition": {
@@ -55,7 +54,7 @@
     }
   },
   {
-    "id": 12,
+    "id": 7,
     "priority": 1,
     "action": { "type": "block" },
     "condition": {
@@ -64,7 +63,7 @@
     }
   },
   {
-    "id": 13,
+    "id": 8,
     "priority": 1,
     "action": { "type": "block" },
     "condition": {

@@ -22,105 +22,7 @@ script.onload = () =>
 // TRACKER DATABASE
 // =========================
 
-const trackerDB = {
-
-  "doubleclick": {
-
-    name:
-      "DoubleClick",
-
-    company:
-      "Google",
-
-    category:
-      "Advertising",
-
-    risk:
-      "Medium"
-
-  },
-
-  "google-analytics": {
-
-    name:
-      "Google Analytics",
-
-    company:
-      "Google",
-
-    category:
-      "Analytics",
-
-    risk:
-      "Low"
-
-  },
-
-  "googletagmanager": {
-
-    name:
-      "Google Tag Manager",
-
-    company:
-      "Google",
-
-    category:
-      "Analytics",
-
-    risk:
-      "Medium"
-
-  },
-
-  "facebook": {
-
-    name:
-      "Facebook Tracker",
-
-    company:
-      "Meta",
-
-    category:
-      "Social Tracking",
-
-    risk:
-      "High"
-
-  },
-
-  "hotjar": {
-
-    name:
-      "Hotjar",
-
-    company:
-      "Hotjar Ltd",
-
-    category:
-      "Behavior Analytics",
-
-    risk:
-      "Medium"
-
-  },
-
-  "tiktok": {
-
-    name:
-      "TikTok Analytics",
-
-    company:
-      "TikTok",
-
-    category:
-      "Tracking",
-
-    risk:
-      "High"
-
-  }
-
-}
+let trackerDB = {}
 
 // =========================
 // DEFAULT SETTINGS
@@ -182,22 +84,51 @@ let settings =
 // LOAD SETTINGS
 // =========================
 
-chrome.storage.local.get(
-  ["settings"],
-  (result) => {
+async function loadTrackerDB() {
 
-    settings = {
+  try {
 
-      ...defaultSettings,
+    const url =
+      chrome.runtime.getURL(
+        "trackers.json"
+      )
 
-      ...(result.settings || {})
+    const response =
+      await fetch(url)
 
-    }
+    trackerDB =
+      await response.json()
 
-    initializeProtection()
+  } catch {
+
+    console.log(
+      "Tracker database load failed"
+    )
 
   }
-)
+
+}
+
+loadTrackerDB().then(() => {
+
+  chrome.storage.local.get(
+    ["settings"],
+    (result) => {
+
+      settings = {
+
+        ...defaultSettings,
+
+        ...(result.settings || {})
+
+      }
+
+      initializeProtection()
+
+    }
+  )
+
+})
 
 // =========================
 // LIVE SETTINGS UPDATE
@@ -449,8 +380,6 @@ function protectCookies() {
 // =========================
 
 function initializeProtection() {
-
-  enableFingerprintProtection()
 
   protectCookies()
 

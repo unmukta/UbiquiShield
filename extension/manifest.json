@@ -12,9 +12,7 @@
     "tabs",
     "activeTab",
     "declarativeNetRequest",
-    "declarativeNetRequestFeedback",
-    "webRequest",
-    "webRequestBlocking"
+    "declarativeNetRequestFeedback"
   ],
 
   "host_permissions": [
@@ -24,6 +22,14 @@
   "background": {
     "service_worker": "background.js"
   },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
 
   "action": {
     "default_popup": "index.html",
@@ -49,7 +55,8 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "injected.js"
+        "injected.js",
+        "trackers.json"
       ],
       "matches": [
         "<all_urls>"
