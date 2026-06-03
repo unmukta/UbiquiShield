@@ -50,6 +50,12 @@ let siteProtectionEnabled = true
 
   function cosmeticFiltering() {
 
+  if (
+    !settings.trackerBlocking
+  ) {
+    return
+  }
+
   const selectors = [
 
     '[id^="ad-"]',

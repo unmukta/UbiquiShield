@@ -15,11 +15,11 @@ function TrackerIntelligenceCard() {
       ) {
 
         chrome.storage.local.get(
-          ["trackers"],
+          ["detectedTrackers"],
           (result) => {
 
-            if (result.trackers) {
-              setTrackers(result.trackers)
+            if (result.detectedTrackers) {
+              setTrackers(result.detectedTrackers)
             } else {
               setTrackers([])
             }

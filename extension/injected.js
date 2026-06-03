@@ -82,21 +82,27 @@
   HTMLCanvasElement.prototype.toDataURL =
     function(...args) {
 
-      const ctx =
-        this.getContext("2d");
+      try {
 
-      if (ctx) {
+        const ctx =
+          this.getContext("2d");
 
-        ctx.fillStyle =
-          "rgba(1,1,1,0.01)";
+        if (ctx) {
 
-        ctx.fillRect(
-          0,
-          0,
-          1,
-          1
-        );
+          ctx.fillStyle =
+            "rgba(1,1,1,0.01)";
 
+          ctx.fillRect(
+            0,
+            0,
+            1,
+            1
+          );
+
+        }
+
+      } catch {
+        // Canvas may have a WebGL context
       }
 
       return originalToDataURL.apply(
@@ -106,35 +112,41 @@
 
     };
 
-    const originalToBlob =
-  HTMLCanvasElement.prototype.toBlob;
+  const originalToBlob =
+    HTMLCanvasElement.prototype.toBlob;
 
-HTMLCanvasElement.prototype.toBlob =
-  function(...args) {
+  HTMLCanvasElement.prototype.toBlob =
+    function(...args) {
 
-    const ctx =
-      this.getContext("2d");
+      try {
 
-    if (ctx) {
+        const ctx =
+          this.getContext("2d");
 
-      ctx.fillStyle =
-        "rgba(1,1,1,0.01)";
+        if (ctx) {
 
-      ctx.fillRect(
-        0,
-        0,
-        1,
-        1
+          ctx.fillStyle =
+            "rgba(1,1,1,0.01)";
+
+          ctx.fillRect(
+            0,
+            0,
+            1,
+            1
+          );
+
+        }
+
+      } catch {
+        // Canvas may have a WebGL context
+      }
+
+      return originalToBlob.apply(
+        this,
+        args
       );
 
-    }
-
-    return originalToBlob.apply(
-      this,
-      args
-    );
-
-  };
+    };
 
   // Audio Fingerprinting Protection
   if (
@@ -281,12 +293,17 @@ HTMLCanvasElement.prototype.toBlob =
   // Battery API
   if (navigator.getBattery) {
 
+    const noopFn = () => {};
+
     navigator.getBattery =
       async () => ({
         charging: true,
         chargingTime: 0,
         dischargingTime: Infinity,
-        level: 1
+        level: 1,
+        addEventListener: noopFn,
+        removeEventListener: noopFn,
+        dispatchEvent: () => true
       });
 
   }

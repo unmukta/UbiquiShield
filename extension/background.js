@@ -20,7 +20,7 @@ const defaultSettings = {
 
 }
 
-let currentWebsite = ""
+const tabHostnames = {}
 const tabTimestamps = {}
 
 // =========================
@@ -205,15 +205,11 @@ function resetWebsiteStats(
   tabId
 ) {
 
-  currentWebsite =
+  tabHostnames[tabId] =
     hostname
 
-  if (tabId) {
-
-    tabTimestamps[tabId] =
-      Date.now()
-
-  }
+  tabTimestamps[tabId] =
+    Date.now()
 
   chrome.storage.local.set({
 
@@ -235,19 +231,15 @@ function resetWebsiteStats(
 // =========================
 
 chrome.tabs.onActivated
-  .addListener(() => {
+  .addListener(({ tabId }) => {
 
-    chrome.tabs.query(
-      {
-        active: true,
-        currentWindow: true
-      },
-      (tabs) => {
+    chrome.tabs.get(
+      tabId,
+      (tab) => {
 
         if (
-          !tabs ||
-          !tabs[0] ||
-          !tabs[0].url
+          !tab ||
+          !tab.url
         ) {
           return
         }
@@ -255,27 +247,18 @@ chrome.tabs.onActivated
         try {
 
           const url =
-            new URL(
-              tabs[0].url
-            )
+            new URL(tab.url)
 
           const hostname =
             url.hostname
 
-          if (
-            hostname !==
-            currentWebsite
-          ) {
-
-            resetWebsiteStats(
-              hostname,
-              tabs[0].id
-            )
-
-          }
+          resetWebsiteStats(
+            hostname,
+            tabId
+          )
 
           updateBlockedCount(
-            tabs[0].id
+            tabId
           )
 
         } catch {
@@ -317,9 +300,11 @@ chrome.tabs.onUpdated
         const hostname =
           url.hostname
 
+        const prevHost =
+          tabHostnames[tabId]
+
         if (
-          hostname !==
-            currentWebsite
+          hostname !== prevHost
         ) {
 
           resetWebsiteStats(
@@ -357,58 +342,9 @@ chrome.tabs.onRemoved
   .addListener((tabId) => {
 
     delete tabTimestamps[tabId]
+    delete tabHostnames[tabId]
 
   })
-
-  async function getSiteSettings() {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(
-      ["siteSettings"],
-      (result) => {
-        resolve(result.siteSettings || {})
-      }
-    )
-  })
-}
-
-async function saveSiteSettings(settings) {
-  return new Promise((resolve) => {
-    chrome.storage.local.set(
-      {
-        siteSettings: settings
-      },
-      resolve
-    )
-  })
-}
-
-async function getCurrentHostname() {
-  const tabs = await chrome.tabs.query({
-    active: true,
-    currentWindow: true
-  })
-
-  if (!tabs[0]) return null
-
-  try {
-    return new URL(tabs[0].url).hostname
-  } catch {
-    return null
-  }
-}
-
-async function isProtectionEnabled(hostname) {
-  const sites =
-    await getSiteSettings()
-
-  if (
-    sites[hostname] === false
-  ) {
-    return false
-  }
-
-  return true
-}
 
 chrome.runtime.onMessage.addListener(
   (

@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.1.2] - 2026-06-03
+
+### Fixed
+
+- Critical syntax error in `WebsiteStatusCard.jsx`: orphaned `useEffect` placed outside the component function body, referencing undefined `hostname` and `setShieldsEnabled` variables, causing a crash if imported.
+- Undefined `setHostname()` call inside `WebsiteStatusCard.jsx` that would throw a `ReferenceError` at runtime.
+- Storage key mismatch in `TrackerIntelligenceCard.jsx`: was reading `trackers` instead of `detectedTrackers`, causing the tracker list to always appear empty.
+- `App.jsx` never populated the `hostname` state, preventing per-site toggle messages from being sent to the background script (the `toggleSite` message was silently skipped).
+- `App.jsx` never loaded `siteSettings` on popup open, causing the shield toggle to always show "Shields up" even when protection was disabled for the current site.
+- Global `currentWebsite` variable in `background.js` caused blocked request counts to reset to 0 on every tab switch; replaced with per-tab hostname tracking via `tabHostnames` map.
+- `cosmeticFiltering()` in `content.js` ran unconditionally regardless of `trackerBlocking` setting; added guard to respect the setting.
+- Storage change listener in `App.jsx` was never cleaned up, causing duplicate listeners in React StrictMode and potential memory leaks.
+- Canvas fingerprint protection in `injected.js` could interfere with WebGL canvases by forcing a 2D context; added try-catch guard.
+- `toBlob` canvas override had inconsistent indentation and same WebGL interference issue as `toDataURL`.
+- Battery API spoof returned a plain object missing `addEventListener`/`removeEventListener`/`dispatchEvent` stubs, causing `TypeError` on sites that listen for battery events.
+- Tab switch handler in `background.js` used `chrome.tabs.query` instead of `chrome.tabs.get` with the activated tab ID, which was less efficient and slightly racy.
+
+### Removed
+
+- Dead `extension/settings.js` file that used ES module exports but was never bundled or imported by any extension script.
+- Four unused async helper functions from `background.js` (`getSiteSettings`, `saveSiteSettings`, `getCurrentHostname`, `isProtectionEnabled`) that duplicated logic already handled inline by the `onMessage` handler.
+
+---
+
 ## [1.1.1] - 2026-06-02
 
 ### Added
