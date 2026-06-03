@@ -41,14 +41,12 @@ function WebsiteStatusCard() {
                 )
 
               const host =
-              url.hostname.replace(
-               "www.",
-               ""
+                url.hostname.replace(
+                  "www.",
+                  ""
                 )
 
-setWebsite(host)
-
-setHostname(host)
+              setWebsite(host)
 
               setSecure(
                 url.protocol ===
@@ -78,8 +76,6 @@ setHostname(host)
     }
 
   }, [])
-
-  
 
   return (
 
@@ -217,38 +213,5 @@ setHostname(host)
   )
 
 }
-
-useEffect(() => {
-
-  if (!hostname) return
-
-  chrome.storage.local.get(
-    ["siteSettings"],
-    (result) => {
-
-      const sites =
-        result.siteSettings || {}
-
-      if (
-        sites[hostname] ===
-        false
-      ) {
-
-        setShieldsEnabled(
-          false
-        )
-
-      } else {
-
-        setShieldsEnabled(
-          true
-        )
-
-      }
-
-    }
-  )
-
-}, [hostname])
 
 export default WebsiteStatusCard

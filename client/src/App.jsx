@@ -119,15 +119,19 @@ const [
                     tabs[0].url
                   )
 
+                const host =
+                  url.hostname
+
                 setWebsite(
 
-                  url.hostname
-                    .replace(
-                      "www.",
-                      ""
-                    )
+                  host.replace(
+                    "www.",
+                    ""
+                  )
 
                 )
+
+                setHostname(host)
 
               } catch {
 
@@ -170,7 +174,8 @@ const [
       [
 
         "blockedCount",
-        "settings"
+        "settings",
+        "siteSettings"
 
       ],
 
@@ -192,11 +197,34 @@ const [
 
         }
 
+        // Sync per-site shield state
+        if (
+          hostname &&
+          result.siteSettings
+        ) {
+
+          const siteEnabled =
+            result.siteSettings[
+              hostname
+            ]
+
+          if (
+            siteEnabled === false
+          ) {
+
+            setShieldsEnabled(
+              false
+            )
+
+          }
+
+        }
+
       }
 
     )
 
-  }, [])
+  }, [hostname])
 
   // =========================
   // LIVE UPDATE
@@ -204,8 +232,8 @@ const [
 
   useEffect(() => {
 
-    chrome.storage.onChanged
-      .addListener((changes) => {
+    const listener =
+      (changes) => {
 
         if (
           changes.blockedCount
@@ -220,7 +248,19 @@ const [
 
         }
 
-      })
+      }
+
+    chrome.storage.onChanged
+      .addListener(listener)
+
+    return () => {
+
+      chrome.storage.onChanged
+        .removeListener(
+          listener
+        )
+
+    }
 
   }, [])
 

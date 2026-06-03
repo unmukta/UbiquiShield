@@ -60,7 +60,23 @@ export default [
 
         setInterval: "readonly",
 
-        clearInterval: "readonly"
+        clearInterval: "readonly",
+
+        Navigator: "readonly",
+
+        HTMLCanvasElement: "readonly",
+
+        AudioBuffer: "readonly",
+
+        WebGLRenderingContext: "readonly",
+
+        WebGL2RenderingContext: "readonly",
+
+        Intl: "readonly",
+
+        Object: "readonly",
+
+        Infinity: "readonly"
 
       }
 
