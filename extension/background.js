@@ -110,6 +110,18 @@ async function applyProtectionRules() {
     }
   )
 
+  // Configure WebRTC IP Leak Protection
+  if (chrome.privacy && chrome.privacy.network) {
+    chrome.storage.local.get(["settings"], (result) => {
+      const isProtected = result.settings?.fingerprintProtection !== false;
+      const policy = isProtected ? "default_public_interface_only" : "default";
+      chrome.privacy.network.webRTCIPHandlingPolicy.set({
+        value: policy
+      });
+      console.log("WebRTC Policy:", policy);
+    });
+  }
+
 }
 
 // =========================
@@ -252,10 +264,19 @@ chrome.tabs.onActivated
           const hostname =
             url.hostname
 
-          resetWebsiteStats(
-            hostname,
-            tabId
-          )
+          const prevHost =
+            tabHostnames[tabId]
+
+          if (
+            hostname !== prevHost
+          ) {
+
+            resetWebsiteStats(
+              hostname,
+              tabId
+            )
+
+          }
 
           updateBlockedCount(
             tabId
@@ -388,6 +409,41 @@ chrome.runtime.onMessage.addListener(
       )
 
       return true
+    }
+
+    if (
+      request.action ===
+      "updateCounter"
+    ) {
+
+      chrome.tabs.query(
+        {
+          active: true,
+          currentWindow: true
+        },
+        (tabs) => {
+
+          if (
+            tabs &&
+            tabs[0] &&
+            tabs[0].id
+          ) {
+
+            updateBlockedCount(
+              tabs[0].id
+            )
+
+          }
+
+          sendResponse({
+            success: true
+          })
+
+        }
+      )
+
+      return true
+
     }
 
   }

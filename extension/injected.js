@@ -308,6 +308,79 @@
 
   }
 
+  // Network Connection Spoofing
+  if (navigator.connection) {
+    Object.defineProperty(
+      navigator,
+      "connection",
+      {
+        get() {
+          return {
+            downlink: 10,
+            effectiveType: "4g",
+            rtt: 50,
+            saveData: false
+          };
+        },
+        configurable: true
+      }
+    );
+  }
+
+  // Font Fingerprinting Protection
+  const originalOffsetWidth = Object.getOwnPropertyDescriptor(
+    HTMLElement.prototype,
+    "offsetWidth"
+  );
+  
+  const originalOffsetHeight = Object.getOwnPropertyDescriptor(
+    HTMLElement.prototype,
+    "offsetHeight"
+  );
+
+  if (originalOffsetWidth && originalOffsetHeight) {
+    Object.defineProperty(HTMLElement.prototype, "offsetWidth", {
+      get() {
+        const width = originalOffsetWidth.get.call(this);
+        if (this.tagName === "SPAN" && this.style.fontSize && width > 0) {
+          return width + (Math.random() > 0.5 ? 1 : -1);
+        }
+        return width;
+      },
+      configurable: true
+    });
+
+    Object.defineProperty(HTMLElement.prototype, "offsetHeight", {
+      get() {
+        const height = originalOffsetHeight.get.call(this);
+        if (this.tagName === "SPAN" && this.style.fontSize && height > 0) {
+          return height + (Math.random() > 0.5 ? 1 : -1);
+        }
+        return height;
+      },
+      configurable: true
+    });
+  }
+
+  // WebGL Noise (readPixels)
+  const originalReadPixels = WebGLRenderingContext.prototype.readPixels;
+  WebGLRenderingContext.prototype.readPixels = function(...args) {
+    originalReadPixels.apply(this, args);
+    if (args[6] && args[6].length > 0) {
+      args[6][0] = (args[6][0] + 1) % 256;
+    }
+  };
+
+  if (typeof WebGL2RenderingContext !== "undefined") {
+    const originalReadPixels2 = WebGL2RenderingContext.prototype.readPixels;
+    WebGL2RenderingContext.prototype.readPixels = function(...args) {
+      originalReadPixels2.apply(this, args);
+      if (args[6] && args[6].length > 0) {
+        args[6][0] = (args[6][0] + 1) % 256;
+      }
+    };
+  }
+
   console.log(
     "Advanced fingerprint protection enabled"
   );

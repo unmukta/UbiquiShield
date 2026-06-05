@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.3] - 2026-06-05
+
+### Fixed
+
+- **Counter Synchronization Issue**: Fixed a bug where the blocked counter in the popup remained at 0 while trackers were successfully blocked in the background. The popup now polls the background script while open to ensure the counter updates in real-time.
+- **Tab Switch Reset Bug**: Fixed an issue introduced in v1.1.2 where switching between tabs would incorrectly wipe the tracking history for the tab, causing the blocked counter to reset to 0.
+
+---
+
 ## [1.1.2] - 2026-06-03
 
 ### Fixed
