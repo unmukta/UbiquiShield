@@ -253,12 +253,39 @@ const [
     chrome.storage.onChanged
       .addListener(listener)
 
+    // Poll background script
+    // to get fresh matched rules
+    // while popup is open
+    const interval =
+      setInterval(() => {
+
+        if (chrome.runtime) {
+
+          chrome.runtime
+            .sendMessage({
+              action:
+                "updateCounter"
+            })
+
+        }
+
+      }, 1000)
+
+    // Initial poll
+    if (chrome.runtime) {
+      chrome.runtime.sendMessage({
+        action: "updateCounter"
+      })
+    }
+
     return () => {
 
       chrome.storage.onChanged
         .removeListener(
           listener
         )
+
+      clearInterval(interval)
 
     }
 
