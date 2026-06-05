@@ -6,11 +6,12 @@ Ubiqui Shield helps users reduce online tracking by blocking known trackers, upg
 
 ## Features
 
-- **Network-Level Tracker Blocking**: Block 23 tracking & advertising domains (such as Google Tag Manager, TikTok, LinkedIn, Mixpanel, and Session Recorders) using Manifest V3's high-performance Declarative Net Request API.
+- **Network-Level Tracker Blocking**: Block over **3,500** tracking & advertising domains using Manifest V3's high-performance Declarative Net Request API.
 - **Smart Cosmetic Filtering**: Clean up page layouts by removing advertisement containers safely, using bounded CSS selectors to avoid breaking major websites (like YouTube, GitHub, LinkedIn, and Reddit).
-- **WebGL & WebGL2 Protection**: Obscure hardware metrics and suppress extension hooks (e.g. `WEBGL_debug_renderer_info`) within both WebGL and WebGL2 rendering environments.
+- **WebGL & WebGL2 Protection**: Obscure hardware metrics, suppress extension hooks (e.g., `WEBGL_debug_renderer_info`), and inject subtle noise to disrupt image extraction techniques.
 - **Canvas Fingerprint Obfuscation**: Neutralize attempts to build unique graphical hashes by safely spoofing Canvas drawing API data.
-- **System Environment Normalization**: Return standardized baseline values for browser properties such as `navigator.hardwareConcurrency`, `navigator.deviceMemory`, and platform attributes.
+- **Font & WebRTC Leak Protection**: Spoof system font detection measurements and hide local IP addresses during web conferencing.
+- **System Environment Normalization**: Return standardized baseline values for browser properties such as `navigator.hardwareConcurrency`, `navigator.deviceMemory`, `navigator.connection`, and platform attributes.
 - **Audio API & Screen Metric Spoofing**: Obscure device audio characteristics and screen properties to reduce overall fingerprint entropy.
 - **Per-Site Protection Toggle**: Pause and resume protection on specific sites directly via the extension popup, fully integrated into local storage.
 - **Production-Safe Blocked Counter**: Real-time counter of blocked trackers scoped to each tab using rule-matching telemetry safely, compatible with production installs.
@@ -88,11 +89,10 @@ npm run build
 
 ## Current Capabilities
 
-* **Declarative Net Request Engine**: Low-overhead tracker blocklist loaded completely offline.
+* **Declarative Net Request Engine**: High-performance tracker blocklist spanning over 3,500 domains loaded completely offline.
 * **Smart Cosmetic Filtering**: Safe CSS rules to hide ads without breaking site layouts on platforms like YouTube and LinkedIn.
-* **Unified WebGL & WebGL2 Normalization**: Overrides canvas contexts to return standardized hardware renderer strings.
-* **Canvas Hash Suppression**: Spoofs data extraction canvas calls.
-* **Hardware & Environment Mocking**: Standardizes logical processor counts, RAM capacities, and platform variables.
+* **Advanced Fingerprint Normalization**: WebGL/Canvas noise injection, Font spoofing, Audio metric obscuration, and WebRTC IP leak protection.
+* **Hardware & Environment Mocking**: Standardizes logical processor counts, RAM capacities, network connection type, and platform variables.
 * **Per-Site Whitelists**: Save domain-specific protection choices directly to extension storage.
 * **Production-Grade Block Counts**: Real-time counter metrics calculated using tab telemetry.
 
