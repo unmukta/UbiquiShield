@@ -2,6 +2,17 @@
 
 ## [1.1.3] - 2026-06-05
 
+### Added
+
+- **Massive Ad Blocker Engine Upgrade**: Generated a new declarative ruleset based on Peter Lowe's ad server list, expanding the network blocklist from 23 to **over 3,500 active tracking and advertising domains**.
+- **Font Fingerprinting Protection**: Spoofs `offsetWidth` and `offsetHeight` for hidden `<span>` tags to prevent scripts from identifying installed system fonts.
+- **WebRTC IP Leak Protection**: Configured `chrome.privacy.network.webRTCIPHandlingPolicy` to hide local IP addresses while maintaining compatibility with web conferencing tools.
+- **Network Spoofing**: Simulates a generic 4G connection profile via `navigator.connection` to reduce entropy.
+
+### Improved
+
+- **WebGL Fingerprinting Protection**: Injects subtle noise into the pixel data buffer of `WebGLRenderingContext.readPixels` to disrupt canvas/WebGL image extraction techniques.
+
 ### Fixed
 
 - **Counter Synchronization Issue**: Fixed a bug where the blocked counter in the popup remained at 0 while trackers were successfully blocked in the background. The popup now polls the background script while open to ensure the counter updates in real-time.
