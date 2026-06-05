@@ -76,7 +76,11 @@ export default [
 
         Object: "readonly",
 
-        Infinity: "readonly"
+        Infinity: "readonly",
+
+        HTMLElement: "readonly",
+
+        Math: "readonly"
 
       }
 
