@@ -1,6 +1,8 @@
 # Changelog
 
-## [1.1.4] - 2026-06-06
+## [1.1.4] - 2026-06-06 (Pre-release)
+
+This is a comprehensive pre-release focusing on deep architectural bug fixes, fixing critical vulnerabilities in the fingerprinting spoofing engine, and resolving major UI race conditions.
 
 ### Fixed
 

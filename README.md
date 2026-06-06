@@ -112,7 +112,7 @@ Ubiqui Shield dramatically increases user privacy and cuts down tracking vectors
 
 ## Version
 
-Current Release: **v1.1.4**
+Current Release: **v1.1.4 (Pre-release)**
 
 # License
 

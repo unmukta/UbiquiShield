@@ -1,4 +1,5 @@
 # UbiquiShield Architecture & Technical Documentation
+*(Version: v1.1.4 Pre-release)*
 
 UbiquiShield is a modern, high-performance privacy and anti-tracking extension built exclusively for Chrome's Manifest V3 (MV3). This document provides an in-depth look at the architecture, algorithms, and APIs that power the extension.
 
