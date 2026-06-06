@@ -9,6 +9,8 @@
 - **Chrome Privacy 100+ Counter Limit**: Implemented a smart UX workaround for Chrome's native privacy restriction (which hard-caps rule logs at 100). The extension UI now displays `100+` rather than awkwardly freezing at 100 on heavy pages.
 - **Canvas Context WebGL Corruption**: Identified and fixed an extremely subtle bug where the anti-fingerprinting script would permanently lock WebGL canvases into a `2d` mode. The extension now tracks context types safely via a `WeakMap`, protecting complex 3D web games.
 - **Shadow DOM Tracker Evasion**: Advanced advertising networks hide pixels inside Shadow DOM web components to evade adblocker DOM scanners. The extension now natively hooks into `window.performance.getEntriesByType("resource")` to bypass the DOM entirely and instantly catch all hidden requests.
+- **2D Canvas `getImageData` Fingerprinting Hole**: Fixed a hole where fingerprinting scripts could bypass our visual canvas noise injections by directly reading the memory buffer via `getImageData`. The extension now intercepts `getImageData` and injects cryptographic noise directly into the pixel array.
+- **Sub-Pixel Font Fingerprinting Hole**: Advanced trackers exploit `getBoundingClientRect` to extract high-precision float values (e.g. `12.1524px`) from text to uniquely identify font rendering engines. The extension now safely intercepts `getBoundingClientRect` and `getClientRects` to inject sub-pixel variance, blinding font trackers.
 
 ---
 

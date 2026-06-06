@@ -102,7 +102,9 @@ Some ads are injected directly into the HTML without a network request, or leave
 Browser fingerprinting is the practice of identifying users based on their hardware and software configurations without using cookies. UbiquiShield counters this by spoofing native browser APIs in the `MAIN` world context (`injected.js`).
 
 ### Context Tracking & Canvas Spoofing
-Canvas fingerprinting draws an invisible image and calculates its cryptographic hash. UbiquiShield intercepts `HTMLCanvasElement.prototype.toDataURL` to inject imperceptible pixel noise, altering the hash.
+Canvas fingerprinting draws an invisible image and calculates its cryptographic hash. UbiquiShield counters this via two vectors:
+1. **Canvas Exports (`toDataURL`, `toBlob`)**: We intercept these methods to draw an imperceptible `rgba(1,1,1,0.01)` 1x1 pixel, altering the image hash.
+2. **Direct Pixel Extraction (`getImageData`)**: We intercept `CanvasRenderingContext2D.prototype.getImageData` and shift the mathematical value of the first pixel in the returned `Uint8ClampedArray`. This neutralizes pixel-level hash extraction while keeping the physical visual canvas completely pristine.
 
 **The Canvas Corruption Bug Fix**:
 Canvases can only have one context type (`2d` or `webgl`). Blindly calling `.getContext("2d")` to inject noise will permanently corrupt a virgin canvas destined for WebGL.
@@ -116,6 +118,11 @@ We intercept `Object.getOwnPropertyDescriptor` and `WebGLRenderingContext` to re
 
 ### WebGL readPixels Noise
 Instead of modifying the visual canvas (which breaks visual applications), we intercept the exact moment the script attempts to *read* the pixels (`readPixels`), and slightly shift the color values in the resulting data array.
+
+### High-Precision Font Fingerprinting Protection
+Advanced trackers detect installed system fonts by measuring the exact sub-pixel dimensions of hidden `<span>` tags.
+- **Integer Spoofing**: We override `offsetWidth` and `offsetHeight`.
+- **Sub-Pixel Spoofing**: Trackers use `Element.prototype.getBoundingClientRect()` and `getClientRects()` to obtain high-precision floats (e.g., `12.1524px`). We intercept these DOM APIs specifically for `<span>` tags and inject a microscopic float variance (`±0.1px`) into the returned `DOMRect` dimensions. This successfully blinds the font-rendering hash algorithm.
 
 ---
 

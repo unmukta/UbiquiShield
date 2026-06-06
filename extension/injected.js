@@ -127,6 +127,16 @@
     return originalToBlob.apply(this, args);
   };
 
+  const originalGetImageData = CanvasRenderingContext2D.prototype.getImageData;
+
+  CanvasRenderingContext2D.prototype.getImageData = function(...args) {
+    const imageData = originalGetImageData.apply(this, args);
+    if (imageData && imageData.data && imageData.data.length > 0) {
+      imageData.data[0] = (imageData.data[0] + 1) % 256;
+    }
+    return imageData;
+  };
+
   // Audio Fingerprinting Protection
   if (
     window.AudioBuffer &&
@@ -340,6 +350,41 @@
       configurable: true
     });
   }
+
+  const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
+  Element.prototype.getBoundingClientRect = function() {
+    const rect = originalGetBoundingClientRect.call(this);
+    if (this.tagName === "SPAN" && this.style.fontSize) {
+      return {
+        x: rect.x, y: rect.y,
+        width: rect.width + (Math.random() > 0.5 ? 0.1 : -0.1),
+        height: rect.height + (Math.random() > 0.5 ? 0.1 : -0.1),
+        top: rect.top, right: rect.right, bottom: rect.bottom, left: rect.left,
+        toJSON: () => rect.toJSON()
+      };
+    }
+    return rect;
+  };
+
+  const originalGetClientRects = Element.prototype.getClientRects;
+  Element.prototype.getClientRects = function() {
+    const rects = originalGetClientRects.call(this);
+    if (this.tagName === "SPAN" && this.style.fontSize && rects.length > 0) {
+      const spoofedRects = [];
+      for (let i = 0; i < rects.length; i++) {
+        const rect = rects[i];
+        spoofedRects.push({
+          x: rect.x, y: rect.y,
+          width: rect.width + (Math.random() > 0.5 ? 0.1 : -0.1),
+          height: rect.height + (Math.random() > 0.5 ? 0.1 : -0.1),
+          top: rect.top, right: rect.right, bottom: rect.bottom, left: rect.left,
+          toJSON: () => rect.toJSON()
+        });
+      }
+      return spoofedRects;
+    }
+    return rects;
+  };
 
   // WebGL Noise (readPixels)
   const originalReadPixels = WebGLRenderingContext.prototype.readPixels;
