@@ -90,128 +90,57 @@ const [
 
     ) {
 
-      chrome.tabs.query(
-
-        {
-
-          active: true,
-          currentWindow: true
-
-        },
-
-        (tabs) => {
-
-          if (
-
-            tabs &&
-            tabs[0]
-
-          ) {
-
-            if (
-              tabs[0].url
-            ) {
-
-              try {
-
-                const url =
-                  new URL(
-                    tabs[0].url
-                  )
-
-                if (url.protocol !== "http:" && url.protocol !== "https:") {
-                  setWebsite("Unsupported Page")
-                  setHostname("")
-                } else {
-                  const host = url.hostname
-                  setWebsite(host.replace("www.", ""))
-                  setHostname(host)
-                }
-
-              } catch {
-
-                setWebsite(
-                  "Unknown"
-                )
-
+    chrome.tabs.query(
+      { active: true, currentWindow: true },
+      (tabs) => {
+        let currentHost = ""
+        if (tabs && tabs[0]) {
+          if (tabs[0].url) {
+            try {
+              const url = new URL(tabs[0].url)
+              if (url.protocol !== "http:" && url.protocol !== "https:") {
+                setWebsite("Unsupported Page")
+                setHostname("")
+              } else {
+                currentHost = url.hostname
+                setWebsite(currentHost.replace("www.", ""))
+                setHostname(currentHost)
               }
-
+            } catch {
+              setWebsite("Unknown")
+              setHostname("")
             }
-
-            if (
-              tabs[0].favIconUrl
-            ) {
-
-              setFavicon(
-                tabs[0].favIconUrl
-              )
-
-            }
-
           }
-
+          if (tabs[0].favIconUrl) {
+            setFavicon(tabs[0].favIconUrl)
+          }
         }
 
-      )
+        chrome.storage.local.get(
+          ["settings", "siteSettings", "blockedCount", "detectedTrackers"],
+          (result) => {
+            if (result.settings) {
+              setSettings(result.settings)
+            }
+            if (result.blockedCount !== undefined) {
+              setBlockedCount(result.blockedCount)
+            }
+            if (result.detectedTrackers) {
+              setTrackers(result.detectedTrackers)
+            }
+            // Sync per-site shield state
+            if (currentHost && result.siteSettings) {
+              const siteEnabled = result.siteSettings[currentHost]
+              setShieldsEnabled(siteEnabled !== false)
+            }
+          }
+        )
+      }
+    )
 
     }
 
   }, [])
-
-  // =========================
-  // STORAGE
-  // =========================
-
-  useEffect(() => {
-
-    chrome.storage.local.get(
-
-      [
-
-        "blockedCount",
-        "settings",
-        "siteSettings"
-
-      ],
-
-      (result) => {
-
-        setBlockedCount(
-
-          result.blockedCount || 0
-
-        )
-
-        if (
-          result.settings
-        ) {
-
-          setSettings(
-            result.settings
-          )
-
-        }
-
-        // Sync per-site shield state
-        if (
-          hostname &&
-          result.siteSettings
-        ) {
-
-          const siteEnabled =
-            result.siteSettings[
-              hostname
-            ]
-
-          setShieldsEnabled(siteEnabled !== false)
-
-        }
-
-      }
-
-    )
-
-  }, [hostname])
 
   // =========================
   // LIVE UPDATE

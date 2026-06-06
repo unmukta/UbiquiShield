@@ -41,8 +41,9 @@ chrome.runtime.onInstalled
         detectedTrackers: [],
         settings: defaultSettings,
         siteSettings: {}
+      }, () => {
+        applyProtectionRules()
       })
-      applyProtectionRules()
     } else if (details.reason === "update") {
       chrome.storage.local.get(["settings"], (res) => {
         if (!res.settings) {
@@ -119,9 +120,9 @@ async function applyProtectionRules() {
       }
 
       // Add dynamic rules to whitelist disabled sites
-      const disabledDomains = Object.keys(siteSettings).filter(
-        domain => siteSettings[domain] === false
-      )
+      const disabledDomains = Object.keys(siteSettings)
+        .filter(domain => siteSettings[domain] === false)
+        .slice(0, chrome.declarativeNetRequest.MAX_NUMBER_OF_DYNAMIC_AND_SESSION_RULES)
 
       const dynamicRules = disabledDomains.map((domain, index) => ({
         id: index + 100000,
@@ -391,16 +392,9 @@ chrome.tabs.onRemoved
   })
 
 chrome.runtime.onMessage.addListener(
-  (
-    request,
-    sender,
-    sendResponse
-  ) => {
+  (request, sender, sendResponse) => {
 
-    if (
-      request.action ===
-      "reportTrackers"
-    ) {
+    if (request.action === "reportTrackers") {
       if (sender.tab && sender.tab.id) {
         tabTrackers[sender.tab.id] = request.trackers
       }
@@ -408,82 +402,26 @@ chrome.runtime.onMessage.addListener(
       return true
     }
 
-    if (
-      request.action ===
-      "toggleSite"
-    ) {
-
-      chrome.storage.local.get(
-        ["siteSettings"],
-        (result) => {
-
-          const sites =
-            result.siteSettings || {}
-
-          sites[
-            request.hostname
-          ] =
-            request.enabled
-
-          chrome.storage.local.set(
-            {
-              siteSettings:
-                sites
-            },
-            () => {
-
-              sendResponse({
-                success: true
-              })
-
-            }
-          )
-
+    if (request.action === "updateCounter") {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs && tabs[0] && tabs[0].id) {
+          updateBlockedCount(tabs[0].id)
         }
-      )
-
+        sendResponse({ success: true })
+      })
       return true
     }
 
-    if (
-      request.action ===
-      "updateCounter"
-    ) {
-
-      chrome.tabs.query(
-        {
-          active: true,
-          currentWindow: true
-        },
-        (tabs) => {
-
-          if (
-            tabs &&
-            tabs[0] &&
-            tabs[0].id
-          ) {
-
-            updateBlockedCount(
-              tabs[0].id
-            )
-
-            chrome.storage.local.set({
-              detectedTrackers: tabTrackers[tabs[0].id] || []
-            })
-
-          }
-
-          sendResponse({
-            success: true
-          })
-
-        }
-      )
-
+    if (request.action === "toggleSite") {
+      chrome.storage.local.get(["siteSettings"], (result) => {
+        const sites = result.siteSettings || {}
+        sites[request.hostname] = request.enabled
+        chrome.storage.local.set({ siteSettings: sites }, () => {
+          sendResponse({ success: true })
+        })
+      })
       return true
-
     }
 
   }
 )
-

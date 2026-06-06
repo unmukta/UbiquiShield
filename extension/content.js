@@ -74,7 +74,7 @@ let siteProtectionEnabled = true
       .querySelectorAll(selector)
       .forEach((element) => {
 
-        element.style.display = "none"
+        element.style.setProperty("display", "none", "important")
 
       })
 
