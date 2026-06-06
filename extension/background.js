@@ -22,30 +22,39 @@ const defaultSettings = {
 
 const tabHostnames = {}
 const tabTimestamps = {}
+const tabTrackers = {}
 
 // =========================
 // INSTALL
 // =========================
 
 chrome.runtime.onInstalled
-  .addListener(() => {
+  .addListener((details) => {
 
     console.log(
-      "Ubiqui_Shield installed"
+      "Ubiqui_Shield installed, reason:", details.reason
     )
 
-    chrome.storage.local.set({
-
-      blockedCount: 0,
-
-      detectedTrackers: [],
-
-      settings:
-        defaultSettings
-
-    })
-
-    applyProtectionRules()
+    if (details.reason === "install") {
+      chrome.storage.local.set({
+        blockedCount: 0,
+        detectedTrackers: [],
+        settings: defaultSettings,
+        siteSettings: {}
+      })
+      applyProtectionRules()
+    } else if (details.reason === "update") {
+      chrome.storage.local.get(["settings"], (res) => {
+        if (!res.settings) {
+          chrome.storage.local.set({ settings: defaultSettings })
+        }
+        chrome.storage.local.set({
+          blockedCount: 0,
+          detectedTrackers: []
+        })
+        applyProtectionRules()
+      })
+    }
 
   })
 
@@ -246,6 +255,8 @@ function resetWebsiteStats(
   tabTimestamps[tabId] =
     Date.now()
 
+  tabTrackers[tabId] = []
+
   chrome.storage.local.set({
 
     blockedCount: 0,
@@ -387,6 +398,7 @@ chrome.tabs.onRemoved
 
     delete tabTimestamps[tabId]
     delete tabHostnames[tabId]
+    delete tabTrackers[tabId]
 
   })
 
@@ -396,6 +408,17 @@ chrome.runtime.onMessage.addListener(
     sender,
     sendResponse
   ) => {
+
+    if (
+      request.action ===
+      "reportTrackers"
+    ) {
+      if (sender.tab && sender.tab.id) {
+        tabTrackers[sender.tab.id] = request.trackers
+      }
+      sendResponse({ success: true })
+      return true
+    }
 
     if (
       request.action ===
@@ -455,6 +478,10 @@ chrome.runtime.onMessage.addListener(
             updateBlockedCount(
               tabs[0].id
             )
+
+            chrome.storage.local.set({
+              detectedTrackers: tabTrackers[tabs[0].id] || []
+            })
 
           }
 

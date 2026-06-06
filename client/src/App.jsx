@@ -119,19 +119,14 @@ const [
                     tabs[0].url
                   )
 
-                const host =
-                  url.hostname
-
-                setWebsite(
-
-                  host.replace(
-                    "www.",
-                    ""
-                  )
-
-                )
-
-                setHostname(host)
+                if (url.protocol !== "http:" && url.protocol !== "https:") {
+                  setWebsite("Unsupported Page")
+                  setHostname("")
+                } else {
+                  const host = url.hostname
+                  setWebsite(host.replace("www.", ""))
+                  setHostname(host)
+                }
 
               } catch {
 

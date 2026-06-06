@@ -196,11 +196,14 @@ function scanTrackers() {
     !settings.trackerBlocking
   ) {
 
-    chrome.storage.local.set({
-
-      detectedTrackers: []
-
-    })
+    try {
+      chrome.runtime.sendMessage({
+        action: "reportTrackers",
+        trackers: []
+      })
+    } catch {
+      // Context invalidated
+    }
 
     return
 
@@ -308,12 +311,14 @@ function scanTrackers() {
         )
     )
 
-  chrome.storage.local.set({
-
-    detectedTrackers:
-      uniqueTrackers
-
-  })
+  try {
+    chrome.runtime.sendMessage({
+      action: "reportTrackers",
+      trackers: uniqueTrackers
+    })
+  } catch {
+    // Context invalidated
+  }
 
   console.log(
     "TRACKERS:",
