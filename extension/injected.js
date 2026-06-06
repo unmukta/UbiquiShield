@@ -63,6 +63,20 @@
   const originalResolvedOptions =
     Intl.DateTimeFormat.prototype.resolvedOptions;
 
+  const OriginalDateTimeFormat = Intl.DateTimeFormat;
+  Intl.DateTimeFormat = function(...args) {
+    const options = args[1] || {};
+    options.timeZone = "UTC";
+    args[1] = options;
+    return new OriginalDateTimeFormat(...args);
+  };
+  Intl.DateTimeFormat.prototype = OriginalDateTimeFormat.prototype;
+
+  const originalGetTimezoneOffset = Date.prototype.getTimezoneOffset;
+  Date.prototype.getTimezoneOffset = function() {
+    return 0;
+  };
+
   Intl.DateTimeFormat.prototype.resolvedOptions =
     function() {
 
@@ -76,77 +90,66 @@
     };
 
   // Canvas Fingerprinting Protection
-  const originalToDataURL =
-    HTMLCanvasElement.prototype.toDataURL;
+  const originalGetContext = HTMLCanvasElement.prototype.getContext;
+  const contextTypes = new WeakMap();
 
-  HTMLCanvasElement.prototype.toDataURL =
-    function(...args) {
+  HTMLCanvasElement.prototype.getContext = function(contextId, ...args) {
+    const ctx = originalGetContext.apply(this, [contextId, ...args]);
+    if (ctx && !contextTypes.has(this)) {
+      contextTypes.set(this, contextId);
+    }
+    return ctx;
+  };
 
+  const originalToDataURL = HTMLCanvasElement.prototype.toDataURL;
+
+  HTMLCanvasElement.prototype.toDataURL = function(...args) {
+    const type = contextTypes.get(this);
+    if (type === "2d") {
       try {
-
-        const ctx =
-          this.getContext("2d");
-
+        const ctx = originalGetContext.call(this, "2d");
         if (ctx) {
-
-          ctx.fillStyle =
-            "rgba(1,1,1,0.01)";
-
-          ctx.fillRect(
-            0,
-            0,
-            1,
-            1
-          );
-
+          ctx.save();
+          ctx.fillStyle = "rgba(1,1,1,0.01)";
+          ctx.fillRect(0, 0, 1, 1);
+          ctx.restore();
         }
-
       } catch {
-        // Canvas may have a WebGL context
+        // Safe fail
       }
+    }
+    return originalToDataURL.apply(this, args);
+  };
 
-      return originalToDataURL.apply(
-        this,
-        args
-      );
+  const originalToBlob = HTMLCanvasElement.prototype.toBlob;
 
-    };
-
-  const originalToBlob =
-    HTMLCanvasElement.prototype.toBlob;
-
-  HTMLCanvasElement.prototype.toBlob =
-    function(...args) {
-
+  HTMLCanvasElement.prototype.toBlob = function(...args) {
+    const type = contextTypes.get(this);
+    if (type === "2d") {
       try {
-
-        const ctx =
-          this.getContext("2d");
-
+        const ctx = originalGetContext.call(this, "2d");
         if (ctx) {
-
-          ctx.fillStyle =
-            "rgba(1,1,1,0.01)";
-
-          ctx.fillRect(
-            0,
-            0,
-            1,
-            1
-          );
-
+          ctx.save();
+          ctx.fillStyle = "rgba(1,1,1,0.01)";
+          ctx.fillRect(0, 0, 1, 1);
+          ctx.restore();
         }
-
       } catch {
-        // Canvas may have a WebGL context
+        // Safe fail
       }
+    }
+    return originalToBlob.apply(this, args);
+  };
 
-      return originalToBlob.apply(
-        this,
-        args
-      );
+  const originalGetImageData = CanvasRenderingContext2D.prototype.getImageData;
 
-    };
+  CanvasRenderingContext2D.prototype.getImageData = function(...args) {
+    const imageData = originalGetImageData.apply(this, args);
+    if (imageData && imageData.data && imageData.data.length > 0) {
+      imageData.data[0] = (imageData.data[0] + 1) % 256;
+    }
+    return imageData;
+  };
 
   // Audio Fingerprinting Protection
   if (
@@ -177,6 +180,24 @@
 
       };
 
+  }
+
+  if (window.AnalyserNode) {
+    const originalGetFloatFrequencyData = AnalyserNode.prototype.getFloatFrequencyData;
+    AnalyserNode.prototype.getFloatFrequencyData = function(array) {
+      originalGetFloatFrequencyData.call(this, array);
+      if (array.length > 0) {
+        array[0] = array[0] + 0.1;
+      }
+    };
+    
+    const originalGetByteFrequencyData = AnalyserNode.prototype.getByteFrequencyData;
+    AnalyserNode.prototype.getByteFrequencyData = function(array) {
+      originalGetByteFrequencyData.call(this, array);
+      if (array.length > 0) {
+        array[0] = (array[0] + 1) % 256;
+      }
+    };
   }
 
   // WebGL
@@ -327,6 +348,22 @@
     );
   }
 
+  // Screen Spoofing
+  const spoofedScreen = {
+    width: 1920,
+    height: 1080,
+    colorDepth: 24,
+    pixelDepth: 24,
+    availWidth: 1920,
+    availHeight: 1040,
+  };
+  for (const key in spoofedScreen) {
+    Object.defineProperty(window.screen, key, {
+      get() { return spoofedScreen[key]; },
+      configurable: true
+    });
+  }
+
   // Font Fingerprinting Protection
   const originalOffsetWidth = Object.getOwnPropertyDescriptor(
     HTMLElement.prototype,
@@ -361,6 +398,41 @@
       configurable: true
     });
   }
+
+  const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
+  Element.prototype.getBoundingClientRect = function() {
+    const rect = originalGetBoundingClientRect.call(this);
+    if (this.tagName === "SPAN" && this.style.fontSize) {
+      return {
+        x: rect.x, y: rect.y,
+        width: rect.width + (Math.random() > 0.5 ? 0.1 : -0.1),
+        height: rect.height + (Math.random() > 0.5 ? 0.1 : -0.1),
+        top: rect.top, right: rect.right, bottom: rect.bottom, left: rect.left,
+        toJSON: () => rect.toJSON()
+      };
+    }
+    return rect;
+  };
+
+  const originalGetClientRects = Element.prototype.getClientRects;
+  Element.prototype.getClientRects = function() {
+    const rects = originalGetClientRects.call(this);
+    if (this.tagName === "SPAN" && this.style.fontSize && rects.length > 0) {
+      const spoofedRects = [];
+      for (let i = 0; i < rects.length; i++) {
+        const rect = rects[i];
+        spoofedRects.push({
+          x: rect.x, y: rect.y,
+          width: rect.width + (Math.random() > 0.5 ? 0.1 : -0.1),
+          height: rect.height + (Math.random() > 0.5 ? 0.1 : -0.1),
+          top: rect.top, right: rect.right, bottom: rect.bottom, left: rect.left,
+          toJSON: () => rect.toJSON()
+        });
+      }
+      return spoofedRects;
+    }
+    return rects;
+  };
 
   // WebGL Noise (readPixels)
   const originalReadPixels = WebGLRenderingContext.prototype.readPixels;

@@ -22,30 +22,42 @@ const defaultSettings = {
 
 const tabHostnames = {}
 const tabTimestamps = {}
+const tabTrackers = {}
 
 // =========================
 // INSTALL
 // =========================
 
 chrome.runtime.onInstalled
-  .addListener(() => {
+  .addListener((details) => {
 
     console.log(
-      "Ubiqui_Shield installed"
+      "Ubiqui_Shield installed, reason:", details.reason
     )
 
-    chrome.storage.local.set({
-
-      blockedCount: 0,
-
-      detectedTrackers: [],
-
-      settings:
-        defaultSettings
-
-    })
-
-    applyProtectionRules()
+    if (details.reason === "install") {
+      chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: true })
+      chrome.storage.local.set({
+        blockedCount: 0,
+        detectedTrackers: [],
+        settings: defaultSettings,
+        siteSettings: {}
+      }, () => {
+        applyProtectionRules()
+      })
+    } else if (details.reason === "update") {
+      chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: true })
+      chrome.storage.local.get(["settings"], (res) => {
+        const mergedSettings = { ...defaultSettings, ...(res.settings || {}) }
+        chrome.storage.local.set({
+          settings: mergedSettings,
+          blockedCount: 0,
+          detectedTrackers: []
+        }, () => {
+          applyProtectionRules()
+        })
+      })
+    }
 
   })
 
@@ -56,7 +68,7 @@ chrome.runtime.onInstalled
 async function applyProtectionRules() {
 
   chrome.storage.local.get(
-    ["settings"],
+    ["settings", "siteSettings"],
     async (result) => {
 
       const settings = {
@@ -66,6 +78,8 @@ async function applyProtectionRules() {
         ...(result.settings || {})
 
       }
+      
+      const siteSettings = result.siteSettings || {}
 
       if (
         settings.trackerBlocking
@@ -107,6 +121,40 @@ async function applyProtectionRules() {
 
       }
 
+      // Add dynamic rules to whitelist disabled sites
+      const disabledDomains = Object.keys(siteSettings)
+        .filter(domain => siteSettings[domain] === false)
+        .slice(0, chrome.declarativeNetRequest.MAX_NUMBER_OF_DYNAMIC_AND_SESSION_RULES - 1) // Leave room for HTTPS rule
+
+      let dynamicRules = disabledDomains.map((domain, index) => ({
+        id: index + 100000,
+        priority: 100,
+        action: { type: "allowAllRequests" },
+        condition: { initiatorDomains: [domain] }
+      }))
+
+      // Configure HTTPS Upgrade
+      if (settings.httpsUpgrade) {
+        dynamicRules.push({
+          id: 99999,
+          priority: 50,
+          action: { type: "upgradeScheme" },
+          condition: { 
+            urlFilter: "|http://*", 
+            resourceTypes: ["main_frame", "sub_frame"] 
+          }
+        });
+      }
+
+      // Clear previous dynamic rules and add new ones
+      const oldRules = await chrome.declarativeNetRequest.getDynamicRules()
+      const oldRuleIds = oldRules.map(rule => rule.id)
+
+      await chrome.declarativeNetRequest.updateDynamicRules({
+        removeRuleIds: oldRuleIds,
+        addRules: dynamicRules
+      })
+
     }
   )
 
@@ -136,11 +184,11 @@ chrome.storage.onChanged
 
     if (
       area === "local" &&
-      changes.settings
+      (changes.settings || changes.siteSettings)
     ) {
 
       console.log(
-        "Settings updated"
+        "Settings or siteSettings updated"
       )
 
       applyProtectionRules()
@@ -191,13 +239,10 @@ async function updateBlockedCount(
           minTimeStamp: minTime
         })
 
+    const count = result.rulesMatchedInfo.length
+
     chrome.storage.local.set({
-
-      blockedCount:
-        result
-          .rulesMatchedInfo
-          .length
-
+      blockedCount: count >= 100 ? "100+" : count
     })
 
   } catch {
@@ -223,16 +268,20 @@ function resetWebsiteStats(
   tabTimestamps[tabId] =
     Date.now()
 
-  chrome.storage.local.set({
+  tabTrackers[tabId] = []
 
-    blockedCount: 0,
-
-    detectedTrackers: []
-
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (tabs && tabs[0] && tabs[0].id === tabId) {
+      chrome.storage.local.set({
+        blockedCount: 0,
+        detectedTrackers: []
+      })
+    }
   })
 
   console.log(
-    "Website changed:",
+    "Website reset for tab:",
+    tabId,
     hostname
   )
 
@@ -264,23 +313,19 @@ chrome.tabs.onActivated
           const hostname =
             url.hostname
 
-          const prevHost =
-            tabHostnames[tabId]
-
-          if (
-            hostname !== prevHost
-          ) {
-
-            resetWebsiteStats(
-              hostname,
-              tabId
-            )
-
+          // If we somehow missed the initial load, set it
+          if (!tabHostnames[tabId]) {
+            tabHostnames[tabId] = hostname
+            tabTimestamps[tabId] = Date.now()
           }
 
           updateBlockedCount(
             tabId
           )
+
+          chrome.storage.local.set({
+            detectedTrackers: tabTrackers[tabId] || []
+          })
 
         } catch {
 
@@ -309,7 +354,6 @@ chrome.tabs.onUpdated
     if (
       changeInfo.status ===
         "loading" &&
-      tab.active &&
       tab.url
     ) {
 
@@ -321,19 +365,10 @@ chrome.tabs.onUpdated
         const hostname =
           url.hostname
 
-        const prevHost =
-          tabHostnames[tabId]
-
-        if (
-          hostname !== prevHost
-        ) {
-
-          resetWebsiteStats(
-            hostname,
-            tabId
-          )
-
-        }
+        resetWebsiteStats(
+          hostname,
+          tabId
+        )
 
       } catch {
 
@@ -364,88 +399,51 @@ chrome.tabs.onRemoved
 
     delete tabTimestamps[tabId]
     delete tabHostnames[tabId]
+    delete tabTrackers[tabId]
 
   })
 
 chrome.runtime.onMessage.addListener(
-  (
-    request,
-    sender,
-    sendResponse
-  ) => {
+  (request, sender, sendResponse) => {
 
-    if (
-      request.action ===
-      "toggleSite"
-    ) {
-
-      chrome.storage.local.get(
-        ["siteSettings"],
-        (result) => {
-
-          const sites =
-            result.siteSettings || {}
-
-          sites[
-            request.hostname
-          ] =
-            request.enabled
-
-          chrome.storage.local.set(
-            {
-              siteSettings:
-                sites
-            },
-            () => {
-
-              sendResponse({
-                success: true
-              })
-
-            }
-          )
-
-        }
-      )
-
+    if (request.action === "reportTrackers") {
+      if (sender.tab && sender.tab.id) {
+        const tabId = sender.tab.id
+        tabTrackers[tabId] = request.trackers
+        
+        // Sync active tab trackers to global storage instantly
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (tabs && tabs[0] && tabs[0].id === tabId) {
+            chrome.storage.local.set({
+              detectedTrackers: request.trackers
+            })
+          }
+        })
+      }
+      sendResponse({ success: true })
       return true
     }
 
-    if (
-      request.action ===
-      "updateCounter"
-    ) {
-
-      chrome.tabs.query(
-        {
-          active: true,
-          currentWindow: true
-        },
-        (tabs) => {
-
-          if (
-            tabs &&
-            tabs[0] &&
-            tabs[0].id
-          ) {
-
-            updateBlockedCount(
-              tabs[0].id
-            )
-
-          }
-
-          sendResponse({
-            success: true
-          })
-
+    if (request.action === "updateCounter") {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs && tabs[0] && tabs[0].id) {
+          updateBlockedCount(tabs[0].id)
         }
-      )
-
+        sendResponse({ success: true })
+      })
       return true
+    }
 
+    if (request.action === "toggleSite") {
+      chrome.storage.local.get(["siteSettings"], (result) => {
+        const sites = result.siteSettings || {}
+        sites[request.hostname] = request.enabled
+        chrome.storage.local.set({ siteSettings: sites }, () => {
+          sendResponse({ success: true })
+        })
+      })
+      return true
     }
 
   }
 )
-

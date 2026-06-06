@@ -90,141 +90,62 @@ const [
 
     ) {
 
-      chrome.tabs.query(
-
-        {
-
-          active: true,
-          currentWindow: true
-
-        },
-
-        (tabs) => {
-
-          if (
-
-            tabs &&
-            tabs[0]
-
-          ) {
-
-            if (
-              tabs[0].url
-            ) {
-
-              try {
-
-                const url =
-                  new URL(
-                    tabs[0].url
-                  )
-
-                const host =
-                  url.hostname
-
-                setWebsite(
-
-                  host.replace(
-                    "www.",
-                    ""
-                  )
-
-                )
-
-                setHostname(host)
-
-              } catch {
-
-                setWebsite(
-                  "Unknown"
-                )
-
+    chrome.tabs.query(
+      { active: true, currentWindow: true },
+      (tabs) => {
+        let currentHost = ""
+        if (tabs && tabs[0]) {
+          if (tabs[0].url) {
+            try {
+              const url = new URL(tabs[0].url)
+              if (url.protocol !== "http:" && url.protocol !== "https:") {
+                setWebsite("Unsupported Page")
+                setHostname("")
+              } else {
+                currentHost = url.hostname
+                setWebsite(currentHost.replace("www.", ""))
+                setHostname(currentHost)
               }
-
+            } catch {
+              setWebsite("Unknown")
+              setHostname("")
             }
-
-            if (
-              tabs[0].favIconUrl
-            ) {
-
-              setFavicon(
-                tabs[0].favIconUrl
-              )
-
-            }
-
           }
-
+          if (tabs[0].favIconUrl) {
+            setFavicon(tabs[0].favIconUrl)
+          }
         }
 
-      )
+        chrome.storage.local.get(
+          ["settings", "siteSettings", "blockedCount"],
+          (result) => {
+            if (result.settings) {
+              setSettings(result.settings)
+            }
+            if (result.blockedCount !== undefined) {
+              setBlockedCount(result.blockedCount)
+            }
+            // Sync per-site shield state
+            if (currentHost && result.siteSettings) {
+              let siteEnabled = true;
+              const parts = currentHost.split('.');
+              for (let i = 0; i < parts.length - 1; i++) {
+                const domainToCheck = parts.slice(i).join('.');
+                if (result.siteSettings[domainToCheck] === false) {
+                  siteEnabled = false;
+                  break;
+                }
+              }
+              setShieldsEnabled(siteEnabled)
+            }
+          }
+        )
+      }
+    )
 
     }
 
   }, [])
-
-  // =========================
-  // STORAGE
-  // =========================
-
-  useEffect(() => {
-
-    chrome.storage.local.get(
-
-      [
-
-        "blockedCount",
-        "settings",
-        "siteSettings"
-
-      ],
-
-      (result) => {
-
-        setBlockedCount(
-
-          result.blockedCount || 0
-
-        )
-
-        if (
-          result.settings
-        ) {
-
-          setSettings(
-            result.settings
-          )
-
-        }
-
-        // Sync per-site shield state
-        if (
-          hostname &&
-          result.siteSettings
-        ) {
-
-          const siteEnabled =
-            result.siteSettings[
-              hostname
-            ]
-
-          if (
-            siteEnabled === false
-          ) {
-
-            setShieldsEnabled(
-              false
-            )
-
-          }
-
-        }
-
-      }
-
-    )
-
-  }, [hostname])
 
   // =========================
   // LIVE UPDATE
@@ -232,26 +153,13 @@ const [
 
   useEffect(() => {
 
-    const listener =
-      (changes) => {
-
-        if (
-          changes.blockedCount
-        ) {
-
-          setBlockedCount(
-
-            changes.blockedCount
-              .newValue
-
-          )
-
-        }
-
+    const listener = (changes) => {
+      if (changes.blockedCount) {
+        setBlockedCount(changes.blockedCount.newValue)
       }
+    }
 
-    chrome.storage.onChanged
-      .addListener(listener)
+    chrome.storage.onChanged.addListener(listener)
 
     // Poll background script
     // to get fresh matched rules
@@ -295,65 +203,34 @@ const [
 // MASTER TOGGLE
 // =========================
 
-function toggleShield() {
+  function toggleShield() {
 
-  const updated =
-    !shieldsEnabled
+    const updated =
+      !shieldsEnabled
 
-  setShieldsEnabled(
-    updated
-  )
-
-  const updatedSettings = {
-
-    trackerBlocking:
-      updated,
-
-    httpsUpgrade:
-      updated,
-
-    scriptBlocking:
-      updated,
-
-    fingerprintProtection:
-      updated,
-
-    thirdPartyCookies:
+    setShieldsEnabled(
       updated
+    )
+
+    if (
+      hostname &&
+      chrome.runtime
+    ) {
+
+      chrome.runtime.sendMessage(
+        {
+          action: "toggleSite",
+          hostname,
+          enabled: updated
+        },
+        () => {
+          chrome.tabs.reload()
+        }
+      )
+
+    }
 
   }
-
-  setSettings(
-    updatedSettings
-  )
-
-  chrome.storage.local.set({
-
-    settings:
-      updatedSettings
-
-  })
-
-  if (
-    hostname &&
-    chrome.runtime
-  ) {
-
-    chrome.runtime.sendMessage({
-
-      action:
-        "toggleSite",
-
-      hostname,
-
-      enabled:
-        updated
-
-    })
-
-  }
-
-}
 
   // =========================
   // OPTION TOGGLE

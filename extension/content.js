@@ -2,21 +2,7 @@ console.log(
   "Ubiqui_Shield content script active"
 )
 
-const script =
-  document.createElement("script");
-
-script.src =
-  chrome.runtime.getURL(
-    "injected.js"
-  );
-
-script.onload = () =>
-  script.remove();
-
-(
-  document.head ||
-  document.documentElement
-).appendChild(script);
+// Removed unconditional script injection
 
 // =========================
 // TRACKER DATABASE
@@ -45,13 +31,13 @@ const defaultSettings = {
 let settings =
   defaultSettings
 
-let siteProtectionEnabled = true
+let siteProtectionEnabled = false
 
 
   function cosmeticFiltering() {
 
   if (
-    !settings.trackerBlocking
+    !settings.trackerBlocking || !siteProtectionEnabled
   ) {
     return
   }
@@ -88,7 +74,7 @@ let siteProtectionEnabled = true
       .querySelectorAll(selector)
       .forEach((element) => {
 
-        element.style.display = "none"
+        element.style.setProperty("display", "none", "important")
 
       })
 
@@ -139,30 +125,25 @@ loadTrackerDB().then(() => {
 
       }
 
-      const siteSettings =
-        result.siteSettings || {}
+      const siteSettings = result.siteSettings || {}
+      const currentHostname = window.location.hostname
 
-      const currentHostname =
-        window.location.hostname
-
-      if (
-        siteSettings[
-          currentHostname
-        ] === false
-      ) {
-
-        siteProtectionEnabled =
-          false
-
-        console.log(
-          "Protection disabled for",
-          currentHostname
-        )
-
-        return
-
+      let isDisabled = false;
+      const parts = currentHostname.split('.');
+      for (let i = 0; i < parts.length - 1; i++) {
+        const domainToCheck = parts.slice(i).join('.');
+        if (siteSettings[domainToCheck] === false) {
+          isDisabled = true;
+          break;
+        }
       }
 
+      if (isDisabled) {
+        console.log("Protection disabled for", currentHostname)
+        return
+      }
+
+      siteProtectionEnabled = true
       initializeProtection()
 
     }
@@ -174,30 +155,31 @@ loadTrackerDB().then(() => {
 // LIVE SETTINGS UPDATE
 // =========================
 
-chrome.storage.onChanged
-  .addListener((changes) => {
-
-    if (
-      changes.settings
-    ) {
-
+  chrome.storage.onChanged.addListener((changes) => {
+    if (changes.settings) {
       settings = {
-
         ...defaultSettings,
-
-        ...changes
-          .settings
-          .newValue
-
+        ...changes.settings.newValue
       }
-
-      console.log(
-        "Updated Settings:",
-        settings
-      )
-
+      console.log("Updated Settings:", settings)
     }
 
+    if (changes.siteSettings) {
+      const siteSettings = changes.siteSettings.newValue || {}
+      const currentHostname = window.location.hostname
+      
+      let isDisabled = false;
+      const parts = currentHostname.split('.');
+      for (let i = 0; i < parts.length - 1; i++) {
+        const domainToCheck = parts.slice(i).join('.');
+        if (siteSettings[domainToCheck] === false) {
+          isDisabled = true;
+          break;
+        }
+      }
+      
+      siteProtectionEnabled = !isDisabled;
+    }
   })
 
 // =========================
@@ -210,11 +192,14 @@ function scanTrackers() {
     !settings.trackerBlocking
   ) {
 
-    chrome.storage.local.set({
-
-      detectedTrackers: []
-
-    })
+    try {
+      chrome.runtime.sendMessage({
+        action: "reportTrackers",
+        trackers: []
+      })
+    } catch {
+      // Context invalidated
+    }
 
     return
 
@@ -222,22 +207,32 @@ function scanTrackers() {
 
   const detectedTrackers = []
 
-  const scripts =
+  const elements =
     document.querySelectorAll(
-      "script"
+      "script, iframe, img"
     )
 
-  scripts.forEach((script) => {
+  elements.forEach((element) => {
 
     const src = (
-      script.src || ""
+      element.src || ""
     ).toLowerCase()
+
+    if (!src) return;
+
+    let host = "";
+    try {
+      const url = new URL(src)
+      host = url.hostname
+    } catch {
+      return;
+    }
 
     Object.keys(trackerDB)
       .forEach((key) => {
 
         if (
-          src.includes(key)
+          host.includes(key)
         ) {
 
           detectedTrackers.push({
@@ -295,16 +290,41 @@ function scanTrackers() {
       ) {
 
         console.log(
-          "Blocked Script:",
+          "Blocked Element:",
           src
         )
 
-        script.remove()
+        element.remove()
 
       }
 
     }
 
+  })
+
+  // =====================
+  // SHADOW DOM SCANNER
+  // =====================
+  
+  const resources = window.performance.getEntriesByType("resource")
+  resources.forEach((entry) => {
+    let host = ""
+    try {
+      const url = new URL(entry.name)
+      host = url.hostname
+    } catch {
+      return
+    }
+
+    Object.keys(trackerDB).forEach((key) => {
+      if (host.includes(key)) {
+        detectedTrackers.push({
+          id: key,
+          ...trackerDB[key],
+          blocked: true
+        })
+      }
+    })
   })
 
   // REMOVE DUPLICATES
@@ -322,12 +342,14 @@ function scanTrackers() {
         )
     )
 
-  chrome.storage.local.set({
-
-    detectedTrackers:
-      uniqueTrackers
-
-  })
+  try {
+    chrome.runtime.sendMessage({
+      action: "reportTrackers",
+      trackers: uniqueTrackers
+    })
+  } catch {
+    // Context invalidated
+  }
 
   console.log(
     "TRACKERS:",
@@ -421,6 +443,13 @@ function protectCookies() {
 
 function initializeProtection() {
 
+  if (settings.fingerprintProtection) {
+    const script = document.createElement("script");
+    script.src = chrome.runtime.getURL("injected.js");
+    script.onload = () => script.remove();
+    (document.head || document.documentElement).appendChild(script);
+  }
+
   protectCookies()
 
   scanTrackers()
@@ -433,24 +462,26 @@ function initializeProtection() {
 // LIVE DOM MONITOR
 // =========================
 
-let scanTimeout;
+let isScanning = false;
 
 const observer =
   new MutationObserver(() => {
 
-    if (!siteProtectionEnabled) {
+    if (!siteProtectionEnabled || isScanning) {
       return
     }
 
-    clearTimeout(scanTimeout);
+    isScanning = true;
 
-    scanTimeout =
-      setTimeout(() => {
+    setTimeout(() => {
 
-        scanTrackers();
-        cosmeticFiltering();
+      protectCookies();
+      scanTrackers();
+      cosmeticFiltering();
 
-      }, 1000);
+      isScanning = false;
+
+    }, 1000);
 
   });
 
