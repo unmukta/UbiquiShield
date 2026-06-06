@@ -156,26 +156,13 @@ const [
 
   useEffect(() => {
 
-    const listener =
-      (changes) => {
-
-        if (
-          changes.blockedCount
-        ) {
-
-          setBlockedCount(
-
-            changes.blockedCount
-              .newValue
-
-          )
-
-        }
-
+    const listener = (changes) => {
+      if (changes.blockedCount) {
+        setBlockedCount(changes.blockedCount.newValue)
       }
+    }
 
-    chrome.storage.onChanged
-      .addListener(listener)
+    chrome.storage.onChanged.addListener(listener)
 
     // Poll background script
     // to get fresh matched rules

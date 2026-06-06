@@ -76,85 +76,56 @@
     };
 
   // Canvas Fingerprinting Protection
-  const originalToDataURL =
-    HTMLCanvasElement.prototype.toDataURL;
+  const originalGetContext = HTMLCanvasElement.prototype.getContext;
+  const contextTypes = new WeakMap();
 
-  HTMLCanvasElement.prototype.toDataURL =
-    function(...args) {
+  HTMLCanvasElement.prototype.getContext = function(contextId, ...args) {
+    const ctx = originalGetContext.apply(this, [contextId, ...args]);
+    if (ctx && !contextTypes.has(this)) {
+      contextTypes.set(this, contextId);
+    }
+    return ctx;
+  };
 
+  const originalToDataURL = HTMLCanvasElement.prototype.toDataURL;
+
+  HTMLCanvasElement.prototype.toDataURL = function(...args) {
+    const type = contextTypes.get(this);
+    if (type === "2d") {
       try {
-
-        const ctx =
-          this.getContext("2d");
-
+        const ctx = originalGetContext.call(this, "2d");
         if (ctx) {
-
           ctx.save();
-
-          ctx.fillStyle =
-            "rgba(1,1,1,0.01)";
-
-          ctx.fillRect(
-            0,
-            0,
-            1,
-            1
-          );
-
+          ctx.fillStyle = "rgba(1,1,1,0.01)";
+          ctx.fillRect(0, 0, 1, 1);
           ctx.restore();
-
         }
-
       } catch {
-        // Canvas may have a WebGL context
+        // Safe fail
       }
+    }
+    return originalToDataURL.apply(this, args);
+  };
 
-      return originalToDataURL.apply(
-        this,
-        args
-      );
+  const originalToBlob = HTMLCanvasElement.prototype.toBlob;
 
-    };
-
-  const originalToBlob =
-    HTMLCanvasElement.prototype.toBlob;
-
-  HTMLCanvasElement.prototype.toBlob =
-    function(...args) {
-
+  HTMLCanvasElement.prototype.toBlob = function(...args) {
+    const type = contextTypes.get(this);
+    if (type === "2d") {
       try {
-
-        const ctx =
-          this.getContext("2d");
-
+        const ctx = originalGetContext.call(this, "2d");
         if (ctx) {
-
           ctx.save();
-
-          ctx.fillStyle =
-            "rgba(1,1,1,0.01)";
-
-          ctx.fillRect(
-            0,
-            0,
-            1,
-            1
-          );
-
+          ctx.fillStyle = "rgba(1,1,1,0.01)";
+          ctx.fillRect(0, 0, 1, 1);
           ctx.restore();
-
         }
-
       } catch {
-        // Canvas may have a WebGL context
+        // Safe fail
       }
-
-      return originalToBlob.apply(
-        this,
-        args
-      );
-
-    };
+    }
+    return originalToBlob.apply(this, args);
+  };
 
   // Audio Fingerprinting Protection
   if (

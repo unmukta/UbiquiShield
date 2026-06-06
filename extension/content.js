@@ -302,6 +302,31 @@ function scanTrackers() {
 
   })
 
+  // =====================
+  // SHADOW DOM SCANNER
+  // =====================
+  
+  const resources = window.performance.getEntriesByType("resource")
+  resources.forEach((entry) => {
+    let host = ""
+    try {
+      const url = new URL(entry.name)
+      host = url.hostname
+    } catch {
+      return
+    }
+
+    Object.keys(trackerDB).forEach((key) => {
+      if (host.includes(key)) {
+        detectedTrackers.push({
+          id: key,
+          ...trackerDB[key],
+          blocked: true
+        })
+      }
+    })
+  })
+
   // REMOVE DUPLICATES
   const uniqueTrackers =
     detectedTrackers.filter(
