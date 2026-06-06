@@ -1,5 +1,6 @@
 {
   "name": "ubiqui_shield_root",
+  "version": "1.1.4",
   "private": true,
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.4] - 2026-06-06
+
+### Fixed
+
+- **Live Tracker UI Desync**: Fixed a performance optimization regression that severed the link between the content scanner and the popup UI, ensuring the "Detected Trackers" list repopulates instantly as you browse.
+- **Settings Merge Corruption**: Rewrote the extension version update mechanism to safely merge custom legacy user settings using object spreading, preventing customized preferences from breaking on new version updates.
+- **Chrome Privacy 100+ Counter Limit**: Implemented a smart UX workaround for Chrome's native privacy restriction (which hard-caps rule logs at 100). The extension UI now displays `100+` rather than awkwardly freezing at 100 on heavy pages.
+- **Canvas Context WebGL Corruption**: Identified and fixed an extremely subtle bug where the anti-fingerprinting script would permanently lock WebGL canvases into a `2d` mode. The extension now tracks context types safely via a `WeakMap`, protecting complex 3D web games.
+- **Shadow DOM Tracker Evasion**: Advanced advertising networks hide pixels inside Shadow DOM web components to evade adblocker DOM scanners. The extension now natively hooks into `window.performance.getEntriesByType("resource")` to bypass the DOM entirely and instantly catch all hidden requests.
+
+---
+
 ## [1.1.3] - 2026-06-05
 
 ### Added

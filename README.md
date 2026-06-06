@@ -7,15 +7,17 @@ Ubiqui Shield helps users reduce online tracking by blocking known trackers, upg
 ## Features
 
 - **Network-Level Tracker Blocking**: Block over **3,500** tracking & advertising domains using Manifest V3's high-performance Declarative Net Request API.
+- **Shadow DOM Evasion Prevention**: Bypasses traditional Light DOM limitations by directly integrating the browser's `window.performance` API to catch trackers hiding in Shadow DOM or background fetch routines.
 - **Smart Cosmetic Filtering**: Clean up page layouts by removing advertisement containers safely, using bounded CSS selectors to avoid breaking major websites (like YouTube, GitHub, LinkedIn, and Reddit).
-- **WebGL & WebGL2 Protection**: Obscure hardware metrics, suppress extension hooks (e.g., `WEBGL_debug_renderer_info`), and inject subtle noise to disrupt image extraction techniques.
-- **Canvas Fingerprint Obfuscation**: Neutralize attempts to build unique graphical hashes by safely spoofing Canvas drawing API data.
+- **Advanced Context-Aware Fingerprint Protection**: Mocks hardware metrics while specifically protecting the WebGL contexts of legitimate 3D games and web applications from accidental Canvas corruption.
 - **Font & WebRTC Leak Protection**: Spoof system font detection measurements and hide local IP addresses during web conferencing.
 - **System Environment Normalization**: Return standardized baseline values for browser properties such as `navigator.hardwareConcurrency`, `navigator.deviceMemory`, `navigator.connection`, and platform attributes.
-- **Audio API & Screen Metric Spoofing**: Obscure device audio characteristics and screen properties to reduce overall fingerprint entropy.
 - **Per-Site Protection Toggle**: Pause and resume protection on specific sites directly via the extension popup, fully integrated into local storage.
-- **Production-Safe Blocked Counter**: Real-time counter of blocked trackers scoped to each tab using rule-matching telemetry safely, compatible with production installs.
+- **Production-Safe Blocked Counter**: Real-time counter of blocked trackers scoped to each tab using rule-matching telemetry safely, compatible with production installs. Includes Chrome's MV3 100+ telemetry fallback support.
 - **HTTPS Connection Upgrades**: Automatically redirect insecure HTTP requests to secure HTTPS equivalents.
+
+> For an in-depth look at how the algorithms and APIs work, check out the full [Architecture & Technical Documentation](ARCHITECTURE.md).
+
 - **Lightweight & Privacy First**: Zero third-party runtime dependencies, zero telemetry, and 100% local processing.
 
 ## Tech Stack
@@ -110,7 +112,7 @@ Ubiqui Shield dramatically increases user privacy and cuts down tracking vectors
 
 ## Version
 
-Current Release: **v1.1.3**
+Current Release: **v1.1.4**
 
 # License
 
