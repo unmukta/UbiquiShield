@@ -211,15 +211,15 @@ function scanTrackers() {
 
   const detectedTrackers = []
 
-  const scripts =
+  const elements =
     document.querySelectorAll(
-      "script"
+      "script, iframe, img"
     )
 
-  scripts.forEach((script) => {
+  elements.forEach((element) => {
 
     const src = (
-      script.src || ""
+      element.src || ""
     ).toLowerCase()
 
     Object.keys(trackerDB)
@@ -284,11 +284,11 @@ function scanTrackers() {
       ) {
 
         console.log(
-          "Blocked Script:",
+          "Blocked Element:",
           src
         )
 
-        script.remove()
+        element.remove()
 
       }
 

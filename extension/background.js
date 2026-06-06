@@ -257,16 +257,18 @@ function resetWebsiteStats(
 
   tabTrackers[tabId] = []
 
-  chrome.storage.local.set({
-
-    blockedCount: 0,
-
-    detectedTrackers: []
-
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (tabs && tabs[0] && tabs[0].id === tabId) {
+      chrome.storage.local.set({
+        blockedCount: 0,
+        detectedTrackers: []
+      })
+    }
   })
 
   console.log(
-    "Website changed:",
+    "Website reset for tab:",
+    tabId,
     hostname
   )
 
@@ -298,23 +300,19 @@ chrome.tabs.onActivated
           const hostname =
             url.hostname
 
-          const prevHost =
-            tabHostnames[tabId]
-
-          if (
-            hostname !== prevHost
-          ) {
-
-            resetWebsiteStats(
-              hostname,
-              tabId
-            )
-
+          // If we somehow missed the initial load, set it
+          if (!tabHostnames[tabId]) {
+            tabHostnames[tabId] = hostname
+            tabTimestamps[tabId] = Date.now()
           }
 
           updateBlockedCount(
             tabId
           )
+
+          chrome.storage.local.set({
+            detectedTrackers: tabTrackers[tabId] || []
+          })
 
         } catch {
 
@@ -343,7 +341,6 @@ chrome.tabs.onUpdated
     if (
       changeInfo.status ===
         "loading" &&
-      tab.active &&
       tab.url
     ) {
 
@@ -355,19 +352,10 @@ chrome.tabs.onUpdated
         const hostname =
           url.hostname
 
-        const prevHost =
-          tabHostnames[tabId]
-
-        if (
-          hostname !== prevHost
-        ) {
-
-          resetWebsiteStats(
-            hostname,
-            tabId
-          )
-
-        }
+        resetWebsiteStats(
+          hostname,
+          tabId
+        )
 
       } catch {
 

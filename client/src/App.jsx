@@ -203,15 +203,7 @@ const [
               hostname
             ]
 
-          if (
-            siteEnabled === false
-          ) {
-
-            setShieldsEnabled(
-              false
-            )
-
-          }
+          setShieldsEnabled(siteEnabled !== false)
 
         }
 
