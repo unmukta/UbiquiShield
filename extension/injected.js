@@ -89,6 +89,8 @@
 
         if (ctx) {
 
+          ctx.save();
+
           ctx.fillStyle =
             "rgba(1,1,1,0.01)";
 
@@ -98,6 +100,8 @@
             1,
             1
           );
+
+          ctx.restore();
 
         }
 
@@ -125,6 +129,8 @@
 
         if (ctx) {
 
+          ctx.save();
+
           ctx.fillStyle =
             "rgba(1,1,1,0.01)";
 
@@ -134,6 +140,8 @@
             1,
             1
           );
+
+          ctx.restore();
 
         }
 

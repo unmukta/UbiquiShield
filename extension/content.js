@@ -431,24 +431,26 @@ function initializeProtection() {
 // LIVE DOM MONITOR
 // =========================
 
-let scanTimeout;
+let isScanning = false;
 
 const observer =
   new MutationObserver(() => {
 
-    if (!siteProtectionEnabled) {
+    if (!siteProtectionEnabled || isScanning) {
       return
     }
 
-    clearTimeout(scanTimeout);
+    isScanning = true;
 
-    scanTimeout =
-      setTimeout(() => {
+    setTimeout(() => {
 
-        scanTrackers();
-        cosmeticFiltering();
+      protectCookies();
+      scanTrackers();
+      cosmeticFiltering();
 
-      }, 1000);
+      isScanning = false;
+
+    }, 1000);
 
   });
 
