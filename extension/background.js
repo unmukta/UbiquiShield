@@ -36,6 +36,7 @@ chrome.runtime.onInstalled
     )
 
     if (details.reason === "install") {
+      chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: true })
       chrome.storage.local.set({
         blockedCount: 0,
         detectedTrackers: [],
@@ -45,6 +46,7 @@ chrome.runtime.onInstalled
         applyProtectionRules()
       })
     } else if (details.reason === "update") {
+      chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: true })
       chrome.storage.local.get(["settings"], (res) => {
         if (!res.settings) {
           chrome.storage.local.set({ settings: defaultSettings })

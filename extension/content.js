@@ -125,28 +125,23 @@ loadTrackerDB().then(() => {
 
       }
 
-      const siteSettings =
-        result.siteSettings || {}
+      const siteSettings = result.siteSettings || {}
+      const currentHostname = window.location.hostname
 
-      const currentHostname =
-        window.location.hostname
+      let isDisabled = false;
+      const parts = currentHostname.split('.');
+      for (let i = 0; i < parts.length - 1; i++) {
+        const domainToCheck = parts.slice(i).join('.');
+        if (siteSettings[domainToCheck] === false) {
+          isDisabled = true;
+          break;
+        }
+      }
 
-      if (
-        siteSettings[
-          currentHostname
-        ] === false
-      ) {
-
-        siteProtectionEnabled =
-          false
-
-        console.log(
-          "Protection disabled for",
-          currentHostname
-        )
-
+      if (isDisabled) {
+        siteProtectionEnabled = false
+        console.log("Protection disabled for", currentHostname)
         return
-
       }
 
       initializeProtection()
@@ -160,30 +155,31 @@ loadTrackerDB().then(() => {
 // LIVE SETTINGS UPDATE
 // =========================
 
-chrome.storage.onChanged
-  .addListener((changes) => {
-
-    if (
-      changes.settings
-    ) {
-
+  chrome.storage.onChanged.addListener((changes) => {
+    if (changes.settings) {
       settings = {
-
         ...defaultSettings,
-
-        ...changes
-          .settings
-          .newValue
-
+        ...changes.settings.newValue
       }
-
-      console.log(
-        "Updated Settings:",
-        settings
-      )
-
+      console.log("Updated Settings:", settings)
     }
 
+    if (changes.siteSettings) {
+      const siteSettings = changes.siteSettings.newValue || {}
+      const currentHostname = window.location.hostname
+      
+      let isDisabled = false;
+      const parts = currentHostname.split('.');
+      for (let i = 0; i < parts.length - 1; i++) {
+        const domainToCheck = parts.slice(i).join('.');
+        if (siteSettings[domainToCheck] === false) {
+          isDisabled = true;
+          break;
+        }
+      }
+      
+      siteProtectionEnabled = !isDisabled;
+    }
   })
 
 // =========================
@@ -222,11 +218,21 @@ function scanTrackers() {
       element.src || ""
     ).toLowerCase()
 
+    if (!src) return;
+
+    let host = "";
+    try {
+      const url = new URL(src)
+      host = url.hostname
+    } catch {
+      return;
+    }
+
     Object.keys(trackerDB)
       .forEach((key) => {
 
         if (
-          src.includes(key)
+          host.includes(key)
         ) {
 
           detectedTrackers.push({

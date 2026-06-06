@@ -130,8 +130,16 @@ const [
             }
             // Sync per-site shield state
             if (currentHost && result.siteSettings) {
-              const siteEnabled = result.siteSettings[currentHost]
-              setShieldsEnabled(siteEnabled !== false)
+              let siteEnabled = true;
+              const parts = currentHost.split('.');
+              for (let i = 0; i < parts.length - 1; i++) {
+                const domainToCheck = parts.slice(i).join('.');
+                if (result.siteSettings[domainToCheck] === false) {
+                  siteEnabled = false;
+                  break;
+                }
+              }
+              setShieldsEnabled(siteEnabled)
             }
           }
         )
@@ -211,35 +219,34 @@ const [
 // MASTER TOGGLE
 // =========================
 
-function toggleShield() {
+  function toggleShield() {
 
-  const updated =
-    !shieldsEnabled
+    const updated =
+      !shieldsEnabled
 
-  setShieldsEnabled(
-    updated
-  )
+    setShieldsEnabled(
+      updated
+    )
 
-  if (
-    hostname &&
-    chrome.runtime
-  ) {
+    if (
+      hostname &&
+      chrome.runtime
+    ) {
 
-    chrome.runtime.sendMessage({
+      chrome.runtime.sendMessage(
+        {
+          action: "toggleSite",
+          hostname,
+          enabled: updated
+        },
+        () => {
+          chrome.tabs.reload()
+        }
+      )
 
-      action:
-        "toggleSite",
-
-      hostname,
-
-      enabled:
-        updated
-
-    })
+    }
 
   }
-
-}
 
   // =========================
   // OPTION TOGGLE
