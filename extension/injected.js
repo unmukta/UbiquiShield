@@ -182,6 +182,24 @@
 
   }
 
+  if (window.AnalyserNode) {
+    const originalGetFloatFrequencyData = AnalyserNode.prototype.getFloatFrequencyData;
+    AnalyserNode.prototype.getFloatFrequencyData = function(array) {
+      originalGetFloatFrequencyData.call(this, array);
+      if (array.length > 0) {
+        array[0] = array[0] + 0.1;
+      }
+    };
+    
+    const originalGetByteFrequencyData = AnalyserNode.prototype.getByteFrequencyData;
+    AnalyserNode.prototype.getByteFrequencyData = function(array) {
+      originalGetByteFrequencyData.call(this, array);
+      if (array.length > 0) {
+        array[0] = (array[0] + 1) % 256;
+      }
+    };
+  }
+
   // WebGL
   const originalGetExtension =
     WebGLRenderingContext.prototype.getExtension;
@@ -328,6 +346,22 @@
         configurable: true
       }
     );
+  }
+
+  // Screen Spoofing
+  const spoofedScreen = {
+    width: 1920,
+    height: 1080,
+    colorDepth: 24,
+    pixelDepth: 24,
+    availWidth: 1920,
+    availHeight: 1040,
+  };
+  for (const key in spoofedScreen) {
+    Object.defineProperty(window.screen, key, {
+      get() { return spoofedScreen[key]; },
+      configurable: true
+    });
   }
 
   // Font Fingerprinting Protection
