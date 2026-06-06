@@ -304,36 +304,6 @@ function toggleShield() {
     updated
   )
 
-  const updatedSettings = {
-
-    trackerBlocking:
-      updated,
-
-    httpsUpgrade:
-      updated,
-
-    scriptBlocking:
-      updated,
-
-    fingerprintProtection:
-      updated,
-
-    thirdPartyCookies:
-      updated
-
-  }
-
-  setSettings(
-    updatedSettings
-  )
-
-  chrome.storage.local.set({
-
-    settings:
-      updatedSettings
-
-  })
-
   if (
     hostname &&
     chrome.runtime

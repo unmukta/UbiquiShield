@@ -2,21 +2,7 @@ console.log(
   "Ubiqui_Shield content script active"
 )
 
-const script =
-  document.createElement("script");
-
-script.src =
-  chrome.runtime.getURL(
-    "injected.js"
-  );
-
-script.onload = () =>
-  script.remove();
-
-(
-  document.head ||
-  document.documentElement
-).appendChild(script);
+// Removed unconditional script injection
 
 // =========================
 // TRACKER DATABASE
@@ -420,6 +406,13 @@ function protectCookies() {
 // =========================
 
 function initializeProtection() {
+
+  if (settings.fingerprintProtection) {
+    const script = document.createElement("script");
+    script.src = chrome.runtime.getURL("injected.js");
+    script.onload = () => script.remove();
+    (document.head || document.documentElement).appendChild(script);
+  }
 
   protectCookies()
 

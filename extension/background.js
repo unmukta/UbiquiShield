@@ -56,7 +56,7 @@ chrome.runtime.onInstalled
 async function applyProtectionRules() {
 
   chrome.storage.local.get(
-    ["settings"],
+    ["settings", "siteSettings"],
     async (result) => {
 
       const settings = {
@@ -66,6 +66,8 @@ async function applyProtectionRules() {
         ...(result.settings || {})
 
       }
+      
+      const siteSettings = result.siteSettings || {}
 
       if (
         settings.trackerBlocking
@@ -107,6 +109,27 @@ async function applyProtectionRules() {
 
       }
 
+      // Add dynamic rules to whitelist disabled sites
+      const disabledDomains = Object.keys(siteSettings).filter(
+        domain => siteSettings[domain] === false
+      )
+
+      const dynamicRules = disabledDomains.map((domain, index) => ({
+        id: index + 100000,
+        priority: 100,
+        action: { type: "allowAllRequests" },
+        condition: { initiatorDomains: [domain] }
+      }))
+
+      // Clear previous dynamic rules and add new ones
+      const oldRules = await chrome.declarativeNetRequest.getDynamicRules()
+      const oldRuleIds = oldRules.map(rule => rule.id)
+
+      await chrome.declarativeNetRequest.updateDynamicRules({
+        removeRuleIds: oldRuleIds,
+        addRules: dynamicRules
+      })
+
     }
   )
 
@@ -136,11 +159,11 @@ chrome.storage.onChanged
 
     if (
       area === "local" &&
-      changes.settings
+      (changes.settings || changes.siteSettings)
     ) {
 
       console.log(
-        "Settings updated"
+        "Settings or siteSettings updated"
       )
 
       applyProtectionRules()
