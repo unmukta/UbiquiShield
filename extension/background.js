@@ -48,14 +48,14 @@ chrome.runtime.onInstalled
     } else if (details.reason === "update") {
       chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: true })
       chrome.storage.local.get(["settings"], (res) => {
-        if (!res.settings) {
-          chrome.storage.local.set({ settings: defaultSettings })
-        }
+        const mergedSettings = { ...defaultSettings, ...(res.settings || {}) }
         chrome.storage.local.set({
+          settings: mergedSettings,
           blockedCount: 0,
           detectedTrackers: []
+        }, () => {
+          applyProtectionRules()
         })
-        applyProtectionRules()
       })
     }
 
@@ -226,13 +226,10 @@ async function updateBlockedCount(
           minTimeStamp: minTime
         })
 
+    const count = result.rulesMatchedInfo.length
+
     chrome.storage.local.set({
-
-      blockedCount:
-        result
-          .rulesMatchedInfo
-          .length
-
+      blockedCount: count >= 100 ? "100+" : count
     })
 
   } catch {
@@ -398,7 +395,17 @@ chrome.runtime.onMessage.addListener(
 
     if (request.action === "reportTrackers") {
       if (sender.tab && sender.tab.id) {
-        tabTrackers[sender.tab.id] = request.trackers
+        const tabId = sender.tab.id
+        tabTrackers[tabId] = request.trackers
+        
+        // Sync active tab trackers to global storage instantly
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (tabs && tabs[0] && tabs[0].id === tabId) {
+            chrome.storage.local.set({
+              detectedTrackers: request.trackers
+            })
+          }
+        })
       }
       sendResponse({ success: true })
       return true
