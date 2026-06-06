@@ -117,16 +117,13 @@ const [
         }
 
         chrome.storage.local.get(
-          ["settings", "siteSettings", "blockedCount", "detectedTrackers"],
+          ["settings", "siteSettings", "blockedCount"],
           (result) => {
             if (result.settings) {
               setSettings(result.settings)
             }
             if (result.blockedCount !== undefined) {
               setBlockedCount(result.blockedCount)
-            }
-            if (result.detectedTrackers) {
-              setTrackers(result.detectedTrackers)
             }
             // Sync per-site shield state
             if (currentHost && result.siteSettings) {

@@ -124,6 +124,12 @@ Advanced trackers detect installed system fonts by measuring the exact sub-pixel
 - **Integer Spoofing**: We override `offsetWidth` and `offsetHeight`.
 - **Sub-Pixel Spoofing**: Trackers use `Element.prototype.getBoundingClientRect()` and `getClientRects()` to obtain high-precision floats (e.g., `12.1524px`). We intercept these DOM APIs specifically for `<span>` tags and inject a microscopic float variance (`±0.1px`) into the returned `DOMRect` dimensions. This successfully blinds the font-rendering hash algorithm.
 
+### Timezone Spoofing
+Instead of injecting scripts into the page context, UbiquiShield hooks the native browser APIs at the extension layer.
+- `Intl.DateTimeFormat.prototype.resolvedOptions()` is overridden to always return `UTC`.
+- `Date.prototype.getTimezoneOffset()` is overridden to always return `0`.
+- This ensures cryptographically sound and consistent timezone masking, preventing bot-detection systems from flagging timezone anomalies.
+
 ---
 
 ## 4. API & Storage Interfaces

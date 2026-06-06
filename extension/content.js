@@ -31,13 +31,13 @@ const defaultSettings = {
 let settings =
   defaultSettings
 
-let siteProtectionEnabled = true
+let siteProtectionEnabled = false
 
 
   function cosmeticFiltering() {
 
   if (
-    !settings.trackerBlocking
+    !settings.trackerBlocking || !siteProtectionEnabled
   ) {
     return
   }
@@ -139,11 +139,11 @@ loadTrackerDB().then(() => {
       }
 
       if (isDisabled) {
-        siteProtectionEnabled = false
         console.log("Protection disabled for", currentHostname)
         return
       }
 
+      siteProtectionEnabled = true
       initializeProtection()
 
     }

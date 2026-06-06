@@ -12,6 +12,11 @@
 - **2D Canvas `getImageData` Fingerprinting Hole**: Fixed a hole where fingerprinting scripts could bypass our visual canvas noise injections by directly reading the memory buffer via `getImageData`. The extension now intercepts `getImageData` and injects cryptographic noise directly into the pixel array.
 - **Sub-Pixel Font Fingerprinting Hole**: Advanced trackers exploit `getBoundingClientRect` to extract high-precision float values (e.g. `12.1524px`) from text to uniquely identify font rendering engines. The extension now safely intercepts `getBoundingClientRect` and `getClientRects` to inject sub-pixel variance, blinding font trackers.
 
+- **Fatal UI ReferenceError Crash**: Fixed a critical regression in the React popup (`App.jsx`) where a dangling reference to a removed state variable (`setTrackers`) would silently crash the initialization effect, breaking the "Shields Down" toggle syncing.
+- **SPA Tracker Bleed (Endless Accumulation)**: Fixed a logic flaw where Single Page Applications (like YouTube or React sites) would push history states without triggering a `"loading"` event, causing trackers from previous pages to infinitely accumulate into the current page's count.
+- **Whitelist Visual Flicker (Race Condition)**: Patched an initial load race condition where the extension would aggressively block trackers and cosmetically filter the DOM *before* the asynchronous `chrome.storage.local.get` callback verified if the user had disabled the shield. Whitelisted sites now load flawlessly without initial flickering.
+- **Timezone Offset Fingerprinting**: Timezone spoofing has been upgraded. While `Intl.DateTimeFormat` was previously mocked to UTC, bot-detection scripts used `Date.prototype.getTimezoneOffset()` to extract the real local offset (e.g. `-300`). We now hook the native `Date` prototype to strictly return `0`, ensuring 100% cryptographic consistency.
+
 ---
 
 ## [1.1.3] - 2026-06-05

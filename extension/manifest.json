@@ -1,67 +1,17 @@
 {
   "manifest_version": 3,
-
   "name": "Ubiqui_Shield",
+  "version": "1.0",
 
-  "version": "1.1.3",
-
-  "description": "Modern privacy and anti-tracking extension.",
+  "description": "Browser protection extension",
 
   "permissions": [
-    "storage",
     "tabs",
     "activeTab",
-    "declarativeNetRequest",
-    "declarativeNetRequestFeedback",
-    "privacy"
-  ],
-
-  "host_permissions": [
-    "<all_urls>"
-  ],
-
-  "background": {
-    "service_worker": "background.js"
-  },
-
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "run_at": "document_start"
-    }
+    "storage"
   ],
 
   "action": {
-    "default_popup": "index.html",
-    "default_title": "Ubiqui_Shield"
-  },
-
-  "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
-  },
-
-  "declarative_net_request": {
-    "rule_resources": [
-      {
-        "id": "ruleset_1",
-        "enabled": true,
-        "path": "rules.json"
-      }
-    ]
-  },
-
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "injected.js",
-        "trackers.json"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
-    }
-  ]
+    "default_popup": "index.html"
+  }
 }

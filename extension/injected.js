@@ -63,6 +63,20 @@
   const originalResolvedOptions =
     Intl.DateTimeFormat.prototype.resolvedOptions;
 
+  const OriginalDateTimeFormat = Intl.DateTimeFormat;
+  Intl.DateTimeFormat = function(...args) {
+    const options = args[1] || {};
+    options.timeZone = "UTC";
+    args[1] = options;
+    return new OriginalDateTimeFormat(...args);
+  };
+  Intl.DateTimeFormat.prototype = OriginalDateTimeFormat.prototype;
+
+  const originalGetTimezoneOffset = Date.prototype.getTimezoneOffset;
+  Date.prototype.getTimezoneOffset = function() {
+    return 0;
+  };
+
   Intl.DateTimeFormat.prototype.resolvedOptions =
     function() {
 
