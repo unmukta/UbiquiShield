@@ -126,7 +126,16 @@ loadTrackerDB().then(() => {
       }
 
       const siteSettings = result.siteSettings || {}
-      const currentHostname = window.location.hostname
+      
+      let currentHostname = window.location.hostname;
+      if (window.location.ancestorOrigins && window.location.ancestorOrigins.length > 0) {
+        try {
+          const topOrigin = window.location.ancestorOrigins[window.location.ancestorOrigins.length - 1];
+          if (topOrigin && topOrigin !== "null") {
+            currentHostname = new URL(topOrigin).hostname;
+          }
+        } catch(e) {}
+      }
 
       let isDisabled = false;
       const parts = currentHostname.split('.');
@@ -166,7 +175,16 @@ loadTrackerDB().then(() => {
 
     if (changes.siteSettings) {
       const siteSettings = changes.siteSettings.newValue || {}
-      const currentHostname = window.location.hostname
+      
+      let currentHostname = window.location.hostname;
+      if (window.location.ancestorOrigins && window.location.ancestorOrigins.length > 0) {
+        try {
+          const topOrigin = window.location.ancestorOrigins[window.location.ancestorOrigins.length - 1];
+          if (topOrigin && topOrigin !== "null") {
+            currentHostname = new URL(topOrigin).hostname;
+          }
+        } catch(e) {}
+      }
       
       let isDisabled = false;
       const parts = currentHostname.split('.');

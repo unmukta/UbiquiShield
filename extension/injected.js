@@ -157,7 +157,7 @@
     AudioBuffer.prototype.getChannelData
   ) {
 
-    const originalGetChannelData =
+    var originalGetChannelData =
       AudioBuffer.prototype.getChannelData;
 
     AudioBuffer.prototype.getChannelData =
@@ -183,7 +183,7 @@
   }
 
   if (window.AnalyserNode) {
-    const originalGetFloatFrequencyData = AnalyserNode.prototype.getFloatFrequencyData;
+    var originalGetFloatFrequencyData = AnalyserNode.prototype.getFloatFrequencyData;
     AnalyserNode.prototype.getFloatFrequencyData = function(array) {
       originalGetFloatFrequencyData.call(this, array);
       if (array.length > 0) {
@@ -191,7 +191,7 @@
       }
     };
     
-    const originalGetByteFrequencyData = AnalyserNode.prototype.getByteFrequencyData;
+    var originalGetByteFrequencyData = AnalyserNode.prototype.getByteFrequencyData;
     AnalyserNode.prototype.getByteFrequencyData = function(array) {
       originalGetByteFrequencyData.call(this, array);
       if (array.length > 0) {
