@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.2.0] - 2026-06-08 (Release)
+## [1.2.0] - 2026-06-08 (Pre-release)
 
 This major update introduces a native CSS-based cosmetic filtering engine, advanced protections against invisible Font Fingerprinting, and defeats cross-site Link Decoration.
 
@@ -14,7 +14,7 @@ This major update introduces a native CSS-based cosmetic filtering engine, advan
 - **Native Cosmetic CSS Engine**: Replaced the legacy JavaScript-based ad-hiding loop with a native C++ CSS injection engine. The extension now parses a comprehensive list of Adblock Plus-style selectors and pushes them directly into the browser's native rendering pipeline via an injected `<style>` block. This results in zero CPU overhead and instantly eradicates ads before they can render, eliminating the "flash of unstyled content".
 - **Font Fingerprinting Protection**: Advanced trackers use invisible canvases to measure the exact fractional pixel width of specific text strings to build a hash of the fonts installed on your computer. The extension now intercepts `CanvasRenderingContext2D.prototype.measureText` using a JavaScript Proxy, injecting microscopic floating-point noise (`±0.0001` pixels) into the `.width` property to completely scramble tracking hashes while keeping the page looking identical.
 
-## [1.1.4] - 2026-06-06 (Pre-release)
+## [1.1.4] - 2026-06-06
 
 This is a comprehensive pre-release focusing on deep architectural bug fixes, fixing critical vulnerabilities in the fingerprinting spoofing engine, and resolving major UI race conditions.
 
