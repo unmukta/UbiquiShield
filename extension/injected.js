@@ -22,18 +22,7 @@
       },
       configurable: true
     }
-  );
 
-  // Platform
-  Object.defineProperty(
-    Navigator.prototype,
-    "platform",
-    {
-      get() {
-        return "Win32";
-      },
-      configurable: true
-    }
   );
 
   // Language
@@ -157,7 +146,7 @@
     AudioBuffer.prototype.getChannelData
   ) {
 
-    const originalGetChannelData =
+    var originalGetChannelData =
       AudioBuffer.prototype.getChannelData;
 
     AudioBuffer.prototype.getChannelData =
@@ -183,7 +172,7 @@
   }
 
   if (window.AnalyserNode) {
-    const originalGetFloatFrequencyData = AnalyserNode.prototype.getFloatFrequencyData;
+    var originalGetFloatFrequencyData = AnalyserNode.prototype.getFloatFrequencyData;
     AnalyserNode.prototype.getFloatFrequencyData = function(array) {
       originalGetFloatFrequencyData.call(this, array);
       if (array.length > 0) {
@@ -191,7 +180,7 @@
       }
     };
     
-    const originalGetByteFrequencyData = AnalyserNode.prototype.getByteFrequencyData;
+    var originalGetByteFrequencyData = AnalyserNode.prototype.getByteFrequencyData;
     AnalyserNode.prototype.getByteFrequencyData = function(array) {
       originalGetByteFrequencyData.call(this, array);
       if (array.length > 0) {
@@ -258,7 +247,7 @@
     "undefined"
   ) {
 
-    const originalGetExtension2 =
+    var originalGetExtension2 =
       WebGL2RenderingContext.prototype
         .getExtension;
 
@@ -278,7 +267,7 @@
 
       };
 
-    const originalGetParameter2 =
+    var originalGetParameter2 =
       WebGL2RenderingContext.prototype
         .getParameter;
 
@@ -349,17 +338,25 @@
   }
 
   // Screen Spoofing
+  const originalScreenDescriptors = {};
+  for (const key of ["width", "height", "colorDepth", "pixelDepth", "availWidth", "availHeight"]) {
+    originalScreenDescriptors[key] = Object.getOwnPropertyDescriptor(Screen.prototype, key) || Object.getOwnPropertyDescriptor(window.screen, key);
+  }
+
   const spoofedScreen = {
-    width: 1920,
-    height: 1080,
-    colorDepth: 24,
-    pixelDepth: 24,
-    availWidth: 1920,
-    availHeight: 1040,
+    get width() { return Math.max(1920, window.outerWidth || 0); },
+    get height() { return Math.max(1080, window.outerHeight || 0); },
+    get colorDepth() { return 24; },
+    get pixelDepth() { return 24; },
+    get availWidth() { return Math.max(1920, window.outerWidth || 0); },
+    get availHeight() { return Math.max(1040, window.outerHeight || 0); }
   };
   for (const key in spoofedScreen) {
     Object.defineProperty(window.screen, key, {
-      get() { return spoofedScreen[key]; },
+      get() { 
+        const desc = Object.getOwnPropertyDescriptor(spoofedScreen, key);
+        return desc.get ? desc.get() : spoofedScreen[key];
+      },
       configurable: true
     });
   }
@@ -403,13 +400,12 @@
   Element.prototype.getBoundingClientRect = function() {
     const rect = originalGetBoundingClientRect.call(this);
     if (this.tagName === "SPAN" && this.style.fontSize) {
-      return {
-        x: rect.x, y: rect.y,
-        width: rect.width + (Math.random() > 0.5 ? 0.1 : -0.1),
-        height: rect.height + (Math.random() > 0.5 ? 0.1 : -0.1),
-        top: rect.top, right: rect.right, bottom: rect.bottom, left: rect.left,
-        toJSON: () => rect.toJSON()
-      };
+      return new DOMRect(
+        rect.x,
+        rect.y,
+        rect.width + (Math.random() > 0.5 ? 0.1 : -0.1),
+        rect.height + (Math.random() > 0.5 ? 0.1 : -0.1)
+      );
     }
     return rect;
   };
@@ -418,18 +414,23 @@
   Element.prototype.getClientRects = function() {
     const rects = originalGetClientRects.call(this);
     if (this.tagName === "SPAN" && this.style.fontSize && rects.length > 0) {
-      const spoofedRects = [];
-      for (let i = 0; i < rects.length; i++) {
-        const rect = rects[i];
-        spoofedRects.push({
-          x: rect.x, y: rect.y,
-          width: rect.width + (Math.random() > 0.5 ? 0.1 : -0.1),
-          height: rect.height + (Math.random() > 0.5 ? 0.1 : -0.1),
-          top: rect.top, right: rect.right, bottom: rect.bottom, left: rect.left,
-          toJSON: () => rect.toJSON()
-        });
-      }
-      return spoofedRects;
+      return new Proxy(rects, {
+        get(target, prop) {
+          if (prop === 'length') return target.length;
+          const index = Number(prop);
+          if (!isNaN(index) && index >= 0 && index < target.length) {
+            const rect = target[index];
+            return new DOMRect(
+              rect.x,
+              rect.y,
+              rect.width + (Math.random() > 0.5 ? 0.1 : -0.1),
+              rect.height + (Math.random() > 0.5 ? 0.1 : -0.1)
+            );
+          }
+          const val = Reflect.get(target, prop);
+          return typeof val === 'function' ? val.bind(target) : val;
+        }
+      });
     }
     return rects;
   };
@@ -444,7 +445,7 @@
   };
 
   if (typeof WebGL2RenderingContext !== "undefined") {
-    const originalReadPixels2 = WebGL2RenderingContext.prototype.readPixels;
+    var originalReadPixels2 = WebGL2RenderingContext.prototype.readPixels;
     WebGL2RenderingContext.prototype.readPixels = function(...args) {
       originalReadPixels2.apply(this, args);
       if (args[6] && args[6].length > 0) {
@@ -456,5 +457,7 @@
   console.log(
     "Advanced fingerprint protection enabled"
   );
+
+
 
 })();

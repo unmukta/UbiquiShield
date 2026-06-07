@@ -126,7 +126,16 @@ loadTrackerDB().then(() => {
       }
 
       const siteSettings = result.siteSettings || {}
-      const currentHostname = window.location.hostname
+      
+      let currentHostname = window.location.hostname;
+      if (window.location.ancestorOrigins && window.location.ancestorOrigins.length > 0) {
+        try {
+          const topOrigin = window.location.ancestorOrigins[window.location.ancestorOrigins.length - 1];
+          if (topOrigin && topOrigin !== "null") {
+            currentHostname = new URL(topOrigin).hostname;
+          }
+        } catch(e) {}
+      }
 
       let isDisabled = false;
       const parts = currentHostname.split('.');
@@ -152,6 +161,17 @@ loadTrackerDB().then(() => {
 })
 
 // =========================
+// OBSERVER MANAGEMENT
+// =========================
+function manageObserver() {
+  if (siteProtectionEnabled && settings.trackerBlocking) {
+    observer.observe(document.documentElement, { childList: true, subtree: true })
+  } else {
+    observer.disconnect()
+  }
+}
+
+// =========================
 // LIVE SETTINGS UPDATE
 // =========================
 
@@ -166,7 +186,16 @@ loadTrackerDB().then(() => {
 
     if (changes.siteSettings) {
       const siteSettings = changes.siteSettings.newValue || {}
-      const currentHostname = window.location.hostname
+      
+      let currentHostname = window.location.hostname;
+      if (window.location.ancestorOrigins && window.location.ancestorOrigins.length > 0) {
+        try {
+          const topOrigin = window.location.ancestorOrigins[window.location.ancestorOrigins.length - 1];
+          if (topOrigin && topOrigin !== "null") {
+            currentHostname = new URL(topOrigin).hostname;
+          }
+        } catch(e) {}
+      }
       
       let isDisabled = false;
       const parts = currentHostname.split('.');
@@ -180,6 +209,7 @@ loadTrackerDB().then(() => {
       
       siteProtectionEnabled = !isDisabled;
     }
+    manageObserver();
   })
 
 // =========================
@@ -362,8 +392,8 @@ function scanTrackers() {
 function protectCookies() {
 
   if (
-    !settings
-      .thirdPartyCookies
+    !settings.thirdPartyCookies ||
+    !siteProtectionEnabled
   ) {
     return
   }
@@ -442,20 +472,13 @@ function protectCookies() {
 // =========================
 
 function initializeProtection() {
-
-  if (settings.fingerprintProtection) {
-    const script = document.createElement("script");
-    script.src = chrome.runtime.getURL("injected.js");
-    script.onload = () => script.remove();
-    (document.head || document.documentElement).appendChild(script);
-  }
-
   protectCookies()
 
   scanTrackers()
 
   cosmeticFiltering()
 
+  manageObserver()
 }
 
 // =========================
@@ -484,14 +507,3 @@ const observer =
     }, 1000);
 
   });
-
-observer.observe(
-  document.documentElement,
-  {
-
-    childList: true,
-
-    subtree: true
-
-  }
-)

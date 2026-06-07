@@ -21,7 +21,7 @@ https.get(BLOCKLIST_URL, (res) => {
         priority: 1,
         action: { type: "block" },
         condition: {
-          urlFilter: domain,
+          urlFilter: "||" + domain,
           resourceTypes: ["script", "image", "xmlhttprequest", "sub_frame", "ping", "media", "websocket"]
         }
       };
@@ -44,7 +44,7 @@ https.get(BLOCKLIST_URL, (res) => {
           priority: 1,
           action: { type: "block" },
           condition: {
-            urlFilter: extra,
+            urlFilter: "||" + extra,
             resourceTypes: ["script", "image", "xmlhttprequest", "sub_frame", "ping", "media", "websocket"]
           }
         });

@@ -10,10 +10,10 @@
   "permissions": [
     "storage",
     "tabs",
-    "activeTab",
     "declarativeNetRequest",
     "declarativeNetRequestFeedback",
-    "privacy"
+    "privacy",
+    "scripting"
   ],
 
   "host_permissions": [
@@ -28,7 +28,9 @@
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"],
-      "run_at": "document_start"
+      "run_at": "document_start",
+      "all_frames": true,
+      "match_about_blank": true
     }
   ],
 
@@ -51,17 +53,5 @@
         "path": "rules.json"
       }
     ]
-  },
-
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "injected.js",
-        "trackers.json"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
-    }
-  ]
+  }
 }
