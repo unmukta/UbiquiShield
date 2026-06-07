@@ -117,6 +117,32 @@ async function applyProtectionRules() {
         });
       }
 
+      // Configure Strict URL Tracking Parameter Stripping
+      if (settings.trackerBlocking) {
+        dynamicRules.push({
+          id: 99998,
+          priority: 40,
+          action: {
+            type: "redirect",
+            redirect: {
+              transform: {
+                queryTransform: {
+                  removeParams: [
+                    "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "utm_name",
+                    "fbclid", "gclid", "msclkid", "mc_eid", "igshid", "yclid", "_openstat", "wickedid",
+                    "otc", "oly_enc_id", "oly_anon_id", "rb_clickid", "wbraid", "gbraid", "twclid",
+                    "s_cid", "mkt_tok", "zanpid", "cx_cmp"
+                  ]
+                }
+              }
+            }
+          },
+          condition: {
+            resourceTypes: ["main_frame", "sub_frame"]
+          }
+        });
+      }
+
       // Clear previous dynamic rules and add new ones
       const oldRules = await chrome.declarativeNetRequest.getDynamicRules()
       const oldRuleIds = oldRules.map(rule => rule.id)

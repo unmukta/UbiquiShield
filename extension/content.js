@@ -36,49 +36,59 @@ let siteProtectionEnabled = false
 
   function cosmeticFiltering() {
 
-  if (
-    !settings.trackerBlocking || !siteProtectionEnabled
-  ) {
-    return
+  if (!settings.trackerBlocking || !siteProtectionEnabled) {
+    const existingStyle = document.getElementById("ubiquishield-cosmetic");
+    if (existingStyle) existingStyle.remove();
+    return;
   }
 
-  const selectors = [
+  if (document.getElementById("ubiquishield-cosmetic")) {
+    return;
+  }
 
-    '[id^="ad-"]',
-    '[id$="-ad"]',
-    '[class*="-ad-"]',
-    '[class^="ad-"]',
-    '[class$="-ad"]',
+  const style = document.createElement("style");
+  style.id = "ubiquishield-cosmetic";
+  style.textContent = `
+    /* Traditional Ads */
+    [id^="ad-"], [id$="-ad"], [class*="-ad-"], [class^="ad-"], [class$="-ad"],
+    ins.adsbygoogle, [data-ad-slot], [data-ad-client], [data-ad-format],
+    [class*="sponsor"], [id*="sponsor"], [class*="promoted"],
+    iframe[src*="doubleclick"], iframe[src*="googlesyndication"],
+    iframe[src*="taboola"], iframe[src*="outbrain"],
+    [data-testid="placementTracking"], .ad-container, .advertisement, 
+    .banner-ad, .sponsored-post,
 
-    'ins.adsbygoogle',
-    '[data-ad-slot]',
-    '[data-ad-client]',
-    '[data-ad-format]',
+    /* Cookie Banners (Annoyance Blocking) */
+    #onetrust-consent-sdk, #cookie-notice, .cookie-banner, .cookie-consent, 
+    #cookie-law-info-bar, .optanon-alert-box-wrapper, .cc-window, 
+    .qc-cmp2-container, #cmessage_form, .cookie-popup, #cookie-bar,
+    .eu-cookie-compliance-banner, #sp_message_container_1, 
+    .CybotCookiebotDialog, #CybotCookiebotDialog, 
+    [aria-label="Cookie consent"], [aria-label="Cookie banner"],
 
-    '[class*="sponsor"]',
-    '[id*="sponsor"]',
-    '[class*="promoted"]',
+    /* YouTube Native Ads */
+    ytd-ad-slot-renderer, ytd-promoted-sparkles-web-renderer,
+    ytd-promoted-video-renderer, ytd-display-ad-renderer,
+    .ytd-in-feed-ad-layout-renderer, .ytd-video-masthead-ad-v3-renderer,
+    .ytp-ad-module, .ytp-ad-image-overlay,
 
-    'iframe[src*="doubleclick"]',
-    'iframe[src*="googlesyndication"]',
-    'iframe[src*="taboola"]',
-    'iframe[src*="outbrain"]',
-
-    '[data-testid="placementTracking"]'
-
-  ]
-
-  selectors.forEach((selector) => {
-
-    document
-      .querySelectorAll(selector)
-      .forEach((element) => {
-
-        element.style.setProperty("display", "none", "important")
-
-      })
-
-  })
+    /* Facebook & Twitter Sponsored Posts */
+    div[data-testid="sponsored-label"], 
+    div[data-testid="placementTracking"]
+    {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      height: 0 !important;
+      width: 0 !important;
+      position: absolute !important;
+      top: -9999px !important;
+      left: -9999px !important;
+    }
+  `;
+  
+  (document.head || document.documentElement).appendChild(style);
 
 }
 
@@ -500,7 +510,6 @@ const observer =
 
       protectCookies();
       scanTrackers();
-      cosmeticFiltering();
 
       isScanning = false;
 

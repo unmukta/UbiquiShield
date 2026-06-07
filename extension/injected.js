@@ -300,6 +300,28 @@
 
   }
 
+  // Canvas measureText (Font Fingerprinting Protection)
+  if (
+    typeof CanvasRenderingContext2D !== "undefined" &&
+    CanvasRenderingContext2D.prototype.measureText
+  ) {
+    const originalMeasureText = CanvasRenderingContext2D.prototype.measureText;
+    CanvasRenderingContext2D.prototype.measureText = function() {
+      const metrics = originalMeasureText.apply(this, arguments);
+      const noise = (Math.random() - 0.5) * 0.0001;
+      
+      return new Proxy(metrics, {
+        get(target, prop) {
+          if (prop === 'width') {
+            return target.width + noise;
+          }
+          const value = target[prop];
+          return typeof value === 'function' ? value.bind(target) : value;
+        }
+      });
+    };
+  }
+
   // Battery API
   if (navigator.getBattery) {
 
@@ -335,6 +357,39 @@
         configurable: true
       }
     );
+  }
+
+  // Hardware Media Device Protection
+  if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+    const originalEnumerate = navigator.mediaDevices.enumerateDevices;
+    navigator.mediaDevices.enumerateDevices = async function() {
+      const devices = await originalEnumerate.apply(this, arguments);
+      return devices.map(device => {
+        const genericLabel = device.kind === 'audioinput' ? 'Default Microphone' : 
+                             device.kind === 'videoinput' ? 'Default Webcam' : 
+                             device.kind === 'audiooutput' ? 'Default Speaker' : 'Default Device';
+        return {
+          deviceId: 'default',
+          kind: device.kind,
+          label: genericLabel,
+          groupId: 'default',
+          toJSON: function() { return this; }
+        };
+      });
+    };
+  }
+
+  // Client Hints API Spoofing (navigator.userAgentData)
+  if (navigator.userAgentData) {
+    const originalGetHighEntropyValues = navigator.userAgentData.getHighEntropyValues;
+    navigator.userAgentData.getHighEntropyValues = async function(hints) {
+      const values = await originalGetHighEntropyValues.apply(this, arguments);
+      if (values.architecture) values.architecture = 'x86';
+      if (values.bitness) values.bitness = '64';
+      if (values.model) values.model = '';
+      if (values.platformVersion) values.platformVersion = '10.0.0';
+      return values;
+    };
   }
 
   // Screen Spoofing
