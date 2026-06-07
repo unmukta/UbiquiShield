@@ -443,11 +443,8 @@ function protectCookies() {
 
 function initializeProtection() {
 
-  if (settings.fingerprintProtection) {
-    const script = document.createElement("script");
-    script.src = chrome.runtime.getURL("injected.js");
-    script.onload = () => script.remove();
-    (document.head || document.documentElement).appendChild(script);
+  if (!settings.fingerprintProtection || !siteProtectionEnabled) {
+    document.dispatchEvent(new CustomEvent("UbiquiShieldDisable"));
   }
 
   protectCookies()

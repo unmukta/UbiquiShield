@@ -258,7 +258,7 @@
     "undefined"
   ) {
 
-    const originalGetExtension2 =
+    var originalGetExtension2 =
       WebGL2RenderingContext.prototype
         .getExtension;
 
@@ -278,7 +278,7 @@
 
       };
 
-    const originalGetParameter2 =
+    var originalGetParameter2 =
       WebGL2RenderingContext.prototype
         .getParameter;
 
@@ -349,17 +349,25 @@
   }
 
   // Screen Spoofing
+  const originalScreenDescriptors = {};
+  for (const key of ["width", "height", "colorDepth", "pixelDepth", "availWidth", "availHeight"]) {
+    originalScreenDescriptors[key] = Object.getOwnPropertyDescriptor(Screen.prototype, key) || Object.getOwnPropertyDescriptor(window.screen, key);
+  }
+
   const spoofedScreen = {
-    width: 1920,
-    height: 1080,
-    colorDepth: 24,
-    pixelDepth: 24,
-    availWidth: 1920,
-    availHeight: 1040,
+    get width() { return Math.max(1920, window.outerWidth || 0); },
+    get height() { return Math.max(1080, window.outerHeight || 0); },
+    get colorDepth() { return 24; },
+    get pixelDepth() { return 24; },
+    get availWidth() { return Math.max(1920, window.outerWidth || 0); },
+    get availHeight() { return Math.max(1040, window.outerHeight || 0); }
   };
   for (const key in spoofedScreen) {
     Object.defineProperty(window.screen, key, {
-      get() { return spoofedScreen[key]; },
+      get() { 
+        const desc = Object.getOwnPropertyDescriptor(spoofedScreen, key);
+        return desc.get ? desc.get() : spoofedScreen[key];
+      },
       configurable: true
     });
   }
@@ -444,7 +452,7 @@
   };
 
   if (typeof WebGL2RenderingContext !== "undefined") {
-    const originalReadPixels2 = WebGL2RenderingContext.prototype.readPixels;
+    var originalReadPixels2 = WebGL2RenderingContext.prototype.readPixels;
     WebGL2RenderingContext.prototype.readPixels = function(...args) {
       originalReadPixels2.apply(this, args);
       if (args[6] && args[6].length > 0) {
@@ -456,5 +464,62 @@
   console.log(
     "Advanced fingerprint protection enabled"
   );
+
+  document.addEventListener("UbiquiShieldDisable", () => {
+    try {
+      // Revert Timezone
+      Intl.DateTimeFormat = OriginalDateTimeFormat;
+      Intl.DateTimeFormat.prototype = OriginalDateTimeFormat.prototype;
+      Date.prototype.getTimezoneOffset = originalGetTimezoneOffset;
+      Intl.DateTimeFormat.prototype.resolvedOptions = originalResolvedOptions;
+
+      // Revert Canvas
+      HTMLCanvasElement.prototype.getContext = originalGetContext;
+      HTMLCanvasElement.prototype.toDataURL = originalToDataURL;
+      HTMLCanvasElement.prototype.toBlob = originalToBlob;
+      CanvasRenderingContext2D.prototype.getImageData = originalGetImageData;
+
+      // Revert Audio
+      if (window.AudioBuffer) AudioBuffer.prototype.getChannelData = originalGetChannelData;
+      if (window.AnalyserNode) {
+        AnalyserNode.prototype.getFloatFrequencyData = originalGetFloatFrequencyData;
+        AnalyserNode.prototype.getByteFrequencyData = originalGetByteFrequencyData;
+      }
+
+      // Revert WebGL
+      WebGLRenderingContext.prototype.getExtension = originalGetExtension;
+      WebGLRenderingContext.prototype.getParameter = originalGetParameter;
+      WebGLRenderingContext.prototype.readPixels = originalReadPixels;
+      if (typeof WebGL2RenderingContext !== "undefined") {
+        WebGL2RenderingContext.prototype.getExtension = originalGetExtension2;
+        WebGL2RenderingContext.prototype.getParameter = originalGetParameter2;
+        WebGL2RenderingContext.prototype.readPixels = originalReadPixels2;
+      }
+
+      // Revert Hardware
+      delete navigator.hardwareConcurrency;
+      if (navigator.deviceMemory) delete navigator.deviceMemory;
+      delete navigator.connection;
+
+      // Revert Fonts
+      if (originalOffsetWidth) Object.defineProperty(HTMLElement.prototype, "offsetWidth", originalOffsetWidth);
+      if (originalOffsetHeight) Object.defineProperty(HTMLElement.prototype, "offsetHeight", originalOffsetHeight);
+      Element.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+      Element.prototype.getClientRects = originalGetClientRects;
+
+      // Revert Screen
+      for (const key in originalScreenDescriptors) {
+        if (originalScreenDescriptors[key]) {
+          Object.defineProperty(window.screen, key, originalScreenDescriptors[key]);
+        } else {
+          delete window.screen[key];
+        }
+      }
+
+      console.log("UbiquiShield protection disabled for this site.");
+    } catch (e) {
+      console.error(e);
+    }
+  });
 
 })();
