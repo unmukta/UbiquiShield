@@ -469,61 +469,6 @@
     "Advanced fingerprint protection enabled"
   );
 
-  document.addEventListener("UbiquiShieldDisable", () => {
-    try {
-      // Revert Timezone
-      Intl.DateTimeFormat = OriginalDateTimeFormat;
-      Intl.DateTimeFormat.prototype = OriginalDateTimeFormat.prototype;
-      Date.prototype.getTimezoneOffset = originalGetTimezoneOffset;
-      Intl.DateTimeFormat.prototype.resolvedOptions = originalResolvedOptions;
 
-      // Revert Canvas
-      HTMLCanvasElement.prototype.getContext = originalGetContext;
-      HTMLCanvasElement.prototype.toDataURL = originalToDataURL;
-      HTMLCanvasElement.prototype.toBlob = originalToBlob;
-      CanvasRenderingContext2D.prototype.getImageData = originalGetImageData;
-
-      // Revert Audio
-      if (window.AudioBuffer) AudioBuffer.prototype.getChannelData = originalGetChannelData;
-      if (window.AnalyserNode) {
-        AnalyserNode.prototype.getFloatFrequencyData = originalGetFloatFrequencyData;
-        AnalyserNode.prototype.getByteFrequencyData = originalGetByteFrequencyData;
-      }
-
-      // Revert WebGL
-      WebGLRenderingContext.prototype.getExtension = originalGetExtension;
-      WebGLRenderingContext.prototype.getParameter = originalGetParameter;
-      WebGLRenderingContext.prototype.readPixels = originalReadPixels;
-      if (typeof WebGL2RenderingContext !== "undefined") {
-        WebGL2RenderingContext.prototype.getExtension = originalGetExtension2;
-        WebGL2RenderingContext.prototype.getParameter = originalGetParameter2;
-        WebGL2RenderingContext.prototype.readPixels = originalReadPixels2;
-      }
-
-      // Revert Hardware
-      delete navigator.hardwareConcurrency;
-      if (navigator.deviceMemory) delete navigator.deviceMemory;
-      delete navigator.connection;
-
-      // Revert Fonts
-      if (originalOffsetWidth) Object.defineProperty(HTMLElement.prototype, "offsetWidth", originalOffsetWidth);
-      if (originalOffsetHeight) Object.defineProperty(HTMLElement.prototype, "offsetHeight", originalOffsetHeight);
-      Element.prototype.getBoundingClientRect = originalGetBoundingClientRect;
-      Element.prototype.getClientRects = originalGetClientRects;
-
-      // Revert Screen
-      for (const key in originalScreenDescriptors) {
-        if (originalScreenDescriptors[key]) {
-          Object.defineProperty(window.screen, key, originalScreenDescriptors[key]);
-        } else {
-          delete window.screen[key];
-        }
-      }
-
-      console.log("UbiquiShield protection disabled for this site.");
-    } catch (e) {
-      console.error(e);
-    }
-  });
 
 })();

@@ -170,6 +170,30 @@ async function applyProtectionRules() {
     });
   }
 
+  // Manage injected.js dynamically to prevent DOM Event Hijacking
+  const excludeMatches = disabledDomains.map(d => `*://*.${d}/*`);
+  excludeMatches.push(...disabledDomains.map(d => `*://${d}/*`));
+
+  chrome.scripting.getRegisteredContentScripts({ ids: ["injected_spoofing"] }, (scripts) => {
+    if (scripts && scripts.length > 0) {
+      chrome.scripting.updateContentScripts([{
+        id: "injected_spoofing",
+        excludeMatches: excludeMatches.length > 0 ? excludeMatches : []
+      }]);
+    } else {
+      chrome.scripting.registerContentScripts([{
+        id: "injected_spoofing",
+        matches: ["<all_urls>"],
+        excludeMatches: excludeMatches.length > 0 ? excludeMatches : [],
+        js: ["injected.js"],
+        runAt: "document_start",
+        world: "MAIN",
+        allFrames: true,
+        matchOriginAsFallback: true
+      }]);
+    }
+  });
+
 }
 
 // =========================
