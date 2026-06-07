@@ -72,59 +72,30 @@ async function applyProtectionRules() {
     async (result) => {
 
       const settings = {
-
         ...defaultSettings,
-
         ...(result.settings || {})
-
       }
       
       const siteSettings = result.siteSettings || {}
 
-      if (
-        settings.trackerBlocking
-      ) {
-
-        await chrome
-          .declarativeNetRequest
-          .updateEnabledRulesets({
-
-            enableRulesetIds: [
-              "ruleset_1"
-            ],
-
-            disableRulesetIds: []
-
-          })
-
-        console.log(
-          "Tracker blocking ENABLED"
-        )
-
+      if (settings.trackerBlocking) {
+        await chrome.declarativeNetRequest.updateEnabledRulesets({
+          enableRulesetIds: ["ruleset_1"],
+          disableRulesetIds: []
+        })
+        console.log("Tracker blocking ENABLED")
       } else {
-
-        await chrome
-          .declarativeNetRequest
-          .updateEnabledRulesets({
-
-            disableRulesetIds: [
-              "ruleset_1"
-            ],
-
-            enableRulesetIds: []
-
-          })
-
-        console.log(
-          "Tracker blocking DISABLED"
-        )
-
+        await chrome.declarativeNetRequest.updateEnabledRulesets({
+          disableRulesetIds: ["ruleset_1"],
+          enableRulesetIds: []
+        })
+        console.log("Tracker blocking DISABLED")
       }
 
       // Add dynamic rules to whitelist disabled sites
       const disabledDomains = Object.keys(siteSettings)
         .filter(domain => siteSettings[domain] === false)
-        .slice(0, chrome.declarativeNetRequest.MAX_NUMBER_OF_DYNAMIC_AND_SESSION_RULES - 1) // Leave room for HTTPS rule
+        .slice(0, chrome.declarativeNetRequest.MAX_NUMBER_OF_DYNAMIC_AND_SESSION_RULES - 1)
 
       let dynamicRules = disabledDomains.map((domain, index) => ({
         id: index + 100000,
@@ -155,51 +126,51 @@ async function applyProtectionRules() {
         addRules: dynamicRules
       })
 
+      // Configure WebRTC IP Leak Protection
+      if (chrome.privacy && chrome.privacy.network) {
+        const isProtected = settings.fingerprintProtection !== false;
+        const policy = isProtected ? "default_public_interface_only" : "default";
+        chrome.privacy.network.webRTCIPHandlingPolicy.set({
+          value: policy
+        });
+        console.log("WebRTC Policy:", policy);
+      }
+
+      // Manage injected.js dynamically to prevent DOM Event Hijacking
+      const excludeMatches = disabledDomains.map(d => `*://*.${d}/*`);
+      excludeMatches.push(...disabledDomains.map(d => `*://${d}/*`));
+      
+      const isProtected = settings.fingerprintProtection !== false;
+
+      chrome.scripting.getRegisteredContentScripts({ ids: ["injected_spoofing"] }, (scripts) => {
+        if (!isProtected) {
+          if (scripts && scripts.length > 0) {
+            chrome.scripting.unregisterContentScripts({ ids: ["injected_spoofing"] });
+          }
+          return;
+        }
+
+        if (scripts && scripts.length > 0) {
+          chrome.scripting.updateContentScripts([{
+            id: "injected_spoofing",
+            excludeMatches: excludeMatches.length > 0 ? excludeMatches : []
+          }]);
+        } else {
+          chrome.scripting.registerContentScripts([{
+            id: "injected_spoofing",
+            matches: ["<all_urls>"],
+            excludeMatches: excludeMatches.length > 0 ? excludeMatches : [],
+            js: ["injected.js"],
+            runAt: "document_start",
+            world: "MAIN",
+            allFrames: true,
+            matchOriginAsFallback: true
+          }]);
+        }
+      });
+
     }
   )
-
-  // Configure WebRTC IP Leak Protection
-  if (chrome.privacy && chrome.privacy.network) {
-    chrome.storage.local.get(["settings"], (result) => {
-      const isProtected = result.settings?.fingerprintProtection !== false;
-      const policy = isProtected ? "default_public_interface_only" : "default";
-      chrome.privacy.network.webRTCIPHandlingPolicy.set({
-        value: policy
-      });
-      console.log("WebRTC Policy:", policy);
-    });
-  }
-
-  // Manage injected.js dynamically to prevent DOM Event Hijacking
-  const excludeMatches = disabledDomains.map(d => `*://*.${d}/*`);
-  excludeMatches.push(...disabledDomains.map(d => `*://${d}/*`));
-
-  chrome.scripting.getRegisteredContentScripts({ ids: ["injected_spoofing"] }, (scripts) => {
-    if (!isProtected) {
-      if (scripts && scripts.length > 0) {
-        chrome.scripting.unregisterContentScripts({ ids: ["injected_spoofing"] });
-      }
-      return;
-    }
-
-    if (scripts && scripts.length > 0) {
-      chrome.scripting.updateContentScripts([{
-        id: "injected_spoofing",
-        excludeMatches: excludeMatches.length > 0 ? excludeMatches : []
-      }]);
-    } else {
-      chrome.scripting.registerContentScripts([{
-        id: "injected_spoofing",
-        matches: ["<all_urls>"],
-        excludeMatches: excludeMatches.length > 0 ? excludeMatches : [],
-        js: ["injected.js"],
-        runAt: "document_start",
-        world: "MAIN",
-        allFrames: true,
-        matchOriginAsFallback: true
-      }]);
-    }
-  });
 
 }
 
