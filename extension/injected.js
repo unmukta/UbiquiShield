@@ -411,13 +411,12 @@
   Element.prototype.getBoundingClientRect = function() {
     const rect = originalGetBoundingClientRect.call(this);
     if (this.tagName === "SPAN" && this.style.fontSize) {
-      return {
-        x: rect.x, y: rect.y,
-        width: rect.width + (Math.random() > 0.5 ? 0.1 : -0.1),
-        height: rect.height + (Math.random() > 0.5 ? 0.1 : -0.1),
-        top: rect.top, right: rect.right, bottom: rect.bottom, left: rect.left,
-        toJSON: () => rect.toJSON()
-      };
+      return new DOMRect(
+        rect.x,
+        rect.y,
+        rect.width + (Math.random() > 0.5 ? 0.1 : -0.1),
+        rect.height + (Math.random() > 0.5 ? 0.1 : -0.1)
+      );
     }
     return rect;
   };
@@ -426,18 +425,23 @@
   Element.prototype.getClientRects = function() {
     const rects = originalGetClientRects.call(this);
     if (this.tagName === "SPAN" && this.style.fontSize && rects.length > 0) {
-      const spoofedRects = [];
-      for (let i = 0; i < rects.length; i++) {
-        const rect = rects[i];
-        spoofedRects.push({
-          x: rect.x, y: rect.y,
-          width: rect.width + (Math.random() > 0.5 ? 0.1 : -0.1),
-          height: rect.height + (Math.random() > 0.5 ? 0.1 : -0.1),
-          top: rect.top, right: rect.right, bottom: rect.bottom, left: rect.left,
-          toJSON: () => rect.toJSON()
-        });
-      }
-      return spoofedRects;
+      return new Proxy(rects, {
+        get(target, prop) {
+          if (prop === 'length') return target.length;
+          const index = Number(prop);
+          if (!isNaN(index) && index >= 0 && index < target.length) {
+            const rect = target[index];
+            return new DOMRect(
+              rect.x,
+              rect.y,
+              rect.width + (Math.random() > 0.5 ? 0.1 : -0.1),
+              rect.height + (Math.random() > 0.5 ? 0.1 : -0.1)
+            );
+          }
+          const val = Reflect.get(target, prop);
+          return typeof val === 'function' ? val.bind(target) : val;
+        }
+      });
     }
     return rects;
   };
