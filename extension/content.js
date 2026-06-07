@@ -161,6 +161,17 @@ loadTrackerDB().then(() => {
 })
 
 // =========================
+// OBSERVER MANAGEMENT
+// =========================
+function manageObserver() {
+  if (siteProtectionEnabled && settings.trackerBlocking) {
+    observer.observe(document.documentElement, { childList: true, subtree: true })
+  } else {
+    observer.disconnect()
+  }
+}
+
+// =========================
 // LIVE SETTINGS UPDATE
 // =========================
 
@@ -198,6 +209,7 @@ loadTrackerDB().then(() => {
       
       siteProtectionEnabled = !isDisabled;
     }
+    manageObserver();
   })
 
 // =========================
@@ -466,6 +478,7 @@ function initializeProtection() {
 
   cosmeticFiltering()
 
+  manageObserver()
 }
 
 // =========================
@@ -494,14 +507,3 @@ const observer =
     }, 1000);
 
   });
-
-observer.observe(
-  document.documentElement,
-  {
-
-    childList: true,
-
-    subtree: true
-
-  }
-)

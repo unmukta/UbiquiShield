@@ -175,6 +175,13 @@ async function applyProtectionRules() {
   excludeMatches.push(...disabledDomains.map(d => `*://${d}/*`));
 
   chrome.scripting.getRegisteredContentScripts({ ids: ["injected_spoofing"] }, (scripts) => {
+    if (!isProtected) {
+      if (scripts && scripts.length > 0) {
+        chrome.scripting.unregisterContentScripts({ ids: ["injected_spoofing"] });
+      }
+      return;
+    }
+
     if (scripts && scripts.length > 0) {
       chrome.scripting.updateContentScripts([{
         id: "injected_spoofing",
