@@ -392,8 +392,8 @@ function scanTrackers() {
 function protectCookies() {
 
   if (
-    !settings
-      .thirdPartyCookies
+    !settings.thirdPartyCookies ||
+    !siteProtectionEnabled
   ) {
     return
   }

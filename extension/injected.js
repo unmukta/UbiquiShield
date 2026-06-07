@@ -22,18 +22,7 @@
       },
       configurable: true
     }
-  );
 
-  // Platform
-  Object.defineProperty(
-    Navigator.prototype,
-    "platform",
-    {
-      get() {
-        return "Win32";
-      },
-      configurable: true
-    }
   );
 
   // Language
