@@ -356,8 +356,7 @@ chrome.tabs.onUpdated
   ) => {
 
     if (
-      changeInfo.status ===
-        "loading" &&
+      (changeInfo.status === "loading" || changeInfo.url) &&
       tab.url
     ) {
 

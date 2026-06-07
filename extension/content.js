@@ -149,6 +149,7 @@ loadTrackerDB().then(() => {
 
       if (isDisabled) {
         console.log("Protection disabled for", currentHostname)
+        document.dispatchEvent(new CustomEvent("UbiquiShieldDisable"));
         return
       }
 
@@ -197,6 +198,9 @@ loadTrackerDB().then(() => {
       }
       
       siteProtectionEnabled = !isDisabled;
+      if (isDisabled) {
+        document.dispatchEvent(new CustomEvent("UbiquiShieldDisable"));
+      }
     }
   })
 
