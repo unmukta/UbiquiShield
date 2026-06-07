@@ -241,8 +241,12 @@ async function updateBlockedCount(
 
     const count = result.rulesMatchedInfo.length
 
-    chrome.storage.local.set({
-      blockedCount: count >= 100 ? "100+" : count
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs && tabs[0] && tabs[0].id === tabId) {
+        chrome.storage.local.set({
+          blockedCount: count >= 100 ? "100+" : count
+        })
+      }
     })
 
   } catch {
