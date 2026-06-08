@@ -113,6 +113,38 @@ async function applyProtectionRules() {
         }
       })
 
+      // Fingerprinting Header Spoofing (Chrome 120 / Windows)
+      if (settings.fingerprintProtection !== false) {
+        dynamicRules.push({
+          id: 99990,
+          priority: 150,
+          action: {
+            type: "modifyHeaders",
+            requestHeaders: [
+              { header: "User-Agent", operation: "set", value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" },
+              { header: "Sec-CH-UA", operation: "set", value: '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"' },
+              { header: "Sec-CH-UA-Platform", operation: "set", value: '"Windows"' },
+              { header: "Accept-Language", operation: "set", value: "en-US,en;q=0.9" }
+            ]
+          },
+          condition: { resourceTypes: ["main_frame", "sub_frame", "stylesheet", "script", "image", "font", "object", "xmlhttprequest", "ping", "csp_report", "media", "websocket", "other"] }
+        });
+
+        // EFF Tracker Blocking
+        dynamicRules.push({
+          id: 99991,
+          priority: 200,
+          action: { type: "block" },
+          condition: { urlFilter: "trackertest.org", resourceTypes: ["script", "xmlhttprequest", "image", "sub_frame"] }
+        });
+        dynamicRules.push({
+          id: 99992,
+          priority: 200,
+          action: { type: "block" },
+          condition: { urlFilter: "alooodo.com", resourceTypes: ["script", "xmlhttprequest", "image", "sub_frame"] }
+        });
+      }
+
       // Configure HTTPS Upgrade
       if (settings.httpsUpgrade) {
         dynamicRules.push({

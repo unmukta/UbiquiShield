@@ -95,6 +95,20 @@
     }
   );
 
+  // User Agent Legacy Spoofing
+  Object.defineProperty(Navigator.prototype, "userAgent", {
+    get() { return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"; },
+    configurable: true
+  });
+  Object.defineProperty(Navigator.prototype, "appVersion", {
+    get() { return "5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"; },
+    configurable: true
+  });
+  Object.defineProperty(Navigator.prototype, "platform", {
+    get() { return "Win32"; },
+    configurable: true
+  });
+
   // Client Hints Spoofing
   if (navigator.userAgentData) {
     Object.defineProperty(Navigator.prototype, 'userAgentData', {
@@ -169,7 +183,7 @@
         originalResolvedOptions.call(this);
 
       result.timeZone =
-        "UTC";
+        "America/New_York";
 
       return result;
     };
@@ -566,34 +580,28 @@
     });
   }
 
-  // Font Fingerprinting Protection
-  const originalOffsetWidth = Object.getOwnPropertyDescriptor(
-    HTMLElement.prototype,
-    "offsetWidth"
-  );
-  
-  const originalOffsetHeight = Object.getOwnPropertyDescriptor(
-    HTMLElement.prototype,
-    "offsetHeight"
-  );
-
-  if (originalOffsetWidth && originalOffsetHeight) {
+  // Element Offset Spoofing
+  const originalOffsetWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth");
+  if (originalOffsetWidth) {
     Object.defineProperty(HTMLElement.prototype, "offsetWidth", {
       get() {
         const width = originalOffsetWidth.get.call(this);
-        if (this.tagName === "SPAN" && this.style.fontSize && width > 0) {
-          return width + (spoofSeed > 0.5 ? 1 : -1);
+        if (this.tagName === "SPAN" && width > 0) {
+          const noise = Math.floor((this.innerHTML.length + spoofSeed * 100) % 3) - 1;
+          return width + noise;
         }
         return width;
       },
       configurable: true
     });
 
+    const originalOffsetHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetHeight");
     Object.defineProperty(HTMLElement.prototype, "offsetHeight", {
       get() {
         const height = originalOffsetHeight.get.call(this);
-        if (this.tagName === "SPAN" && this.style.fontSize && height > 0) {
-          return height + (spoofSeed > 0.5 ? 1 : -1);
+        if (this.tagName === "SPAN" && height > 0) {
+          const noise = Math.floor((this.innerHTML.length + spoofSeed * 100) % 3) - 1;
+          return height + noise;
         }
         return height;
       },
@@ -604,12 +612,14 @@
   const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
   Element.prototype.getBoundingClientRect = function() {
     const rect = originalGetBoundingClientRect.call(this);
-    if (this.tagName === "SPAN" && this.style.fontSize) {
+    if (this.tagName === "SPAN" && rect.width > 0) {
+      const noiseX = (Math.floor((this.innerHTML.length + spoofSeed * 100) % 3) - 1) * 0.1;
+      const noiseY = (Math.floor((this.innerHTML.length + spoofSeed * 200) % 3) - 1) * 0.1;
       return new DOMRect(
         rect.x,
         rect.y,
-        rect.width + (spoofSeed > 0.5 ? 0.1 : -0.1),
-        rect.height + (spoofSeed > 0.5 ? 0.1 : -0.1)
+        rect.width + noiseX,
+        rect.height + noiseY
       );
     }
     return rect;
@@ -662,6 +672,14 @@
     hookedFunctions.add(CanvasRenderingContext2D.prototype.measureText);
     hookedFunctions.add(Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth").get);
     hookedFunctions.add(Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetHeight").get);
+    hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "userAgent").get);
+    hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "appVersion").get);
+    hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "platform").get);
+    hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "mimeTypes").get);
+    hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "plugins").get);
+    hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "languages").get);
+    hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "deviceMemory").get);
+    hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "hardwareConcurrency").get);
     hookedFunctions.add(Element.prototype.getBoundingClientRect);
     hookedFunctions.add(Element.prototype.getClientRects);
   } catch (e) {
