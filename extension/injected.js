@@ -3,6 +3,21 @@
   const spoofSeed = Math.random();
   const spoofFloat = (spoofSeed - 0.5) * 0.0001;
 
+  // Native Hook Masking
+  const originalToString = Function.prototype.toString;
+  const hookedFunctions = new WeakSet();
+
+  Function.prototype.toString = function(...args) {
+    if (hookedFunctions.has(this)) {
+      const funcName = this.name || '';
+      return `function ${funcName}() { [native code] }`;
+    }
+    if (this === Function.prototype.toString) {
+      return `function toString() { [native code] }`;
+    }
+    return originalToString.apply(this, args);
+  };
+
   // Hardware Concurrency
   Object.defineProperty(
     Navigator.prototype,
@@ -79,6 +94,55 @@
       configurable: true
     }
   );
+
+  // Client Hints Spoofing
+  if (navigator.userAgentData) {
+    Object.defineProperty(Navigator.prototype, 'userAgentData', {
+      get() {
+        return {
+          brands: [
+            {brand: "Chromium", version: "120"},
+            {brand: "Google Chrome", version: "120"},
+            {brand: "Not=A?Brand", version: "24"}
+          ],
+          mobile: false,
+          platform: "Windows",
+          getHighEntropyValues: function(hints) {
+            return Promise.resolve({
+              architecture: "x86",
+              bitness: "64",
+              brands: this.brands,
+              mobile: false,
+              model: "",
+              platform: "Windows",
+              platformVersion: "10.0.0",
+              uaFullVersion: "120.0.6099.109",
+              fullVersionList: this.brands
+            });
+          }
+        };
+      },
+      configurable: true
+    });
+  }
+
+  // Battery API Spoofing
+  if (navigator.getBattery) {
+    const originalGetBattery = navigator.getBattery;
+    navigator.getBattery = function() {
+      return Promise.resolve({
+        charging: true,
+        chargingTime: 0,
+        dischargingTime: Infinity,
+        level: 1.0,
+        onchargingchange: null,
+        onchargingtimechange: null,
+        ondischargingtimechange: null,
+        onlevelchange: null
+      });
+    };
+    hookedFunctions.add(navigator.getBattery);
+  }
 
   // Timezone
   const originalResolvedOptions =
@@ -195,6 +259,27 @@
         pixels[idx] = (pixels[idx] + 1) % 256;
       }
     };
+  }
+
+  // WebGL Parameter Spoofing
+  if (window.WebGLRenderingContext) {
+    const originalGetParameter = WebGLRenderingContext.prototype.getParameter;
+    WebGLRenderingContext.prototype.getParameter = function(parameter) {
+      if (parameter === 37445) return "Google Inc. (Apple)"; // UNMASKED_VENDOR_WEBGL
+      if (parameter === 37446) return "ANGLE (Apple, Apple M1 Pro, OpenGL 4.1)"; // UNMASKED_RENDERER_WEBGL
+      return originalGetParameter.apply(this, arguments);
+    };
+    hookedFunctions.add(WebGLRenderingContext.prototype.getParameter);
+  }
+
+  if (typeof WebGL2RenderingContext !== "undefined") {
+    const originalGetParameter2 = WebGL2RenderingContext.prototype.getParameter;
+    WebGL2RenderingContext.prototype.getParameter = function(parameter) {
+      if (parameter === 37445) return "Google Inc. (Apple)";
+      if (parameter === 37446) return "ANGLE (Apple, Apple M1 Pro, OpenGL 4.1)";
+      return originalGetParameter2.apply(this, arguments);
+    };
+    hookedFunctions.add(WebGL2RenderingContext.prototype.getParameter);
   }
 
   // Audio Fingerprinting Protection
@@ -561,6 +646,26 @@
     "Advanced fingerprint protection enabled"
   );
 
-
+  // Register all hooked functions for native toString spoofing
+  try {
+    hookedFunctions.add(Date.prototype.getTimezoneOffset);
+    hookedFunctions.add(Intl.DateTimeFormat.prototype.resolvedOptions);
+    hookedFunctions.add(HTMLCanvasElement.prototype.getContext);
+    hookedFunctions.add(HTMLCanvasElement.prototype.toDataURL);
+    hookedFunctions.add(HTMLCanvasElement.prototype.toBlob);
+    hookedFunctions.add(CanvasRenderingContext2D.prototype.getImageData);
+    if (window.WebGLRenderingContext) hookedFunctions.add(WebGLRenderingContext.prototype.readPixels);
+    if (typeof WebGL2RenderingContext !== "undefined") hookedFunctions.add(WebGL2RenderingContext.prototype.readPixels);
+    hookedFunctions.add(AudioBuffer.prototype.getChannelData);
+    hookedFunctions.add(AnalyserNode.prototype.getFloatFrequencyData);
+    hookedFunctions.add(AnalyserNode.prototype.getByteFrequencyData);
+    hookedFunctions.add(CanvasRenderingContext2D.prototype.measureText);
+    hookedFunctions.add(Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth").get);
+    hookedFunctions.add(Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetHeight").get);
+    hookedFunctions.add(Element.prototype.getBoundingClientRect);
+    hookedFunctions.add(Element.prototype.getClientRects);
+  } catch (e) {
+    console.warn("UbiquiShield: Failed to mask some hooks", e);
+  }
 
 })();

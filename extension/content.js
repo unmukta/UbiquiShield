@@ -398,6 +398,19 @@ function scanTrackers() {
     // Context invalidated
   }
 
+  // =====================
+  // AD WRAPPER COLLAPSER
+  // =====================
+  document.querySelectorAll('iframe, img').forEach(el => {
+    const computed = window.getComputedStyle(el);
+    if (computed.display === 'none' || computed.visibility === 'hidden' || el.height === "0" || el.width === "0") {
+      const parent = el.parentElement;
+      if (parent && parent.tagName === 'DIV' && parent.children.length === 1) {
+        parent.style.display = 'none';
+      }
+    }
+  });
+
   console.log(
     "TRACKERS:",
     uniqueTrackers
