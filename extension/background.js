@@ -93,16 +93,25 @@ async function applyProtectionRules() {
       }
 
       // Add dynamic rules to whitelist disabled sites
+      const explicitlyEnabled = Object.keys(siteSettings)
+        .filter(domain => siteSettings[domain] === true)
+
       const disabledDomains = Object.keys(siteSettings)
         .filter(domain => siteSettings[domain] === false)
         .slice(0, chrome.declarativeNetRequest.MAX_NUMBER_OF_DYNAMIC_AND_SESSION_RULES - 1)
 
-      let dynamicRules = disabledDomains.map((domain, index) => ({
-        id: index + 100000,
-        priority: 100,
-        action: { type: "allowAllRequests" },
-        condition: { initiatorDomains: [domain] }
-      }))
+      let dynamicRules = disabledDomains.map((domain, index) => {
+        const excluded = explicitlyEnabled.filter(e => e.endsWith('.' + domain))
+        return {
+          id: index + 100000,
+          priority: 100,
+          action: { type: "allowAllRequests" },
+          condition: { 
+            initiatorDomains: [domain],
+            ...(excluded.length > 0 ? { excludedInitiatorDomains: excluded } : {})
+          }
+        }
+      })
 
       // Configure HTTPS Upgrade
       if (settings.httpsUpgrade) {

@@ -50,7 +50,7 @@ let siteProtectionEnabled = false
   style.id = "ubiquishield-cosmetic";
   style.textContent = `
     /* Traditional Ads */
-    [id^="ad-"], [id$="-ad"], [class^="ad-"], [class$="-ad"], .ad-wrapper, .ad-box,
+    .ad-wrapper, .ad-box, .ad-container, .advertisement, .banner-ad, .sponsored-post,
     ins.adsbygoogle, [data-ad-slot], [data-ad-client], [data-ad-format],
     [class*="sponsor"], [id*="sponsor"], [class*="promoted"],
     iframe[src*="doubleclick"], iframe[src*="googlesyndication"],
@@ -152,7 +152,10 @@ loadTrackerDB().then(() => {
       for (let i = 0; i < parts.length; i++) {
         const domainToCheck = parts.slice(i).join('.');
         if (!domainToCheck.includes('.') && parts.length > 1) continue;
-        if (siteSettings[domainToCheck] === false) {
+        if (siteSettings[domainToCheck] === true) {
+          isDisabled = false;
+          break;
+        } else if (siteSettings[domainToCheck] === false) {
           isDisabled = true;
           break;
         }
@@ -213,7 +216,10 @@ function manageObserver() {
       for (let i = 0; i < parts.length; i++) {
         const domainToCheck = parts.slice(i).join('.');
         if (!domainToCheck.includes('.') && parts.length > 1) continue;
-        if (siteSettings[domainToCheck] === false) {
+        if (siteSettings[domainToCheck] === true) {
+          isDisabled = false;
+          break;
+        } else if (siteSettings[domainToCheck] === false) {
           isDisabled = true;
           break;
         }

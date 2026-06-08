@@ -50,6 +50,36 @@
     }
   );
 
+  // Plugins Spoofing
+  Object.defineProperty(
+    Navigator.prototype,
+    "plugins",
+    {
+      get() {
+        return [
+          { name: "Chrome PDF Plugin", filename: "internal-pdf-viewer", description: "Portable Document Format" },
+          { name: "Chrome PDF Viewer", filename: "mhjimiapi", description: "" },
+          { name: "Native Client", filename: "internal-nacl-plugin", description: "" }
+        ];
+      },
+      configurable: true
+    }
+  );
+
+  // MimeTypes Spoofing
+  Object.defineProperty(
+    Navigator.prototype,
+    "mimeTypes",
+    {
+      get() {
+        return [
+          { type: "application/pdf", suffixes: "pdf", description: "" }
+        ];
+      },
+      configurable: true
+    }
+  );
+
   // Timezone
   const originalResolvedOptions =
     Intl.DateTimeFormat.prototype.resolvedOptions;
@@ -339,11 +369,19 @@
       
       return new Proxy(metrics, {
         get(target, prop) {
-          if (prop === 'width') {
-            return target.width + noise;
+          if (typeof prop === "string" && [
+            "width", 
+            "actualBoundingBoxLeft", 
+            "actualBoundingBoxRight", 
+            "actualBoundingBoxAscent", 
+            "actualBoundingBoxDescent",
+            "fontBoundingBoxAscent",
+            "fontBoundingBoxDescent"
+          ].includes(prop)) {
+            return target[prop] + noise;
           }
-          const value = target[prop];
-          return typeof value === 'function' ? value.bind(target) : value;
+          const val = Reflect.get(target, prop);
+          return typeof val === 'function' ? val.bind(target) : val;
         }
       });
     };

@@ -132,7 +132,10 @@ const [
               for (let i = 0; i < parts.length; i++) {
                 const domainToCheck = parts.slice(i).join('.');
                 if (!domainToCheck.includes('.') && parts.length > 1) continue;
-                if (result.siteSettings[domainToCheck] === false) {
+                if (result.siteSettings[domainToCheck] === true) {
+                  siteEnabled = true;
+                  break;
+                } else if (result.siteSettings[domainToCheck] === false) {
                   siteEnabled = false;
                   break;
                 }
