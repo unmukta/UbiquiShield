@@ -50,7 +50,7 @@ let siteProtectionEnabled = false
   style.id = "ubiquishield-cosmetic";
   style.textContent = `
     /* Traditional Ads */
-    [id^="ad-"], [id$="-ad"], [class*="-ad-"], [class^="ad-"], [class$="-ad"],
+    [id^="ad-"], [id$="-ad"], [class^="ad-"], [class$="-ad"], .ad-wrapper, .ad-box,
     ins.adsbygoogle, [data-ad-slot], [data-ad-client], [data-ad-format],
     [class*="sponsor"], [id*="sponsor"], [class*="promoted"],
     iframe[src*="doubleclick"], iframe[src*="googlesyndication"],

@@ -1,5 +1,8 @@
 (() => {
 
+  const spoofSeed = Math.random();
+  const spoofFloat = (spoofSeed - 0.5) * 0.0001;
+
   // Hardware Concurrency
   Object.defineProperty(
     Navigator.prototype,
@@ -134,7 +137,7 @@
   CanvasRenderingContext2D.prototype.getImageData = function(...args) {
     const imageData = originalGetImageData.apply(this, args);
     if (imageData && imageData.data && imageData.data.length > 0) {
-      const idx = Math.floor(Math.random() * imageData.data.length);
+      const idx = Math.floor(spoofSeed * imageData.data.length);
       imageData.data[idx] = (imageData.data[idx] + 1) % 256;
     }
     return imageData;
@@ -146,7 +149,7 @@
       originalReadPixels.apply(this, args);
       const pixels = args[6];
       if (pixels && pixels.length > 0) {
-        const idx = Math.floor(Math.random() * pixels.length);
+        const idx = Math.floor(spoofSeed * pixels.length);
         pixels[idx] = (pixels[idx] + 1) % 256;
       }
     };
@@ -158,7 +161,7 @@
       originalReadPixels2.apply(this, args);
       const pixels = args[6];
       if (pixels && pixels.length > 0) {
-        const idx = Math.floor(Math.random() * pixels.length);
+        const idx = Math.floor(spoofSeed * pixels.length);
         pixels[idx] = (pixels[idx] + 1) % 256;
       }
     };
@@ -183,7 +186,7 @@
           );
 
         if (results.length > 0) {
-          const idx = Math.floor(Math.random() * results.length);
+          const idx = Math.floor(spoofSeed * results.length);
           results[idx] = results[idx] + 0.0000001;
         }
 
@@ -198,7 +201,7 @@
     AnalyserNode.prototype.getFloatFrequencyData = function(array) {
       originalGetFloatFrequencyData.call(this, array);
       if (array.length > 0) {
-        const idx = Math.floor(Math.random() * array.length);
+        const idx = Math.floor(spoofSeed * array.length);
         array[idx] = array[idx] + 0.1;
       }
     };
@@ -207,7 +210,7 @@
     AnalyserNode.prototype.getByteFrequencyData = function(array) {
       originalGetByteFrequencyData.call(this, array);
       if (array.length > 0) {
-        const idx = Math.floor(Math.random() * array.length);
+        const idx = Math.floor(spoofSeed * array.length);
         array[idx] = (array[idx] + 1) % 256;
       }
     };
@@ -332,7 +335,7 @@
     const originalMeasureText = CanvasRenderingContext2D.prototype.measureText;
     CanvasRenderingContext2D.prototype.measureText = function() {
       const metrics = originalMeasureText.apply(this, arguments);
-      const noise = (Math.random() - 0.5) * 0.0001;
+      const noise = spoofFloat;
       
       return new Proxy(metrics, {
         get(target, prop) {
@@ -456,7 +459,7 @@
       get() {
         const width = originalOffsetWidth.get.call(this);
         if (this.tagName === "SPAN" && this.style.fontSize && width > 0) {
-          return width + (Math.random() > 0.5 ? 1 : -1);
+          return width + (spoofSeed > 0.5 ? 1 : -1);
         }
         return width;
       },
@@ -467,7 +470,7 @@
       get() {
         const height = originalOffsetHeight.get.call(this);
         if (this.tagName === "SPAN" && this.style.fontSize && height > 0) {
-          return height + (Math.random() > 0.5 ? 1 : -1);
+          return height + (spoofSeed > 0.5 ? 1 : -1);
         }
         return height;
       },
@@ -482,8 +485,8 @@
       return new DOMRect(
         rect.x,
         rect.y,
-        rect.width + (Math.random() > 0.5 ? 0.1 : -0.1),
-        rect.height + (Math.random() > 0.5 ? 0.1 : -0.1)
+        rect.width + (spoofSeed > 0.5 ? 0.1 : -0.1),
+        rect.height + (spoofSeed > 0.5 ? 0.1 : -0.1)
       );
     }
     return rect;
@@ -502,8 +505,8 @@
             return new DOMRect(
               rect.x,
               rect.y,
-              rect.width + (Math.random() > 0.5 ? 0.1 : -0.1),
-              rect.height + (Math.random() > 0.5 ? 0.1 : -0.1)
+              rect.width + (spoofSeed > 0.5 ? 0.1 : -0.1),
+              rect.height + (spoofSeed > 0.5 ? 0.1 : -0.1)
             );
           }
           const val = Reflect.get(target, prop);
