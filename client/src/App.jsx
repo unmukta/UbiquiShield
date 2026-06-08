@@ -129,8 +129,9 @@ const [
             if (currentHost && result.siteSettings) {
               let siteEnabled = true;
               const parts = currentHost.split('.');
-              for (let i = 0; i < parts.length - 1; i++) {
+              for (let i = 0; i < parts.length; i++) {
                 const domainToCheck = parts.slice(i).join('.');
+                if (!domainToCheck.includes('.') && parts.length > 1) continue;
                 if (result.siteSettings[domainToCheck] === false) {
                   siteEnabled = false;
                   break;

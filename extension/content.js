@@ -144,13 +144,14 @@ loadTrackerDB().then(() => {
           if (topOrigin && topOrigin !== "null") {
             currentHostname = new URL(topOrigin).hostname;
           }
-        } catch(e) {}
+        } catch { console.warn("Failed to parse ancestor origin"); }
       }
 
       let isDisabled = false;
       const parts = currentHostname.split('.');
-      for (let i = 0; i < parts.length - 1; i++) {
+      for (let i = 0; i < parts.length; i++) {
         const domainToCheck = parts.slice(i).join('.');
+        if (!domainToCheck.includes('.') && parts.length > 1) continue;
         if (siteSettings[domainToCheck] === false) {
           isDisabled = true;
           break;
@@ -204,13 +205,14 @@ function manageObserver() {
           if (topOrigin && topOrigin !== "null") {
             currentHostname = new URL(topOrigin).hostname;
           }
-        } catch(e) {}
+        } catch { console.warn("Failed to parse ancestor origin"); }
       }
       
       let isDisabled = false;
       const parts = currentHostname.split('.');
-      for (let i = 0; i < parts.length - 1; i++) {
+      for (let i = 0; i < parts.length; i++) {
         const domainToCheck = parts.slice(i).join('.');
+        if (!domainToCheck.includes('.') && parts.length > 1) continue;
         if (siteSettings[domainToCheck] === false) {
           isDisabled = true;
           break;
@@ -270,9 +272,8 @@ function scanTrackers() {
 
     Object.keys(trackerDB)
       .forEach((key) => {
-
         if (
-          host.includes(key)
+          host === key || host.endsWith('.' + key)
         ) {
 
           detectedTrackers.push({
@@ -357,7 +358,7 @@ function scanTrackers() {
     }
 
     Object.keys(trackerDB).forEach((key) => {
-      if (host.includes(key)) {
+      if (host === key || host.endsWith('.' + key)) {
         detectedTrackers.push({
           id: key,
           ...trackerDB[key],
@@ -445,10 +446,10 @@ function protectCookies() {
 
         const shouldRemove =
           trackingCookies.some(
-            (name) =>
-              cookieName.includes(
-                name.toLowerCase()
-              )
+            (name) => {
+              const lowerName = name.toLowerCase();
+              return cookieName === lowerName || cookieName.startsWith(lowerName + '_');
+            }
           )
 
         if (

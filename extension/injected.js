@@ -22,10 +22,9 @@
       },
       configurable: true
     }
-
   );
 
-  // Language
+  // Language Spoofing
   Object.defineProperty(
     Navigator.prototype,
     "language",
@@ -61,7 +60,7 @@
   };
   Intl.DateTimeFormat.prototype = OriginalDateTimeFormat.prototype;
 
-  const originalGetTimezoneOffset = Date.prototype.getTimezoneOffset;
+
   Date.prototype.getTimezoneOffset = function() {
     return 0;
   };
@@ -135,10 +134,35 @@
   CanvasRenderingContext2D.prototype.getImageData = function(...args) {
     const imageData = originalGetImageData.apply(this, args);
     if (imageData && imageData.data && imageData.data.length > 0) {
-      imageData.data[0] = (imageData.data[0] + 1) % 256;
+      const idx = Math.floor(Math.random() * imageData.data.length);
+      imageData.data[idx] = (imageData.data[idx] + 1) % 256;
     }
     return imageData;
   };
+
+  if (window.WebGLRenderingContext) {
+    const originalReadPixels = WebGLRenderingContext.prototype.readPixels;
+    WebGLRenderingContext.prototype.readPixels = function(...args) {
+      originalReadPixels.apply(this, args);
+      const pixels = args[6];
+      if (pixels && pixels.length > 0) {
+        const idx = Math.floor(Math.random() * pixels.length);
+        pixels[idx] = (pixels[idx] + 1) % 256;
+      }
+    };
+  }
+
+  if (window.WebGL2RenderingContext) {
+    const originalReadPixels2 = WebGL2RenderingContext.prototype.readPixels;
+    WebGL2RenderingContext.prototype.readPixels = function(...args) {
+      originalReadPixels2.apply(this, args);
+      const pixels = args[6];
+      if (pixels && pixels.length > 0) {
+        const idx = Math.floor(Math.random() * pixels.length);
+        pixels[idx] = (pixels[idx] + 1) % 256;
+      }
+    };
+  }
 
   // Audio Fingerprinting Protection
   if (
@@ -159,10 +183,8 @@
           );
 
         if (results.length > 0) {
-
-          results[0] =
-            results[0] + 0.0000001;
-
+          const idx = Math.floor(Math.random() * results.length);
+          results[idx] = results[idx] + 0.0000001;
         }
 
         return results;
@@ -176,7 +198,8 @@
     AnalyserNode.prototype.getFloatFrequencyData = function(array) {
       originalGetFloatFrequencyData.call(this, array);
       if (array.length > 0) {
-        array[0] = array[0] + 0.1;
+        const idx = Math.floor(Math.random() * array.length);
+        array[idx] = array[idx] + 0.1;
       }
     };
     
@@ -184,7 +207,8 @@
     AnalyserNode.prototype.getByteFrequencyData = function(array) {
       originalGetByteFrequencyData.call(this, array);
       if (array.length > 0) {
-        array[0] = (array[0] + 1) % 256;
+        const idx = Math.floor(Math.random() * array.length);
+        array[idx] = (array[idx] + 1) % 256;
       }
     };
   }
@@ -382,7 +406,7 @@
   // Client Hints API Spoofing (navigator.userAgentData)
   if (navigator.userAgentData) {
     const originalGetHighEntropyValues = navigator.userAgentData.getHighEntropyValues;
-    navigator.userAgentData.getHighEntropyValues = async function(hints) {
+    navigator.userAgentData.getHighEntropyValues = async function() {
       const values = await originalGetHighEntropyValues.apply(this, arguments);
       if (values.architecture) values.architecture = 'x86';
       if (values.bitness) values.bitness = '64';
@@ -490,24 +514,7 @@
     return rects;
   };
 
-  // WebGL Noise (readPixels)
-  const originalReadPixels = WebGLRenderingContext.prototype.readPixels;
-  WebGLRenderingContext.prototype.readPixels = function(...args) {
-    originalReadPixels.apply(this, args);
-    if (args[6] && args[6].length > 0) {
-      args[6][0] = (args[6][0] + 1) % 256;
-    }
-  };
 
-  if (typeof WebGL2RenderingContext !== "undefined") {
-    var originalReadPixels2 = WebGL2RenderingContext.prototype.readPixels;
-    WebGL2RenderingContext.prototype.readPixels = function(...args) {
-      originalReadPixels2.apply(this, args);
-      if (args[6] && args[6].length > 0) {
-        args[6][0] = (args[6][0] + 1) % 256;
-      }
-    };
-  }
 
   console.log(
     "Advanced fingerprint protection enabled"

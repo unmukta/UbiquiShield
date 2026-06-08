@@ -80,7 +80,17 @@ export default [
 
         HTMLElement: "readonly",
 
-        Math: "readonly"
+        Math: "readonly",
+
+        CanvasRenderingContext2D: "readonly",
+
+        AnalyserNode: "readonly",
+
+        Screen: "readonly",
+
+        Element: "readonly",
+
+        DOMRect: "readonly"
 
       }
 

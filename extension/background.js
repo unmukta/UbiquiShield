@@ -163,8 +163,14 @@ async function applyProtectionRules() {
       }
 
       // Manage injected.js dynamically to prevent DOM Event Hijacking
-      const excludeMatches = disabledDomains.map(d => `*://*.${d}/*`);
-      excludeMatches.push(...disabledDomains.map(d => `*://${d}/*`));
+      const excludeMatches = [];
+      const isIP = (str) => /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(str);
+      disabledDomains.forEach(d => {
+        excludeMatches.push(`*://${d}/*`);
+        if (!isIP(d) && d !== "localhost") {
+          excludeMatches.push(`*://*.${d}/*`);
+        }
+      });
       
       const isProtected = settings.fingerprintProtection !== false;
 
