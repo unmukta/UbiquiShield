@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.2.0] - 2026-06-08 (Pre-release)
+## [1.2.0] - 2026-06-22
 
 This major update introduces complete immunity against EFF "Cover Your Tracks" testing, robust enumerability masking for spoofed APIs, an active ad-wrapper collapser, a native CSS-based cosmetic filtering engine, advanced protections against invisible Font Fingerprinting, and defeats cross-site Link Decoration.
 
