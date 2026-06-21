@@ -251,6 +251,48 @@
     return imageData;
   };
 
+  if (window.OffscreenCanvas) {
+    var originalOffscreenGetContext = OffscreenCanvas.prototype.getContext;
+    OffscreenCanvas.prototype.getContext = function(contextId, ...args) {
+      const ctx = originalOffscreenGetContext.apply(this, [contextId, ...args]);
+      if (ctx && !contextTypes.has(this)) {
+        contextTypes.set(this, contextId);
+      }
+      return ctx;
+    };
+
+    var originalConvertToBlob = OffscreenCanvas.prototype.convertToBlob;
+    OffscreenCanvas.prototype.convertToBlob = function(...args) {
+      const type = contextTypes.get(this);
+      if (type === "2d") {
+        try {
+          const ctx = originalOffscreenGetContext.call(this, "2d");
+          if (ctx) {
+            ctx.save();
+            ctx.fillStyle = "rgba(1,1,1,0.01)";
+            ctx.fillRect(0, 0, 1, 1);
+            ctx.restore();
+          }
+        } catch {
+          // Safe fail
+        }
+      }
+      return originalConvertToBlob.apply(this, args);
+    };
+  }
+
+  if (window.OffscreenCanvasRenderingContext2D) {
+    var originalOffscreenGetImageData = OffscreenCanvasRenderingContext2D.prototype.getImageData;
+    OffscreenCanvasRenderingContext2D.prototype.getImageData = function(...args) {
+      const imageData = originalOffscreenGetImageData.apply(this, args);
+      if (imageData && imageData.data && imageData.data.length > 0) {
+        const idx = Math.floor(spoofSeed * imageData.data.length);
+        imageData.data[idx] = (imageData.data[idx] + 1) % 256;
+      }
+      return imageData;
+    };
+  }
+
   if (window.WebGLRenderingContext) {
     const originalReadPixels = WebGLRenderingContext.prototype.readPixels;
     WebGLRenderingContext.prototype.readPixels = function(...args) {
@@ -486,6 +528,35 @@
     };
   }
 
+  if (
+    typeof OffscreenCanvasRenderingContext2D !== "undefined" &&
+    OffscreenCanvasRenderingContext2D.prototype.measureText
+  ) {
+    var originalOffscreenMeasureText = OffscreenCanvasRenderingContext2D.prototype.measureText;
+    OffscreenCanvasRenderingContext2D.prototype.measureText = function() {
+      const metrics = originalOffscreenMeasureText.apply(this, arguments);
+      const noise = spoofFloat;
+      
+      return new Proxy(metrics, {
+        get(target, prop) {
+          if (typeof prop === "string" && [
+            "width", 
+            "actualBoundingBoxLeft", 
+            "actualBoundingBoxRight", 
+            "actualBoundingBoxAscent", 
+            "actualBoundingBoxDescent",
+            "fontBoundingBoxAscent",
+            "fontBoundingBoxDescent"
+          ].includes(prop)) {
+            return target[prop] + noise;
+          }
+          const val = Reflect.get(target, prop);
+          return typeof val === 'function' ? val.bind(target) : val;
+        }
+      });
+    };
+  }
+
   // Battery API
   if (navigator.getBattery) {
 
@@ -670,6 +741,15 @@
     hookedFunctions.add(AnalyserNode.prototype.getFloatFrequencyData);
     hookedFunctions.add(AnalyserNode.prototype.getByteFrequencyData);
     hookedFunctions.add(CanvasRenderingContext2D.prototype.measureText);
+    
+    if (window.OffscreenCanvas) {
+      hookedFunctions.add(OffscreenCanvas.prototype.getContext);
+      hookedFunctions.add(OffscreenCanvas.prototype.convertToBlob);
+    }
+    if (window.OffscreenCanvasRenderingContext2D) {
+      hookedFunctions.add(OffscreenCanvasRenderingContext2D.prototype.getImageData);
+      hookedFunctions.add(OffscreenCanvasRenderingContext2D.prototype.measureText);
+    }
     hookedFunctions.add(Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth").get);
     hookedFunctions.add(Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetHeight").get);
     hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "userAgent").get);

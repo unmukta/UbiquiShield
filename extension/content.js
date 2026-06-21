@@ -402,6 +402,18 @@ function scanTrackers() {
   // AD WRAPPER COLLAPSER
   // =====================
   document.querySelectorAll('iframe, img').forEach(el => {
+    if (el.src) {
+      try {
+        const host = new URL(el.src).hostname;
+        const isTracker = Object.keys(trackerDB).some(key => host === key || host.endsWith('.' + key));
+        if (isTracker) {
+          el.style.setProperty('display', 'none', 'important');
+        }
+      } catch (e) {
+        // invalid url, ignore
+      }
+    }
+
     const computed = window.getComputedStyle(el);
     if (computed.display === 'none' || computed.visibility === 'hidden' || el.height === "0" || el.width === "0") {
       const parent = el.parentElement;
