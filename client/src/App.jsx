@@ -129,9 +129,13 @@ const [
             if (currentHost && result.siteSettings) {
               let siteEnabled = true;
               const parts = currentHost.split('.');
-              for (let i = 0; i < parts.length - 1; i++) {
+              for (let i = 0; i < parts.length; i++) {
                 const domainToCheck = parts.slice(i).join('.');
-                if (result.siteSettings[domainToCheck] === false) {
+                if (!domainToCheck.includes('.') && parts.length > 1) continue;
+                if (result.siteSettings[domainToCheck] === true) {
+                  siteEnabled = true;
+                  break;
+                } else if (result.siteSettings[domainToCheck] === false) {
                   siteEnabled = false;
                   break;
                 }
@@ -254,6 +258,24 @@ const [
       settings:
         updated
 
+    }, () => {
+      // Critical settings need a page reload to take effect
+      const criticalSettings = [
+        "trackerBlocking",
+        "fingerprintProtection",
+        "scriptBlocking",
+        "httpsUpgrade"
+      ];
+      if (criticalSettings.includes(key)) {
+        chrome.tabs.query(
+          { active: true, currentWindow: true },
+          (tabs) => {
+            if (tabs && tabs[0]) {
+              chrome.tabs.reload(tabs[0].id);
+            }
+          }
+        );
+      }
     })
 
   }

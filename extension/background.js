@@ -72,66 +72,78 @@ async function applyProtectionRules() {
     async (result) => {
 
       const settings = {
-
         ...defaultSettings,
-
         ...(result.settings || {})
-
       }
       
       const siteSettings = result.siteSettings || {}
 
-      if (
-        settings.trackerBlocking
-      ) {
-
-        await chrome
-          .declarativeNetRequest
-          .updateEnabledRulesets({
-
-            enableRulesetIds: [
-              "ruleset_1"
-            ],
-
-            disableRulesetIds: []
-
-          })
-
-        console.log(
-          "Tracker blocking ENABLED"
-        )
-
+      if (settings.trackerBlocking) {
+        await chrome.declarativeNetRequest.updateEnabledRulesets({
+          enableRulesetIds: ["ruleset_1"],
+          disableRulesetIds: []
+        })
+        console.log("Tracker blocking ENABLED")
       } else {
-
-        await chrome
-          .declarativeNetRequest
-          .updateEnabledRulesets({
-
-            disableRulesetIds: [
-              "ruleset_1"
-            ],
-
-            enableRulesetIds: []
-
-          })
-
-        console.log(
-          "Tracker blocking DISABLED"
-        )
-
+        await chrome.declarativeNetRequest.updateEnabledRulesets({
+          disableRulesetIds: ["ruleset_1"],
+          enableRulesetIds: []
+        })
+        console.log("Tracker blocking DISABLED")
       }
 
       // Add dynamic rules to whitelist disabled sites
+      const explicitlyEnabled = Object.keys(siteSettings)
+        .filter(domain => siteSettings[domain] === true)
+
       const disabledDomains = Object.keys(siteSettings)
         .filter(domain => siteSettings[domain] === false)
-        .slice(0, chrome.declarativeNetRequest.MAX_NUMBER_OF_DYNAMIC_AND_SESSION_RULES - 1) // Leave room for HTTPS rule
+        .slice(0, chrome.declarativeNetRequest.MAX_NUMBER_OF_DYNAMIC_AND_SESSION_RULES - 1)
 
-      let dynamicRules = disabledDomains.map((domain, index) => ({
-        id: index + 100000,
-        priority: 100,
-        action: { type: "allowAllRequests" },
-        condition: { initiatorDomains: [domain] }
-      }))
+      let dynamicRules = disabledDomains.map((domain, index) => {
+        const excluded = explicitlyEnabled.filter(e => e.endsWith('.' + domain))
+        return {
+          id: index + 100000,
+          priority: 100,
+          action: { type: "allowAllRequests" },
+          condition: { 
+            initiatorDomains: [domain],
+            ...(excluded.length > 0 ? { excludedInitiatorDomains: excluded } : {})
+          }
+        }
+      })
+
+      // Fingerprinting Header Spoofing (Chrome 120 / Windows)
+      if (settings.fingerprintProtection !== false) {
+        dynamicRules.push({
+          id: 99990,
+          priority: 150,
+          action: {
+            type: "modifyHeaders",
+            requestHeaders: [
+              { header: "User-Agent", operation: "set", value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" },
+              { header: "Sec-CH-UA", operation: "set", value: '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"' },
+              { header: "Sec-CH-UA-Platform", operation: "set", value: '"Windows"' },
+              { header: "Accept-Language", operation: "set", value: "en-US,en;q=0.9" }
+            ]
+          },
+          condition: { resourceTypes: ["main_frame", "sub_frame", "stylesheet", "script", "image", "font", "object", "xmlhttprequest", "ping", "csp_report", "media", "websocket", "other"] }
+        });
+
+        // EFF Tracker Blocking
+        dynamicRules.push({
+          id: 99991,
+          priority: 200,
+          action: { type: "block" },
+          condition: { urlFilter: "trackertest.org", resourceTypes: ["script", "xmlhttprequest", "image", "sub_frame"] }
+        });
+        dynamicRules.push({
+          id: 99992,
+          priority: 200,
+          action: { type: "block" },
+          condition: { urlFilter: "alooodo.com", resourceTypes: ["script", "xmlhttprequest", "image", "sub_frame"] }
+        });
+      }
 
       // Configure HTTPS Upgrade
       if (settings.httpsUpgrade) {
@@ -146,6 +158,68 @@ async function applyProtectionRules() {
         });
       }
 
+      // Configure Strict URL Tracking Parameter Stripping
+      if (settings.trackerBlocking) {
+        dynamicRules.push({
+          id: 99998,
+          priority: 40,
+          action: {
+            type: "redirect",
+            redirect: {
+              transform: {
+                queryTransform: {
+                  removeParams: [
+                    "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "utm_name",
+                    "fbclid", "gclid", "msclkid", "mc_eid", "igshid", "yclid", "_openstat", "wickedid",
+                    "otc", "oly_enc_id", "oly_anon_id", "rb_clickid", "wbraid", "gbraid", "twclid",
+                    "s_cid", "mkt_tok", "zanpid", "cx_cmp"
+                  ]
+                }
+              }
+            }
+          },
+          condition: {
+            resourceTypes: ["main_frame", "sub_frame"]
+          }
+        });
+      }
+
+      // Configure Script Blocking (network-level blocking of tracking scripts)
+      if (settings.scriptBlocking) {
+        const scriptBlockDomains = [
+          "google-analytics.com", "googletagmanager.com", "googletagservices.com",
+          "connect.facebook.net", "pixel.facebook.com",
+          "static.hotjar.com", "script.hotjar.com",
+          "analytics.tiktok.com", "mf.tiktok.com",
+          "clarity.ms",
+          "snap.licdn.com", "px.ads.linkedin.com",
+          "www.redditstatic.com/ads",
+          "static.ads-twitter.com", "analytics.twitter.com",
+          "cdn.mxpnl.com", "api-js.mixpanel.com",
+          "cdn.segment.com", "api.segment.io",
+          "js.hs-scripts.com", "js.hs-analytics.net", "js.hsforms.net",
+          "widgets.outbrain.com",
+          "cdn.taboola.com",
+          "static.criteo.net", "dis.criteo.com",
+          "bat.bing.com",
+          "sb.scorecardresearch.com", "b.scorecardresearch.com",
+          "securepubads.g.doubleclick.net",
+          "rs.fullstory.com",
+          "cdn.mouseflow.com"
+        ];
+        scriptBlockDomains.forEach((domain, i) => {
+          dynamicRules.push({
+            id: 99800 + i,
+            priority: 180,
+            action: { type: "block" },
+            condition: {
+              urlFilter: `||${domain}`,
+              resourceTypes: ["script"]
+            }
+          });
+        });
+      }
+
       // Clear previous dynamic rules and add new ones
       const oldRules = await chrome.declarativeNetRequest.getDynamicRules()
       const oldRuleIds = oldRules.map(rule => rule.id)
@@ -155,51 +229,57 @@ async function applyProtectionRules() {
         addRules: dynamicRules
       })
 
+      // Configure WebRTC IP Leak Protection
+      if (chrome.privacy && chrome.privacy.network) {
+        const isProtected = settings.fingerprintProtection !== false;
+        const policy = isProtected ? "default_public_interface_only" : "default";
+        chrome.privacy.network.webRTCIPHandlingPolicy.set({
+          value: policy
+        });
+        console.log("WebRTC Policy:", policy);
+      }
+
+      // Manage injected.js dynamically to prevent DOM Event Hijacking
+      const excludeMatches = [];
+      const isIP = (str) => /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(str);
+      disabledDomains.forEach(d => {
+        excludeMatches.push(`*://${d}/*`);
+        if (!isIP(d) && d !== "localhost") {
+          excludeMatches.push(`*://*.${d}/*`);
+        }
+      });
+      
+      const isProtected = settings.fingerprintProtection !== false;
+
+      chrome.scripting.getRegisteredContentScripts({ ids: ["injected_spoofing"] }, (scripts) => {
+        if (!isProtected) {
+          if (scripts && scripts.length > 0) {
+            chrome.scripting.unregisterContentScripts({ ids: ["injected_spoofing"] });
+          }
+          return;
+        }
+
+        if (scripts && scripts.length > 0) {
+          chrome.scripting.updateContentScripts([{
+            id: "injected_spoofing",
+            excludeMatches: excludeMatches.length > 0 ? excludeMatches : []
+          }]);
+        } else {
+          chrome.scripting.registerContentScripts([{
+            id: "injected_spoofing",
+            matches: ["<all_urls>"],
+            excludeMatches: excludeMatches.length > 0 ? excludeMatches : [],
+            js: ["injected.js"],
+            runAt: "document_start",
+            world: "MAIN",
+            allFrames: true,
+            matchOriginAsFallback: true
+          }]);
+        }
+      });
+
     }
   )
-
-  // Configure WebRTC IP Leak Protection
-  if (chrome.privacy && chrome.privacy.network) {
-    chrome.storage.local.get(["settings"], (result) => {
-      const isProtected = result.settings?.fingerprintProtection !== false;
-      const policy = isProtected ? "default_public_interface_only" : "default";
-      chrome.privacy.network.webRTCIPHandlingPolicy.set({
-        value: policy
-      });
-      console.log("WebRTC Policy:", policy);
-    });
-  }
-
-  // Manage injected.js dynamically to prevent DOM Event Hijacking
-  const excludeMatches = disabledDomains.map(d => `*://*.${d}/*`);
-  excludeMatches.push(...disabledDomains.map(d => `*://${d}/*`));
-
-  chrome.scripting.getRegisteredContentScripts({ ids: ["injected_spoofing"] }, (scripts) => {
-    if (!isProtected) {
-      if (scripts && scripts.length > 0) {
-        chrome.scripting.unregisterContentScripts({ ids: ["injected_spoofing"] });
-      }
-      return;
-    }
-
-    if (scripts && scripts.length > 0) {
-      chrome.scripting.updateContentScripts([{
-        id: "injected_spoofing",
-        excludeMatches: excludeMatches.length > 0 ? excludeMatches : []
-      }]);
-    } else {
-      chrome.scripting.registerContentScripts([{
-        id: "injected_spoofing",
-        matches: ["<all_urls>"],
-        excludeMatches: excludeMatches.length > 0 ? excludeMatches : [],
-        js: ["injected.js"],
-        runAt: "document_start",
-        world: "MAIN",
-        allFrames: true,
-        matchOriginAsFallback: true
-      }]);
-    }
-  });
 
 }
 
