@@ -49,45 +49,60 @@ let siteProtectionEnabled = false
   const style = document.createElement("style");
   style.id = "ubiquishield-cosmetic";
   style.textContent = `
-    /* Traditional Ads */
-    .ad-wrapper, .ad-box, .ad-container, .advertisement, .banner-ad, .sponsored-post,
+    /* ===== Traditional Ad Containers ===== */
+    .ad-wrapper, .ad-box, .ad-container, .advertisement,
+    .banner-ad, .sponsored-post,
     ins.adsbygoogle, [data-ad-slot], [data-ad-client], [data-ad-format],
-    [class*="sponsor"], [id*="sponsor"], [class*="promoted"],
     iframe[src*="doubleclick"], iframe[src*="googlesyndication"],
     iframe[src*="taboola"], iframe[src*="outbrain"],
-    [data-testid="placementTracking"], .ad-container, .advertisement, 
-    .banner-ad, .sponsored-post,
+    [data-testid="placementTracking"],
 
-    /* Cookie Banners (Annoyance Blocking) */
-    #onetrust-consent-sdk, #cookie-notice, .cookie-banner, .cookie-consent, 
-    #cookie-law-info-bar, .optanon-alert-box-wrapper, .cc-window, 
+    /* ===== Google Ads ===== */
+    .google-ad, .google-ad-manager,
+    [id^="google_ads_"], [id^="div-gpt-ad"],
+    .gpt-ad, .dfp-ad,
+
+    /* ===== Cookie Consent Banners ===== */
+    #onetrust-consent-sdk, #cookie-notice, .cookie-banner,
+    .cookie-consent, #cookie-law-info-bar,
+    .optanon-alert-box-wrapper, .cc-window,
     .qc-cmp2-container, #cmessage_form, .cookie-popup, #cookie-bar,
-    .eu-cookie-compliance-banner, #sp_message_container_1, 
-    .CybotCookiebotDialog, #CybotCookiebotDialog, 
+    .eu-cookie-compliance-banner, #sp_message_container_1,
+    .CybotCookiebotDialog, #CybotCookiebotDialog,
     [aria-label="Cookie consent"], [aria-label="Cookie banner"],
+    #gdpr-consent-notice, .gdpr-banner,
 
-    /* YouTube Native Ads */
+    /* ===== YouTube Native Ads ===== */
     ytd-ad-slot-renderer, ytd-promoted-sparkles-web-renderer,
     ytd-promoted-video-renderer, ytd-display-ad-renderer,
     .ytd-in-feed-ad-layout-renderer, .ytd-video-masthead-ad-v3-renderer,
     .ytp-ad-module, .ytp-ad-image-overlay,
+    ytd-banner-promo-renderer,
 
-    /* Facebook & Twitter Sponsored Posts */
-    div[data-testid="sponsored-label"], 
-    div[data-testid="placementTracking"]
+    /* ===== Facebook & Twitter Sponsored Posts ===== */
+    div[data-testid="sponsored-label"],
+    div[data-testid="placementTracking"],
+
+    /* ===== Reddit Promoted ===== */
+    .promotedlink, [data-is-promoted-post="true"],
+    shreddit-ad-post,
+
+    /* ===== LinkedIn Promoted ===== */
+    .feed-shared-update-v2--ad,
+    div[data-ad-banner],
+
+    /* ===== Amazon Sponsored ===== */
+    .s-result-item[data-component-type="sp-sponsored-result"],
+    .AdHolder, .s-sponsored-label-info-icon,
+
+    /* ===== Generic Newsletter & Signup Popups ===== */
+    .newsletter-popup, .email-signup-modal,
+    [class*="newsletter-overlay"]
     {
       display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-      height: 0 !important;
-      width: 0 !important;
-      position: absolute !important;
-      top: -9999px !important;
-      left: -9999px !important;
     }
   `;
-  
+
   (document.head || document.documentElement).appendChild(style);
 
 }
@@ -402,11 +417,12 @@ function scanTrackers() {
   // AD WRAPPER COLLAPSER
   // =====================
   document.querySelectorAll('iframe, img').forEach(el => {
+    let isTrackerElement = false;
     if (el.src) {
       try {
         const host = new URL(el.src).hostname;
-        const isTracker = Object.keys(trackerDB).some(key => host === key || host.endsWith('.' + key));
-        if (isTracker) {
+        isTrackerElement = Object.keys(trackerDB).some(key => host === key || host.endsWith('.' + key));
+        if (isTrackerElement) {
           el.style.setProperty('display', 'none', 'important');
         }
       } catch (e) {
@@ -414,11 +430,16 @@ function scanTrackers() {
       }
     }
 
-    const computed = window.getComputedStyle(el);
-    if (computed.display === 'none' || computed.visibility === 'hidden' || el.height === "0" || el.width === "0") {
+    // Only collapse the parent wrapper if this child is a confirmed tracker
+    if (isTrackerElement) {
       const parent = el.parentElement;
-      if (parent && parent.tagName === 'DIV' && parent.children.length === 1) {
-        parent.style.display = 'none';
+      if (parent && parent.tagName === 'DIV' && parent.children.length <= 2) {
+        const computed = window.getComputedStyle(parent);
+        const parentHeight = parseInt(computed.height) || 0;
+        // Only collapse small wrappers (ad slots), not full-page containers
+        if (parentHeight < 400) {
+          parent.style.setProperty('display', 'none', 'important');
+        }
       }
     }
   });

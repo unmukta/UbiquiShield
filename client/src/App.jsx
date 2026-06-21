@@ -258,6 +258,24 @@ const [
       settings:
         updated
 
+    }, () => {
+      // Critical settings need a page reload to take effect
+      const criticalSettings = [
+        "trackerBlocking",
+        "fingerprintProtection",
+        "scriptBlocking",
+        "httpsUpgrade"
+      ];
+      if (criticalSettings.includes(key)) {
+        chrome.tabs.query(
+          { active: true, currentWindow: true },
+          (tabs) => {
+            if (tabs && tabs[0]) {
+              chrome.tabs.reload(tabs[0].id);
+            }
+          }
+        );
+      }
     })
 
   }

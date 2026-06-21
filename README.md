@@ -7,15 +7,19 @@ Ubiqui Shield helps users reduce online tracking by blocking known trackers, upg
 ## Features
 
 - **Network-Level Tracker Blocking**: Block over **3,500** tracking & advertising domains using Manifest V3's high-performance Declarative Net Request API.
+- **Network-Level Script Blocking**: The "Block Scripts" toggle dynamically generates DNR rules to block 30+ known tracking script domains (Google Analytics, Hotjar, Clarity, Mixpanel, etc.) at the network level before they can execute.
 - **Deep Header Masking**: Forcefully rewrites `User-Agent`, `Sec-CH-UA`, and `Accept-Language` headers globally at the network level to ensure tracking tests like EFF's "Cover Your Tracks" cannot identify you.
-- **Active Ad Wrapper Collapsing**: Mutation observers actively seek out and collapse empty wrapper `<div>` elements left behind by natively blocked ads, keeping your pages clean.
+- **Layout-Safe Cosmetic Filtering**: Industry-standard `display: none !important` CSS injection targets ads across YouTube, Google Ads, Amazon Sponsored, Reddit Promoted, LinkedIn, Facebook/Twitter Sponsored Posts, and cookie consent banners — without breaking page layouts.
+- **Active Ad Wrapper Collapsing**: Height-aware mutation observers collapse empty wrapper `<div>` elements left behind by natively blocked ads, while preserving legitimate page containers.
 - **Shadow DOM Evasion Prevention**: Bypasses traditional Light DOM limitations by directly injecting interception logic via `chrome.scripting.executeScript({ world: "MAIN" })`, rendering Shadow DOM and `<iframe>` isolation tactics useless.
 - **Total Fingerprint Spoliation**: 
   - **Font Measurements (`offsetWidth`, `offsetHeight`)**: Inject dynamic, element-specific pixel offsets using a stable session seed.
   - **Canvas & WebGL Extraction (`readPixels`, `getImageData`)**: Injects invisible algorithmic noise into pixels natively.
+  - **OffscreenCanvas Protection**: Blocks off-DOM fingerprinting via `OffscreenCanvasRenderingContext2D`.
   - **Audio API Oscillators**: Modifies frequency channel data returned by `getChannelData()`.
   - **Hardware Profiles**: Re-engineers `UNMASKED_RENDERER_WEBGL` strings and client hint (`userAgentData`) platforms to generic profiles.
-- **API `toString` Masking**: Automatically proxies `Function.prototype.toString` to return `function() { [native code] }` for all 15+ intercepted APIs, guaranteeing spoofing mechanisms remain undetectable.
+- **API `toString` Masking**: Automatically proxies `Function.prototype.toString` to return `function() { [native code] }` for all 20+ intercepted APIs, guaranteeing spoofing mechanisms remain undetectable.
+- **Consistent Timezone Spoofing**: Both `getTimezoneOffset()` and `Intl.DateTimeFormat.resolvedOptions().timeZone` report consistent EST values, preventing cross-API detection.
 - **Advanced Context-Aware Fingerprint Protection**: Mocks hardware metrics while specifically protecting the WebGL contexts of legitimate 3D games and web applications from accidental Canvas corruption.
 - **Font & WebRTC Leak Protection**: Spoof system font detection measurements and hide local IP addresses during web conferencing.
 - **System Environment Normalization**: Return standardized baseline values for browser properties such as `navigator.hardwareConcurrency`, `navigator.deviceMemory`, `navigator.connection`, and platform attributes.

@@ -184,6 +184,42 @@ async function applyProtectionRules() {
         });
       }
 
+      // Configure Script Blocking (network-level blocking of tracking scripts)
+      if (settings.scriptBlocking) {
+        const scriptBlockDomains = [
+          "google-analytics.com", "googletagmanager.com", "googletagservices.com",
+          "connect.facebook.net", "pixel.facebook.com",
+          "static.hotjar.com", "script.hotjar.com",
+          "analytics.tiktok.com", "mf.tiktok.com",
+          "clarity.ms",
+          "snap.licdn.com", "px.ads.linkedin.com",
+          "www.redditstatic.com/ads",
+          "static.ads-twitter.com", "analytics.twitter.com",
+          "cdn.mxpnl.com", "api-js.mixpanel.com",
+          "cdn.segment.com", "api.segment.io",
+          "js.hs-scripts.com", "js.hs-analytics.net", "js.hsforms.net",
+          "widgets.outbrain.com",
+          "cdn.taboola.com",
+          "static.criteo.net", "dis.criteo.com",
+          "bat.bing.com",
+          "sb.scorecardresearch.com", "b.scorecardresearch.com",
+          "securepubads.g.doubleclick.net",
+          "rs.fullstory.com",
+          "cdn.mouseflow.com"
+        ];
+        scriptBlockDomains.forEach((domain, i) => {
+          dynamicRules.push({
+            id: 99800 + i,
+            priority: 180,
+            action: { type: "block" },
+            condition: {
+              urlFilter: `||${domain}`,
+              resourceTypes: ["script"]
+            }
+          });
+        });
+      }
+
       // Clear previous dynamic rules and add new ones
       const oldRules = await chrome.declarativeNetRequest.getDynamicRules()
       const oldRuleIds = oldRules.map(rule => rule.id)

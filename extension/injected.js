@@ -3,7 +3,9 @@
   const spoofSeed = Math.random();
   const spoofFloat = (spoofSeed - 0.5) * 0.0001;
 
-  // Native Hook Masking
+  // =========================================
+  // NATIVE HOOK MASKING (toString Proxy)
+  // =========================================
   const originalToString = Function.prototype.toString;
   const hookedFunctions = new WeakSet();
 
@@ -18,15 +20,18 @@
     return originalToString.apply(this, args);
   };
 
+  // =========================================
+  // NAVIGATOR PROPERTY SPOOFING
+  // =========================================
+
   // Hardware Concurrency
   Object.defineProperty(
     Navigator.prototype,
     "hardwareConcurrency",
     {
-      get() {
-        return 8;
-      },
-      configurable: true
+      get() { return 8; },
+      configurable: true,
+      enumerable: true
     }
   );
 
@@ -35,10 +40,9 @@
     Navigator.prototype,
     "deviceMemory",
     {
-      get() {
-        return 8;
-      },
-      configurable: true
+      get() { return 8; },
+      configurable: true,
+      enumerable: true
     }
   );
 
@@ -47,10 +51,9 @@
     Navigator.prototype,
     "language",
     {
-      get() {
-        return "en-US";
-      },
-      configurable: true
+      get() { return "en-US"; },
+      configurable: true,
+      enumerable: true
     }
   );
 
@@ -58,10 +61,9 @@
     Navigator.prototype,
     "languages",
     {
-      get() {
-        return ["en-US", "en"];
-      },
-      configurable: true
+      get() { return ["en-US", "en"]; },
+      configurable: true,
+      enumerable: true
     }
   );
 
@@ -77,7 +79,8 @@
           { name: "Native Client", filename: "internal-nacl-plugin", description: "" }
         ];
       },
-      configurable: true
+      configurable: true,
+      enumerable: true
     }
   );
 
@@ -91,25 +94,31 @@
           { type: "application/pdf", suffixes: "pdf", description: "" }
         ];
       },
-      configurable: true
+      configurable: true,
+      enumerable: true
     }
   );
 
   // User Agent Legacy Spoofing
   Object.defineProperty(Navigator.prototype, "userAgent", {
     get() { return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"; },
-    configurable: true
+    configurable: true,
+    enumerable: true
   });
   Object.defineProperty(Navigator.prototype, "appVersion", {
     get() { return "5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"; },
-    configurable: true
+    configurable: true,
+    enumerable: true
   });
   Object.defineProperty(Navigator.prototype, "platform", {
     get() { return "Win32"; },
-    configurable: true
+    configurable: true,
+    enumerable: true
   });
 
-  // Client Hints Spoofing
+  // =========================================
+  // CLIENT HINTS SPOOFING (Single Hook)
+  // =========================================
   if (navigator.userAgentData) {
     Object.defineProperty(Navigator.prototype, 'userAgentData', {
       get() {
@@ -136,13 +145,16 @@
           }
         };
       },
-      configurable: true
+      configurable: true,
+      enumerable: true
     });
   }
 
-  // Battery API Spoofing
+  // =========================================
+  // BATTERY API SPOOFING (Single Hook)
+  // =========================================
   if (navigator.getBattery) {
-    const originalGetBattery = navigator.getBattery;
+    const noopFn = () => {};
     navigator.getBattery = function() {
       return Promise.resolve({
         charging: true,
@@ -152,43 +164,49 @@
         onchargingchange: null,
         onchargingtimechange: null,
         ondischargingtimechange: null,
-        onlevelchange: null
+        onlevelchange: null,
+        addEventListener: noopFn,
+        removeEventListener: noopFn,
+        dispatchEvent: () => true
       });
     };
     hookedFunctions.add(navigator.getBattery);
   }
 
-  // Timezone
+  // =========================================
+  // TIMEZONE SPOOFING (Consistent EST)
+  // =========================================
   const originalResolvedOptions =
     Intl.DateTimeFormat.prototype.resolvedOptions;
 
   const OriginalDateTimeFormat = Intl.DateTimeFormat;
-  Intl.DateTimeFormat = function(...args) {
-    const options = args[1] || {};
-    options.timeZone = "UTC";
-    args[1] = options;
-    return new OriginalDateTimeFormat(...args);
+
+  // Preserve instanceof by using a wrapper that delegates
+  const wrappedDateTimeFormat = function(...args) {
+    const options = args[1] ? { ...args[1] } : {};
+    options.timeZone = "America/New_York";
+    return new OriginalDateTimeFormat(args[0], options);
   };
-  Intl.DateTimeFormat.prototype = OriginalDateTimeFormat.prototype;
+  wrappedDateTimeFormat.prototype = OriginalDateTimeFormat.prototype;
+  Object.setPrototypeOf(wrappedDateTimeFormat, OriginalDateTimeFormat);
+  wrappedDateTimeFormat.supportedLocalesOf = OriginalDateTimeFormat.supportedLocalesOf;
+  Intl.DateTimeFormat = wrappedDateTimeFormat;
 
-
+  // EST offset = 300 minutes (UTC-5), or 240 during EDT
   Date.prototype.getTimezoneOffset = function() {
-    return 0;
+    return 300;
   };
 
   Intl.DateTimeFormat.prototype.resolvedOptions =
     function() {
-
-      const result =
-        originalResolvedOptions.call(this);
-
-      result.timeZone =
-        "America/New_York";
-
+      const result = originalResolvedOptions.call(this);
+      result.timeZone = "America/New_York";
       return result;
     };
 
-  // Canvas Fingerprinting Protection
+  // =========================================
+  // CANVAS FINGERPRINTING PROTECTION
+  // =========================================
   const originalGetContext = HTMLCanvasElement.prototype.getContext;
   const contextTypes = new WeakMap();
 
@@ -240,17 +258,9 @@
     return originalToBlob.apply(this, args);
   };
 
-  const originalGetImageData = CanvasRenderingContext2D.prototype.getImageData;
-
-  CanvasRenderingContext2D.prototype.getImageData = function(...args) {
-    const imageData = originalGetImageData.apply(this, args);
-    if (imageData && imageData.data && imageData.data.length > 0) {
-      const idx = Math.floor(spoofSeed * imageData.data.length);
-      imageData.data[idx] = (imageData.data[idx] + 1) % 256;
-    }
-    return imageData;
-  };
-
+  // =========================================
+  // OFFSCREEN CANVAS PROTECTION
+  // =========================================
   if (window.OffscreenCanvas) {
     var originalOffscreenGetContext = OffscreenCanvas.prototype.getContext;
     OffscreenCanvas.prototype.getContext = function(contextId, ...args) {
@@ -281,6 +291,20 @@
     };
   }
 
+  // =========================================
+  // CANVAS IMAGE DATA PROTECTION
+  // =========================================
+  const originalGetImageData = CanvasRenderingContext2D.prototype.getImageData;
+
+  CanvasRenderingContext2D.prototype.getImageData = function(...args) {
+    const imageData = originalGetImageData.apply(this, args);
+    if (imageData && imageData.data && imageData.data.length > 0) {
+      const idx = Math.floor(spoofSeed * imageData.data.length);
+      imageData.data[idx] = (imageData.data[idx] + 1) % 256;
+    }
+    return imageData;
+  };
+
   if (window.OffscreenCanvasRenderingContext2D) {
     var originalOffscreenGetImageData = OffscreenCanvasRenderingContext2D.prototype.getImageData;
     OffscreenCanvasRenderingContext2D.prototype.getImageData = function(...args) {
@@ -293,6 +317,9 @@
     };
   }
 
+  // =========================================
+  // WEBGL PIXEL READBACK PROTECTION
+  // =========================================
   if (window.WebGLRenderingContext) {
     const originalReadPixels = WebGLRenderingContext.prototype.readPixels;
     WebGLRenderingContext.prototype.readPixels = function(...args) {
@@ -317,54 +344,61 @@
     };
   }
 
-  // WebGL Parameter Spoofing
+  // =========================================
+  // WEBGL PARAMETER & EXTENSION SPOOFING
+  // (Single unified hook — no duplicates)
+  // =========================================
   if (window.WebGLRenderingContext) {
+    const originalGetExtension = WebGLRenderingContext.prototype.getExtension;
+    WebGLRenderingContext.prototype.getExtension = function(name) {
+      if (name === "WEBGL_debug_renderer_info") return null;
+      return originalGetExtension.call(this, name);
+    };
+
     const originalGetParameter = WebGLRenderingContext.prototype.getParameter;
     WebGLRenderingContext.prototype.getParameter = function(parameter) {
-      if (parameter === 37445) return "Google Inc. (Apple)"; // UNMASKED_VENDOR_WEBGL
-      if (parameter === 37446) return "ANGLE (Apple, Apple M1 Pro, OpenGL 4.1)"; // UNMASKED_RENDERER_WEBGL
-      return originalGetParameter.apply(this, arguments);
+      if (parameter === 37445) return "Google Inc.";           // UNMASKED_VENDOR_WEBGL
+      if (parameter === 37446) return "ANGLE (Generic GPU)";   // UNMASKED_RENDERER_WEBGL
+      if (parameter === 3379) return 4096;                     // MAX_TEXTURE_SIZE
+      if (parameter === 34024) return 4096;                    // MAX_RENDERBUFFER_SIZE
+      if (parameter === 7936) return "WebKit";                 // VENDOR
+      if (parameter === 7937) return "WebGL";                  // RENDERER
+      return originalGetParameter.call(this, parameter);
     };
-    hookedFunctions.add(WebGLRenderingContext.prototype.getParameter);
   }
 
   if (typeof WebGL2RenderingContext !== "undefined") {
-    const originalGetParameter2 = WebGL2RenderingContext.prototype.getParameter;
-    WebGL2RenderingContext.prototype.getParameter = function(parameter) {
-      if (parameter === 37445) return "Google Inc. (Apple)";
-      if (parameter === 37446) return "ANGLE (Apple, Apple M1 Pro, OpenGL 4.1)";
-      return originalGetParameter2.apply(this, arguments);
+    var originalGetExtension2 = WebGL2RenderingContext.prototype.getExtension;
+    WebGL2RenderingContext.prototype.getExtension = function(name) {
+      if (name === "WEBGL_debug_renderer_info") return null;
+      return originalGetExtension2.call(this, name);
     };
-    hookedFunctions.add(WebGL2RenderingContext.prototype.getParameter);
+
+    var originalGetParameter2 = WebGL2RenderingContext.prototype.getParameter;
+    WebGL2RenderingContext.prototype.getParameter = function(parameter) {
+      if (parameter === 37445) return "Google Inc.";
+      if (parameter === 37446) return "ANGLE (Generic GPU)";
+      if (parameter === 3379) return 16384;
+      if (parameter === 34024) return 16384;
+      if (parameter === 7936) return "WebKit";
+      if (parameter === 7937) return "WebGL 2.0";
+      return originalGetParameter2.call(this, parameter);
+    };
   }
 
-  // Audio Fingerprinting Protection
-  if (
-    window.AudioBuffer &&
-    AudioBuffer.prototype.getChannelData
-  ) {
-
-    var originalGetChannelData =
-      AudioBuffer.prototype.getChannelData;
-
-    AudioBuffer.prototype.getChannelData =
-      function() {
-
-        const results =
-          originalGetChannelData.apply(
-            this,
-            arguments
-          );
-
-        if (results.length > 0) {
-          const idx = Math.floor(spoofSeed * results.length);
-          results[idx] = results[idx] + 0.0000001;
-        }
-
-        return results;
-
-      };
-
+  // =========================================
+  // AUDIO FINGERPRINTING PROTECTION
+  // =========================================
+  if (window.AudioBuffer && AudioBuffer.prototype.getChannelData) {
+    var originalGetChannelData = AudioBuffer.prototype.getChannelData;
+    AudioBuffer.prototype.getChannelData = function() {
+      const results = originalGetChannelData.apply(this, arguments);
+      if (results.length > 0) {
+        const idx = Math.floor(spoofSeed * results.length);
+        results[idx] = results[idx] + 0.0000001;
+      }
+      return results;
+    };
   }
 
   if (window.AnalyserNode) {
@@ -376,7 +410,7 @@
         array[idx] = array[idx] + 0.1;
       }
     };
-    
+
     var originalGetByteFrequencyData = AnalyserNode.prototype.getByteFrequencyData;
     AnalyserNode.prototype.getByteFrequencyData = function(array) {
       originalGetByteFrequencyData.call(this, array);
@@ -387,118 +421,9 @@
     };
   }
 
-  // WebGL
-  const originalGetExtension =
-    WebGLRenderingContext.prototype.getExtension;
-
-  WebGLRenderingContext.prototype.getExtension =
-    function(name) {
-
-      if (
-        name ===
-        "WEBGL_debug_renderer_info"
-      ) {
-        return null;
-      }
-
-      return originalGetExtension.call(
-        this,
-        name
-      );
-
-    };
-
-  const originalGetParameter =
-    WebGLRenderingContext.prototype.getParameter;
-
-  WebGLRenderingContext.prototype.getParameter =
-    function(parameter) {
-
-      if (parameter === 37445)
-        return "Google Inc.";
-
-      if (parameter === 37446)
-        return "ANGLE (Generic GPU)";
-
-      if (parameter === 3379)
-        return 4096;
-
-      if (parameter === 34024)
-        return 4096;
-
-      if (parameter === 7936)
-        return "WebKit";
-
-      if (parameter === 7937)
-        return "WebGL";
-
-      return originalGetParameter.call(
-        this,
-        parameter
-      );
-
-    };
-
-  // WebGL2
-  if (
-    typeof WebGL2RenderingContext !==
-    "undefined"
-  ) {
-
-    var originalGetExtension2 =
-      WebGL2RenderingContext.prototype
-        .getExtension;
-
-    WebGL2RenderingContext.prototype
-      .getExtension =
-      function(name) {
-
-        if (
-          name ===
-          "WEBGL_debug_renderer_info"
-        ) {
-          return null;
-        }
-
-        return originalGetExtension2
-          .call(this, name);
-
-      };
-
-    var originalGetParameter2 =
-      WebGL2RenderingContext.prototype
-        .getParameter;
-
-    WebGL2RenderingContext.prototype
-      .getParameter =
-      function(parameter) {
-
-        if (parameter === 37445)
-          return "Google Inc.";
-
-        if (parameter === 37446)
-          return "ANGLE (Generic GPU)";
-
-        if (parameter === 3379)
-          return 16384;
-
-        if (parameter === 34024)
-          return 16384;
-
-        if (parameter === 7936)
-          return "WebKit";
-
-        if (parameter === 7937)
-          return "WebGL 2.0";
-
-        return originalGetParameter2
-          .call(this, parameter);
-
-      };
-
-  }
-
-  // Canvas measureText (Font Fingerprinting Protection)
+  // =========================================
+  // CANVAS MEASURETEXT (Font Fingerprinting)
+  // =========================================
   if (
     typeof CanvasRenderingContext2D !== "undefined" &&
     CanvasRenderingContext2D.prototype.measureText
@@ -507,14 +432,14 @@
     CanvasRenderingContext2D.prototype.measureText = function() {
       const metrics = originalMeasureText.apply(this, arguments);
       const noise = spoofFloat;
-      
+
       return new Proxy(metrics, {
         get(target, prop) {
           if (typeof prop === "string" && [
-            "width", 
-            "actualBoundingBoxLeft", 
-            "actualBoundingBoxRight", 
-            "actualBoundingBoxAscent", 
+            "width",
+            "actualBoundingBoxLeft",
+            "actualBoundingBoxRight",
+            "actualBoundingBoxAscent",
             "actualBoundingBoxDescent",
             "fontBoundingBoxAscent",
             "fontBoundingBoxDescent"
@@ -536,14 +461,14 @@
     OffscreenCanvasRenderingContext2D.prototype.measureText = function() {
       const metrics = originalOffscreenMeasureText.apply(this, arguments);
       const noise = spoofFloat;
-      
+
       return new Proxy(metrics, {
         get(target, prop) {
           if (typeof prop === "string" && [
-            "width", 
-            "actualBoundingBoxLeft", 
-            "actualBoundingBoxRight", 
-            "actualBoundingBoxAscent", 
+            "width",
+            "actualBoundingBoxLeft",
+            "actualBoundingBoxRight",
+            "actualBoundingBoxAscent",
             "actualBoundingBoxDescent",
             "fontBoundingBoxAscent",
             "fontBoundingBoxDescent"
@@ -557,26 +482,11 @@
     };
   }
 
-  // Battery API
-  if (navigator.getBattery) {
-
-    const noopFn = () => {};
-
-    navigator.getBattery =
-      async () => ({
-        charging: true,
-        chargingTime: 0,
-        dischargingTime: Infinity,
-        level: 1,
-        addEventListener: noopFn,
-        removeEventListener: noopFn,
-        dispatchEvent: () => true
-      });
-
-  }
-
-  // Network Connection Spoofing
+  // =========================================
+  // NETWORK CONNECTION SPOOFING (with event stubs)
+  // =========================================
   if (navigator.connection) {
+    const noopFn = () => {};
     Object.defineProperty(
       navigator,
       "connection",
@@ -586,22 +496,29 @@
             downlink: 10,
             effectiveType: "4g",
             rtt: 50,
-            saveData: false
+            saveData: false,
+            onchange: null,
+            addEventListener: noopFn,
+            removeEventListener: noopFn,
+            dispatchEvent: () => true
           };
         },
-        configurable: true
+        configurable: true,
+        enumerable: true
       }
     );
   }
 
-  // Hardware Media Device Protection
+  // =========================================
+  // HARDWARE MEDIA DEVICE PROTECTION
+  // =========================================
   if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
     const originalEnumerate = navigator.mediaDevices.enumerateDevices;
     navigator.mediaDevices.enumerateDevices = async function() {
       const devices = await originalEnumerate.apply(this, arguments);
       return devices.map(device => {
-        const genericLabel = device.kind === 'audioinput' ? 'Default Microphone' : 
-                             device.kind === 'videoinput' ? 'Default Webcam' : 
+        const genericLabel = device.kind === 'audioinput' ? 'Default Microphone' :
+                             device.kind === 'videoinput' ? 'Default Webcam' :
                              device.kind === 'audiooutput' ? 'Default Speaker' : 'Default Device';
         return {
           deviceId: 'default',
@@ -614,25 +531,9 @@
     };
   }
 
-  // Client Hints API Spoofing (navigator.userAgentData)
-  if (navigator.userAgentData) {
-    const originalGetHighEntropyValues = navigator.userAgentData.getHighEntropyValues;
-    navigator.userAgentData.getHighEntropyValues = async function() {
-      const values = await originalGetHighEntropyValues.apply(this, arguments);
-      if (values.architecture) values.architecture = 'x86';
-      if (values.bitness) values.bitness = '64';
-      if (values.model) values.model = '';
-      if (values.platformVersion) values.platformVersion = '10.0.0';
-      return values;
-    };
-  }
-
-  // Screen Spoofing
-  const originalScreenDescriptors = {};
-  for (const key of ["width", "height", "colorDepth", "pixelDepth", "availWidth", "availHeight"]) {
-    originalScreenDescriptors[key] = Object.getOwnPropertyDescriptor(Screen.prototype, key) || Object.getOwnPropertyDescriptor(window.screen, key);
-  }
-
+  // =========================================
+  // SCREEN SPOOFING
+  // =========================================
   const spoofedScreen = {
     get width() { return Math.max(1920, window.outerWidth || 0); },
     get height() { return Math.max(1080, window.outerHeight || 0); },
@@ -643,15 +544,18 @@
   };
   for (const key in spoofedScreen) {
     Object.defineProperty(window.screen, key, {
-      get() { 
+      get() {
         const desc = Object.getOwnPropertyDescriptor(spoofedScreen, key);
         return desc.get ? desc.get() : spoofedScreen[key];
       },
-      configurable: true
+      configurable: true,
+      enumerable: true
     });
   }
 
-  // Element Offset Spoofing
+  // =========================================
+  // ELEMENT OFFSET SPOOFING (Font Fingerprinting)
+  // =========================================
   const originalOffsetWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth");
   if (originalOffsetWidth) {
     Object.defineProperty(HTMLElement.prototype, "offsetWidth", {
@@ -663,7 +567,8 @@
         }
         return width;
       },
-      configurable: true
+      configurable: true,
+      enumerable: true
     });
 
     const originalOffsetHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetHeight");
@@ -676,10 +581,14 @@
         }
         return height;
       },
-      configurable: true
+      configurable: true,
+      enumerable: true
     });
   }
 
+  // =========================================
+  // BOUNDING CLIENT RECT SPOOFING
+  // =========================================
   const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
   Element.prototype.getBoundingClientRect = function() {
     const rect = originalGetBoundingClientRect.call(this);
@@ -721,13 +630,11 @@
     return rects;
   };
 
+  console.log("Advanced fingerprint protection enabled");
 
-
-  console.log(
-    "Advanced fingerprint protection enabled"
-  );
-
-  // Register all hooked functions for native toString spoofing
+  // =========================================
+  // REGISTER ALL HOOKS FOR toString MASKING
+  // =========================================
   try {
     hookedFunctions.add(Date.prototype.getTimezoneOffset);
     hookedFunctions.add(Intl.DateTimeFormat.prototype.resolvedOptions);
@@ -735,13 +642,26 @@
     hookedFunctions.add(HTMLCanvasElement.prototype.toDataURL);
     hookedFunctions.add(HTMLCanvasElement.prototype.toBlob);
     hookedFunctions.add(CanvasRenderingContext2D.prototype.getImageData);
-    if (window.WebGLRenderingContext) hookedFunctions.add(WebGLRenderingContext.prototype.readPixels);
-    if (typeof WebGL2RenderingContext !== "undefined") hookedFunctions.add(WebGL2RenderingContext.prototype.readPixels);
-    hookedFunctions.add(AudioBuffer.prototype.getChannelData);
-    hookedFunctions.add(AnalyserNode.prototype.getFloatFrequencyData);
-    hookedFunctions.add(AnalyserNode.prototype.getByteFrequencyData);
+
+    if (window.WebGLRenderingContext) {
+      hookedFunctions.add(WebGLRenderingContext.prototype.readPixels);
+      hookedFunctions.add(WebGLRenderingContext.prototype.getParameter);
+      hookedFunctions.add(WebGLRenderingContext.prototype.getExtension);
+    }
+    if (typeof WebGL2RenderingContext !== "undefined") {
+      hookedFunctions.add(WebGL2RenderingContext.prototype.readPixels);
+      hookedFunctions.add(WebGL2RenderingContext.prototype.getParameter);
+      hookedFunctions.add(WebGL2RenderingContext.prototype.getExtension);
+    }
+
+    if (window.AudioBuffer) hookedFunctions.add(AudioBuffer.prototype.getChannelData);
+    if (window.AnalyserNode) {
+      hookedFunctions.add(AnalyserNode.prototype.getFloatFrequencyData);
+      hookedFunctions.add(AnalyserNode.prototype.getByteFrequencyData);
+    }
+
     hookedFunctions.add(CanvasRenderingContext2D.prototype.measureText);
-    
+
     if (window.OffscreenCanvas) {
       hookedFunctions.add(OffscreenCanvas.prototype.getContext);
       hookedFunctions.add(OffscreenCanvas.prototype.convertToBlob);
@@ -750,6 +670,7 @@
       hookedFunctions.add(OffscreenCanvasRenderingContext2D.prototype.getImageData);
       hookedFunctions.add(OffscreenCanvasRenderingContext2D.prototype.measureText);
     }
+
     hookedFunctions.add(Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth").get);
     hookedFunctions.add(Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetHeight").get);
     hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "userAgent").get);
@@ -762,6 +683,7 @@
     hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "hardwareConcurrency").get);
     hookedFunctions.add(Element.prototype.getBoundingClientRect);
     hookedFunctions.add(Element.prototype.getClientRects);
+    if (navigator.mediaDevices) hookedFunctions.add(navigator.mediaDevices.enumerateDevices);
   } catch (e) {
     console.warn("UbiquiShield: Failed to mask some hooks", e);
   }
