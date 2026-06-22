@@ -36,7 +36,9 @@ chrome.runtime.onInstalled
     )
 
     if (details.reason === "install") {
-      chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: true })
+      if (chrome.declarativeNetRequest.setExtensionActionOptions) {
+        chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: true })
+      }
       chrome.storage.local.set({
         blockedCount: 0,
         detectedTrackers: [],
@@ -46,7 +48,9 @@ chrome.runtime.onInstalled
         applyProtectionRules()
       })
     } else if (details.reason === "update") {
-      chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: true })
+      if (chrome.declarativeNetRequest.setExtensionActionOptions) {
+        chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: true })
+      }
       chrome.storage.local.get(["settings"], (res) => {
         const mergedSettings = { ...defaultSettings, ...(res.settings || {}) }
         chrome.storage.local.set({
@@ -337,6 +341,9 @@ async function updateBlockedCount(
 ) {
 
   try {
+    if (!chrome.declarativeNetRequest.getMatchedRules) {
+      return; // Firefox fallback: cannot count matched rules natively yet
+    }
 
     const minTime =
       tabTimestamps[tabId] ||
@@ -360,7 +367,7 @@ async function updateBlockedCount(
       }
     })
 
-  } catch {
+  } catch (e) {
 
     // API unavailable
 

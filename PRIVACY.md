@@ -1,52 +1,114 @@
 # Privacy Policy
 
-Last Updated: June 2026
+**Last Updated:** June 2026
+**Extension Version:** 1.2.0
 
-Ubiqui Shield is designed with privacy as a core principle.
+Ubiqui Shield is designed with privacy as its core principle. This policy explains exactly what the extension does and does not do with your data.
+
+---
 
 ## Data Collection
 
-Ubiqui Shield does not collect, store, transmit, or sell any personal data.
+**Ubiqui Shield does not collect, store, transmit, or sell any personal data. Period.**
 
 The extension does not:
 
-- Track browsing activity
+- Track your browsing activity
 - Collect personal information
-- Store browsing history
-- Sell user data
-- Share user data with third parties
+- Store your browsing history
+- Record which websites you visit
+- Transmit any data to external servers
+- Report errors, crashes, or usage statistics
+- Sell or share user data with any third party
+- Use analytics, telemetry, or tracking services of any kind
+
+---
 
 ## Local Storage
 
-The extension stores user preferences locally using the browser's `chrome.storage.local` API.
+The extension stores your preferences locally on your device using the browser's `chrome.storage.local` API (or `browser.storage.local` on Firefox). This data never leaves your device.
 
-This includes:
-- Global protection toggles (Fingerprinting, Tracker Blocking, Ad Blocking, HTTPS Upgrades)
-- Site-specific toggle preferences (e.g., if protection is disabled for a specific hostname)
-- Internal counter configurations
+**Stored data includes:**
 
-All preferences and settings are stored locally on the user's device. They are never synced, transmitted, or shared.
+| Data | Purpose |
+|---|---|
+| Protection toggle states | Remember whether Tracker Blocking, Fingerprint Protection, HTTPS Upgrade, Script Blocking, and Cookie Cleanup are on or off |
+| Per-site protection overrides | Remember if you've disabled protection for specific websites (e.g., "Shields Down" on `example.com`) |
+| Active tab blocked count | Display the number of blocked trackers on your current tab in the popup |
+| Detected tracker list | Display the names of tracker domains found on your current tab |
 
-## Permissions
+All of this data is:
+- Stored locally on your device only
+- Never synced to any cloud service
+- Never transmitted over the network
+- Automatically cleared if you uninstall the extension
 
-Ubiqui Shield uses the following browser permissions solely to deliver privacy protections:
+---
 
-- `storage`: To store user preferences and configurations locally on the device.
-- `tabs` & `activeTab`: To query the active tab's hostname and status in order to display the correct protection state and update the blocked counter in the popup.
-- `declarativeNetRequest` & `declarativeNetRequestFeedback`: To perform network-level tracker blocking. By using the Declarative Net Request API, the browser blocks requests directly. The extension does not need to inspect or read the content of web traffic, which ensures maximum user privacy and performance.
-- `<all_urls>` (Host Permissions): Required to apply content scripts and inject fingerprint normalization protections uniformly across websites.
+## Network Activity
 
-## Local-First Architecture
+**Ubiqui Shield makes zero network requests of its own.**
 
-Unlike many extensions that download external rule lists or report telemetry, Ubiqui Shield operates entirely offline:
-- **No Remote Databases**: The tracker classification list (`trackers.json`) and declarative net rules (`rules.json`) are bundled inside the extension package itself. No network lookups or updates are performed.
-- **In-Memory Normalization**: Fingerprint protections (Canvas, WebGL/WebGL2, Audio, Hardware details) are applied dynamically in memory within the webpage context. These protections do not collect or log hardware statistics.
-- **Zero Telemetry**: No tracking, usage analytics, error logging, or event tracking is integrated into the extension.
+- The tracker blocklist (`rules.json`) and tracker database (`trackers.json`) are bundled directly inside the extension package. They are never downloaded from a remote server.
+- Fingerprint protections (Canvas, WebGL, Audio, Font, Battery, Timezone) are applied dynamically in memory within the webpage context. They do not collect, log, or transmit any hardware statistics.
+- The extension does not phone home, check for updates independently, or communicate with any external API.
 
-## Third Parties
+---
 
-Ubiqui Shield does not use external web services, analytics, telemetry, advertising, or third-party tracking services of any kind.
+## Permissions Explained
+
+Ubiqui Shield requests the minimum set of browser permissions required to deliver its privacy protections. Here is a plain-language explanation of each:
+
+| Permission | Why It's Needed |
+|---|---|
+| **`storage`** | To save your preferences (toggle states, per-site settings) locally on your device. |
+| **`tabs`** | To read the active tab's URL so the popup can display the correct hostname, blocked count, and per-site toggle state. The extension does not read page content through this permission. |
+| **`declarativeNetRequest`** | To block tracking domains at the network level using the browser's built-in rule engine. This approach is more private than legacy methods because the extension never sees or intercepts your actual web traffic — the browser blocks the requests natively. |
+| **`declarativeNetRequestFeedback`** | To count how many tracking requests were blocked on the current tab, so the popup can display an accurate blocked counter. |
+| **`privacy`** | To configure the WebRTC IP handling policy, preventing websites from discovering your local IP address through WebRTC peer connections. |
+| **`scripting`** | To dynamically register the fingerprint protection script into web pages. This allows the extension to respect per-site settings (unregistering the script on whitelisted sites). |
+| **`<all_urls>` (Host Permissions)** | Required so that the content script (cosmetic ad filtering) and the fingerprint protection script can run on any website you visit. Without this, protection would only work on a manually maintained list of domains. |
+
+---
+
+## Third-Party Services
+
+Ubiqui Shield does not integrate, communicate with, or depend on any external web services, APIs, analytics platforms, advertising networks, or third-party tracking services.
+
+The extension is entirely self-contained.
+
+---
+
+## Cookie Handling
+
+When the "Third-Party Cookies" protection is enabled, the extension periodically removes a specific, hardcoded list of known tracking cookies from your browser. These include:
+
+- `_ga`, `_gid`, `_gat` (Google Analytics)
+- `_fbp`, `_fbc` (Facebook Pixel)
+- `_hjSession`, `_hjSessionUser` (Hotjar)
+- `_uetmsclkid` (Microsoft/Bing Ads)
+- `__gads`, `__gpi` (Google Ad Services)
+- `_pin_unauth` (Pinterest)
+- `_tt_enable_cookie` (TikTok)
+
+The extension **does not** delete session cookies, authentication cookies, shopping cart cookies, or any cookie not on this explicit list. Your logins and website functionality are preserved.
+
+---
+
+## Open Source
+
+Ubiqui Shield is open source. You can inspect every line of code at any time to verify these claims:
+
+**GitHub:** [https://github.com/unmukta/UbiquiShield](https://github.com/unmukta/UbiquiShield)
+
+---
+
+## Changes to This Policy
+
+If this privacy policy is updated, the changes will be reflected in this document with an updated "Last Updated" date. No changes will ever introduce data collection.
+
+---
 
 ## Contact
 
-For questions or suggestions regarding this Privacy Policy, please contact the project maintainers through GitHub.
+For questions, concerns, or suggestions regarding this Privacy Policy, please open an issue on the [GitHub repository](https://github.com/unmukta/UbiquiShield/issues) or contact the project maintainer through GitHub.

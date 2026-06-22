@@ -3,8 +3,14 @@
   "version": "1.2.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "build": "node build.js"
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.4.0"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1"
   }
 }
