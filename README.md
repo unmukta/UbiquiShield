@@ -1,52 +1,68 @@
 # Ubiqui Shield
 
-Modern privacy and anti-tracking browser extension.
+**A modern, high-performance privacy extension that stops advanced tracking, eliminates invasive ads, and protects your digital fingerprint across the web.**
 
-Ubiqui Shield helps users reduce online tracking by blocking known trackers, upgrading connections to HTTPS, and limiting browser fingerprinting techniques.
+Ubiqui Shield is built from the ground up for the modern browser engine. It uses high-efficiency network rules to block trackers *before* they load, resulting in significantly faster page load times and reduced memory usage. Unlike legacy ad blockers that rely on slow request interception, Ubiqui Shield leverages the browser's native Declarative Net Request engine to perform all blocking in compiled C++ — completely off the main thread.
+
+> For a deep technical dive into the algorithms, execution environments, and security model, see the full [Architecture & Technical Documentation](ARCHITECTURE.md).
+
+---
 
 ## Features
 
+### Network Protection
 - **Network-Level Tracker Blocking**: Block over **3,500** tracking & advertising domains using Manifest V3's high-performance Declarative Net Request API.
 - **Network-Level Script Blocking**: The "Block Scripts" toggle dynamically generates DNR rules to block 30+ known tracking script domains (Google Analytics, Hotjar, Clarity, Mixpanel, etc.) at the network level before they can execute.
-- **Deep Header Masking**: Forcefully rewrites `User-Agent`, `Sec-CH-UA`, and `Accept-Language` headers globally at the network level to ensure tracking tests like EFF's "Cover Your Tracks" cannot identify you.
-- **Layout-Safe Cosmetic Filtering**: Industry-standard `display: none !important` CSS injection targets ads across YouTube, Google Ads, Amazon Sponsored, Reddit Promoted, LinkedIn, Facebook/Twitter Sponsored Posts, and cookie consent banners — without breaking page layouts.
-- **Active Ad Wrapper Collapsing**: Height-aware mutation observers collapse empty wrapper `<div>` elements left behind by natively blocked ads, while preserving legitimate page containers.
-- **Shadow DOM Evasion Prevention**: Bypasses traditional Light DOM limitations by directly injecting interception logic via `chrome.scripting.executeScript({ world: "MAIN" })`, rendering Shadow DOM and `<iframe>` isolation tactics useless.
-- **Total Fingerprint Spoliation**: 
-  - **Font Measurements (`offsetWidth`, `offsetHeight`)**: Inject dynamic, element-specific pixel offsets using a stable session seed.
-  - **Canvas & WebGL Extraction (`readPixels`, `getImageData`)**: Injects invisible algorithmic noise into pixels natively.
-  - **OffscreenCanvas Protection**: Blocks off-DOM fingerprinting via `OffscreenCanvasRenderingContext2D`.
-  - **Audio API Oscillators**: Modifies frequency channel data returned by `getChannelData()`.
-  - **Hardware Profiles**: Re-engineers `UNMASKED_RENDERER_WEBGL` strings and client hint (`userAgentData`) platforms to generic profiles.
+- **Deep Header Masking**: Forcefully rewrites `User-Agent`, `Sec-CH-UA`, `Sec-CH-UA-Platform`, and `Accept-Language` headers globally at the network level to defeat server-side fingerprinting.
+- **HTTPS Connection Upgrades**: Automatically redirect insecure HTTP requests to secure HTTPS equivalents via DNR `upgradeScheme` rules.
+- **Strict URL Tracking Parameter Stripping**: Automatically removes `utm_*`, `fbclid`, `gclid`, `msclkid`, and 20+ other tracking parameters from URLs before the page loads.
+
+### Cosmetic Filtering
+- **Layout-Safe Ad Hiding**: Industry-standard `display: none !important` CSS injection targets ads across YouTube, Google Ads, Amazon Sponsored, Reddit Promoted, LinkedIn, Facebook/Twitter Sponsored Posts, and cookie consent banners — without breaking page layouts.
+- **Active Ad Wrapper Collapsing**: A mutation observer actively collapses empty wrapper `<div>` elements left behind by natively blocked ad iframes, while preserving legitimate page containers.
+- **Cookie Consent Banner Eradication**: Targets the most notorious cookie banner frameworks (OneTrust, Quantcast, CookieBot, GDPR banners) and instantly removes them.
+
+### Fingerprint Protection
+- **Canvas & WebGL Noise Injection**: Injects undetectable, randomized noise into `toDataURL`, `toBlob`, `getImageData`, and `readPixels` across HTML5 Canvas, WebGL, and WebGL2 contexts.
+- **OffscreenCanvas Protection**: Blocks off-DOM fingerprinting via `OffscreenCanvasRenderingContext2D`.
+- **Context-Aware Canvas Safety**: Uses a `WeakMap` to track canvas context types (`2d` vs `webgl`), preventing accidental corruption of legitimate 3D applications and games.
+- **Hardware & WebGL Spoofing**: Returns generic `ANGLE (Generic GPU)` / `Google Inc.` strings for WebGL renderer queries, and standardizes `hardwareConcurrency`, `deviceMemory`, `plugins`, and `mimeTypes`.
+- **Audio API Spoofing**: Modifies frequency channel data returned by `AudioContext.getChannelData()`.
+- **High-Precision Font Spoofing**: Injects microscopic pixel offsets into `offsetWidth`, `offsetHeight`, `getBoundingClientRect()`, and `getClientRects()` for `<span>` elements, defeating sub-pixel font rendering fingerprints.
+- **Battery API Neutralization**: Returns a fully charged, plugged-in battery profile and stubs out all charge event listeners.
+- **Client Hints Spoofing**: Overrides `navigator.userAgentData` to return a generic Chromium 120 / Windows profile.
+- **Consistent Timezone Spoofing**: Both `getTimezoneOffset()` and `Intl.DateTimeFormat.resolvedOptions().timeZone` report consistent UTC/EST values.
+- **WebRTC IP Leak Protection**: Sets `webRTCIPHandlingPolicy` to `default_public_interface_only` to prevent local IP exposure.
+- **System Environment Normalization**: Returns standardized values for `navigator.hardwareConcurrency`, `navigator.deviceMemory`, `navigator.connection`, `navigator.language`, and platform attributes.
 - **API `toString` Masking**: Automatically proxies `Function.prototype.toString` to return `function() { [native code] }` for all 20+ intercepted APIs, guaranteeing spoofing mechanisms remain undetectable.
-- **Consistent Timezone Spoofing**: Both `getTimezoneOffset()` and `Intl.DateTimeFormat.resolvedOptions().timeZone` report consistent EST values, preventing cross-API detection.
-- **Advanced Context-Aware Fingerprint Protection**: Mocks hardware metrics while specifically protecting the WebGL contexts of legitimate 3D games and web applications from accidental Canvas corruption.
-- **Font & WebRTC Leak Protection**: Spoof system font detection measurements and hide local IP addresses during web conferencing.
-- **System Environment Normalization**: Return standardized baseline values for browser properties such as `navigator.hardwareConcurrency`, `navigator.deviceMemory`, `navigator.connection`, and platform attributes.
-- **Per-Site Protection Toggle**: Pause and resume protection on specific sites directly via the extension popup, fully integrated into local storage.
-- **Production-Safe Blocked Counter**: Real-time counter of blocked trackers scoped to each tab using rule-matching telemetry safely, compatible with production installs. Includes Chrome's MV3 100+ telemetry fallback support.
-- **HTTPS Connection Upgrades**: Automatically redirect insecure HTTP requests to secure HTTPS equivalents.
 
-> For an in-depth look at how the algorithms and APIs work, check out the full [Architecture & Technical Documentation](ARCHITECTURE.md).
+### User Experience
+- **Per-Site Protection Toggle**: Pause and resume protection on specific sites directly via the extension popup.
+- **Real-Time Blocked Counter**: Production-safe counter of blocked trackers scoped to each tab using rule-matching telemetry.
+- **Detected Tracker List**: See exactly which tracker domains were found on the current page.
+- **Shadow DOM Evasion Prevention**: Injects interception logic via `chrome.scripting.executeScript({ world: "MAIN" })`, rendering Shadow DOM and `<iframe>` isolation tactics useless.
 
-- **Lightweight & Privacy First**: Zero third-party runtime dependencies, zero telemetry, and 100% local processing.
+---
 
 ## Tech Stack
 
 ### Extension Popup (Frontend)
-
-* React (Vite-powered development and compilation)
-* Vanilla CSS (Harmonious dark theme UI design)
-* Chrome Extension APIs
+- React 19 (Vite-powered development and compilation)
+- Vanilla CSS (Harmonious dark theme UI design)
+- Lucide React (Icon library)
+- Chrome Extension APIs
 
 ### Core Protection Engine
+- Manifest V3 Standard Architecture
+- Declarative Net Request API (zero-latency, private blocking)
+- Background Service Workers (tab management & state)
+- Document Content Scripts (DOM-level cosmetic cleanup)
+- MAIN World Injected Scripts (synchronous Canvas/WebGL/API normalization)
+- Chrome Storage API (local-only configuration)
+- Chrome Privacy API (WebRTC policy control)
+- Chrome Scripting API (dynamic content script registration)
 
-* Manifest V3 Standard Architecture
-* Declarative Net Request API (For zero-latency, private blocking)
-* Background Service Workers (For tab management and state updates)
-* Document Content Scripts (For DOM-level cosmetic cleanup)
-* Injected Script Contexts (For synchronous, synchronous-safe canvas/WebGL normalization)
-* Chrome Storage API (For local-only configuration)
+---
 
 ## Project Structure
 
@@ -54,68 +70,89 @@ Ubiqui Shield helps users reduce online tracking by blocking known trackers, upg
 ubiqui_shield/
 │
 ├── client/                 # React source code for extension popup UI
-│   ├── src/                # React components and styling
+│   ├── src/                # React components (App.jsx) and styling
 │   ├── public/             # Static public assets
-│   └── dist/               # Compiled UI output (copied to extension/)
+│   └── vite.config.js      # Vite build configuration
 │
-└── extension/              # Chrome Extension package directory
-    ├── background.js       # Service worker (tab tracking & blocked counter)
-    ├── content.js          # Content script (cosmetic filters & toggle reader)
-    ├── injected.js         # Page-context script (Canvas, WebGL2 fingerprinting)
-    ├── trackers.json       # Built-in local tracker signature database
-    ├── rules.json          # Declarative Net Request blocking ruleset
-    ├── index.html          # Extension popup HTML entrypoint
-    └── icons/              # Extension logo icons
+├── extension/              # Browser Extension package directory
+│   ├── background.js       # Service worker (DNR rules, tab tracking, message handler)
+│   ├── content.js          # Content script (cosmetic filters, tracker detection, cookie cleanup)
+│   ├── injected.js         # MAIN world script (Canvas, WebGL, Audio, Font fingerprint spoofing)
+│   ├── trackers.json       # Built-in local tracker signature database
+│   ├── rules.json          # Declarative Net Request blocking ruleset (3,500+ domains)
+│   ├── manifest.json       # Manifest V3 extension configuration
+│   ├── index.html          # Extension popup HTML entrypoint
+│   ├── assets/             # Compiled React popup UI (JS/CSS bundles)
+│   └── icons/              # Extension logo icons (16/48/128px)
+│
+├── build.js                # Cross-browser build pipeline (Chrome, Firefox, Source ZIP)
+├── generate_rules.js       # Script to regenerate rules.json from domain lists
+├── ARCHITECTURE.md         # In-depth technical architecture documentation
+├── PRIVACY.md              # Privacy policy
+├── CHANGELOG.md            # Version history
+└── LICENSE                 # MIT License
 ```
-
-## Installation
-
-### 1. Build the Extension Popup
-
-If you want to compile the React popup interface from source:
-
-```bash
-# Clone the repository
-git clone https://github.com/unmukta/UbiquiShield.git
-
-# Navigate to the client directory
-cd UbiquiShield/client
-
-# Install dependencies
-npm install
-
-# Build the project (compiles into extension/dist/)
-npm run build
-```
-
-*Note: The built assets are placed directly in the `extension/` directory, making the `extension` folder fully self-contained and ready to load.*
-
-### 2. Load the Extension into your Browser
-
-1. Open a Chromium-based browser (Chrome, Edge, Brave, Opera, Vivaldi).
-2. Navigate to `chrome://extensions` or `edge://extensions/`.
-3. Enable **Developer Mode** using the toggle switch in the top right corner.
-4. Click the **Load Unpacked** button in the top left corner.
-5. Select the `extension` folder inside this repository.
 
 ---
 
-## Current Capabilities
+## Installation
 
-* **Declarative Net Request Engine**: High-performance tracker blocklist spanning over 3,500 domains loaded completely offline.
-* **Smart Cosmetic Filtering**: Safe CSS rules to hide ads without breaking site layouts on platforms like YouTube and LinkedIn.
-* **Advanced Fingerprint Normalization**: WebGL/Canvas noise injection, Font spoofing, Audio metric obscuration, and WebRTC IP leak protection.
-* **Hardware & Environment Mocking**: Standardizes logical processor counts, RAM capacities, network connection type, and platform variables.
-* **Per-Site Whitelists**: Save domain-specific protection choices directly to extension storage.
-* **Production-Grade Block Counts**: Real-time counter metrics calculated using tab telemetry.
+### From the Stores
+- **Chrome Web Store**: [Coming Soon]
+- **Microsoft Edge Add-ons**: [Coming Soon]
+- **Firefox Add-ons**: [Coming Soon]
 
-## Roadmap
+### From Source
 
-### Upcoming (v1.2.0)
+#### 1. Clone the Repository
+```bash
+git clone https://github.com/unmukta/UbiquiShield.git
+cd UbiquiShield
+```
 
-* **Cookie Management Dashboard**: Ability to inspect, isolate, and auto-delete tracking cookies per-domain.
-* **Custom Blocklists**: User interface to import and edit custom domains or hosts files.
-* **Granular Element Toggles**: Toggle fingerprinting, cosmetic filtering, or ad blocking individually on a per-site basis.
+#### 2. Build the Popup UI
+```bash
+cd client
+npm install
+npm run build
+```
+
+#### 3. Load into Chrome / Edge
+1. Open `chrome://extensions` or `edge://extensions`.
+2. Enable **Developer Mode**.
+3. Click **Load Unpacked** and select the `extension/` folder.
+
+#### 4. Load into Firefox
+1. Open `about:debugging#/runtime/this-firefox`.
+2. Click **Load Temporary Add-on** and select any file inside the `extension/` folder.
+
+### Building Release Packages
+```bash
+# From the project root
+npm install
+npm run build
+```
+This generates three ready-to-upload ZIP files in the `dist/` folder:
+| File | Purpose |
+|---|---|
+| `UbiquiShield-Chrome-v[X.Y.Z].zip` | Chrome Web Store & Edge Add-ons |
+| `UbiquiShield-Firefox-v[X.Y.Z].zip` | Firefox Add-ons (patched manifest) |
+| `UbiquiShield-Source-v[X.Y.Z].zip` | Mozilla reviewer source code submission |
+
+---
+
+## Browser Support
+
+| Browser | Status |
+|---|---|
+| Google Chrome | ✅ Full Support |
+| Microsoft Edge | ✅ Full Support |
+| Brave | ✅ Full Support |
+| Opera | ✅ Full Support |
+| Vivaldi | ✅ Full Support |
+| Mozilla Firefox | ✅ Supported (auto-patched manifest) |
+
+---
 
 ## Disclaimer
 
@@ -123,8 +160,8 @@ Ubiqui Shield dramatically increases user privacy and cuts down tracking vectors
 
 ## Version
 
-Current Release: **v1.1.4 (Pre-release)**
+Current Release: **v1.2.0**
 
-# License
+## License
 
 MIT License
