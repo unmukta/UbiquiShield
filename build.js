@@ -8,6 +8,7 @@ const ROOT_DIR = process.cwd();
 const EXTENSION_DIR = path.join(ROOT_DIR, 'extension');
 const DIST_DIR = path.join(ROOT_DIR, 'dist');
 const CHROME_DIR = path.join(DIST_DIR, 'chrome');
+const EDGE_DIR = path.join(DIST_DIR, 'edge');
 const FIREFOX_DIR = path.join(DIST_DIR, 'firefox');
 
 // =========================
@@ -20,6 +21,7 @@ function cleanDist() {
     fs.rmSync(DIST_DIR, { recursive: true, force: true });
   }
   fs.mkdirSync(CHROME_DIR, { recursive: true });
+  fs.mkdirSync(EDGE_DIR, { recursive: true });
   fs.mkdirSync(FIREFOX_DIR, { recursive: true });
 }
 
@@ -130,6 +132,9 @@ async function build() {
   console.log('Copying files to dist/chrome/...');
   copyDir(EXTENSION_DIR, CHROME_DIR);
 
+  console.log('Copying files to dist/edge/...');
+  copyDir(EXTENSION_DIR, EDGE_DIR);
+
   console.log('Copying files to dist/firefox/...');
   copyDir(EXTENSION_DIR, FIREFOX_DIR);
 
@@ -165,11 +170,15 @@ async function build() {
 
   // 4. Generate all three ZIP files
   const chromeZip = path.join(DIST_DIR, `UbiquiShield-Chrome-v${version}.zip`);
+  const edgeZip = path.join(DIST_DIR, `UbiquiShield-Edge-v${version}.zip`);
   const firefoxZip = path.join(DIST_DIR, `UbiquiShield-Firefox-v${version}.zip`);
   const sourceZip = path.join(DIST_DIR, `UbiquiShield-Source-v${version}.zip`);
 
   console.log(`Zipping Chrome build...`);
   await zipDirectory(CHROME_DIR, chromeZip);
+
+  console.log(`Zipping Edge build...`);
+  await zipDirectory(EDGE_DIR, edgeZip);
 
   console.log(`Zipping Firefox build...`);
   await zipDirectory(FIREFOX_DIR, firefoxZip);
@@ -183,9 +192,10 @@ async function build() {
   console.log('\n========================================');
   console.log(`  UbiquiShield v${version} — Build Complete!`);
   console.log('========================================');
-  console.log(`  Chrome/Edge : ${path.basename(chromeZip)}`);
-  console.log(`  Firefox     : ${path.basename(firefoxZip)}`);
-  console.log(`  Source Code : ${path.basename(sourceZip)}`);
+  console.log(`  Chrome : ${path.basename(chromeZip)}`);
+  console.log(`  Edge   : ${path.basename(edgeZip)}`);
+  console.log(`  Firefox: ${path.basename(firefoxZip)}`);
+  console.log(`  Source : ${path.basename(sourceZip)}`);
   console.log('========================================\n');
 }
 
