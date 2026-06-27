@@ -61,7 +61,7 @@
     Navigator.prototype,
     "languages",
     {
-      get() { return ["en-US", "en"]; },
+      get() { return Object.freeze(["en-US", "en"]); },
       configurable: true,
       enumerable: true
     }
@@ -184,7 +184,11 @@
   const wrappedDateTimeFormat = function(...args) {
     const options = args[1] ? { ...args[1] } : {};
     options.timeZone = "America/New_York";
-    return new OriginalDateTimeFormat(args[0], options);
+    // Handle both `new Intl.DateTimeFormat()` and `Intl.DateTimeFormat()` calls
+    if (new.target) {
+      return new OriginalDateTimeFormat(args[0], options);
+    }
+    return OriginalDateTimeFormat(args[0], options);
   };
   wrappedDateTimeFormat.prototype = OriginalDateTimeFormat.prototype;
   Object.setPrototypeOf(wrappedDateTimeFormat, OriginalDateTimeFormat);

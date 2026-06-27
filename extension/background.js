@@ -112,6 +112,7 @@ async function applyProtectionRules() {
           action: { type: "allowAllRequests" },
           condition: { 
             initiatorDomains: [domain],
+            resourceTypes: ["main_frame", "sub_frame"],
             ...(excluded.length > 0 ? { excludedInitiatorDomains: excluded } : {})
           }
         }

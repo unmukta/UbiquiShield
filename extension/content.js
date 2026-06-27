@@ -34,7 +34,7 @@ let settings =
 let siteProtectionEnabled = false
 
 
-  function cosmeticFiltering() {
+function cosmeticFiltering() {
 
   if (!settings.trackerBlocking || !siteProtectionEnabled) {
     const existingStyle = document.getElementById("ubiquishield-cosmetic");
