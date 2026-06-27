@@ -1,7 +1,7 @@
 # Privacy Policy
 
 **Last Updated:** June 2026
-**Extension Version:** 1.2.0
+**Extension Version:** 1.2.1
 
 Ubiqui Shield is designed with privacy as its core principle. This policy explains exactly what the extension does and does not do with your data.
 

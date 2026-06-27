@@ -85,7 +85,7 @@ ubiqui_shield/
 │   ├── assets/             # Compiled React popup UI (JS/CSS bundles)
 │   └── icons/              # Extension logo icons (16/48/128px)
 │
-├── build.js                # Cross-browser build pipeline (Chrome, Firefox, Source ZIP)
+├── build.js                # Cross-browser build pipeline (Chrome, Edge, Firefox, Source ZIP)
 ├── generate_rules.js       # Script to regenerate rules.json from domain lists
 ├── ARCHITECTURE.md         # In-depth technical architecture documentation
 ├── PRIVACY.md              # Privacy policy
@@ -132,10 +132,11 @@ npm run build
 npm install
 npm run build
 ```
-This generates three ready-to-upload ZIP files in the `dist/` folder:
+This generates four ready-to-upload ZIP files in the `dist/` folder:
 | File | Purpose |
 |---|---|
-| `UbiquiShield-Chrome-v[X.Y.Z].zip` | Chrome Web Store & Edge Add-ons |
+| `UbiquiShield-Chrome-v[X.Y.Z].zip` | Chrome Web Store |
+| `UbiquiShield-Edge-v[X.Y.Z].zip` | Microsoft Edge Add-ons |
 | `UbiquiShield-Firefox-v[X.Y.Z].zip` | Firefox Add-ons (patched manifest) |
 | `UbiquiShield-Source-v[X.Y.Z].zip` | Mozilla reviewer source code submission |
 
