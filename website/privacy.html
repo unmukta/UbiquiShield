@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Ubiqui Shield</title>
+    <meta name="description" content="Ubiqui Shield is designed with privacy as its core principle. This policy explains exactly what the extension does and does not do with your data.">
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:title" content="Privacy Policy - Ubiqui Shield">
+    <meta property="og:description" content="Ubiqui Shield is designed with privacy as its core principle. This policy explains exactly what the extension does and does not do with your data.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ubiquishield.pages.dev/privacy.html">
+    <meta property="og:image" content="https://ubiquishield.pages.dev/icons/icon128.png">
+    
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Privacy Policy - Ubiqui Shield">
+    <meta name="twitter:description" content="Ubiqui Shield is designed with privacy as its core principle. This policy explains exactly what the extension does and does not do with your data.">
+    <meta name="twitter:image" content="https://ubiquishield.pages.dev/icons/icon128.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="icons/icon128.png">
+    
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .privacy-section {
+            padding: 120px 0 60px;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .privacy-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .privacy-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .privacy-header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .privacy-meta {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .privacy-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            color: #d1d5db;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+        
+        .privacy-content h2 {
+            font-size: 1.8rem;
+            color: white;
+            margin: 2.5rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .privacy-content h2:first-child {
+            margin-top: 0;
+        }
+
+        .privacy-content h3 {
+            font-size: 1.3rem;
+            color: white;
+            margin: 1.5rem 0 0.75rem 0;
+        }
+        
+        .privacy-content p {
+            margin-bottom: 1.2rem;
+        }
+
+        .privacy-content ul {
+            margin-bottom: 1.5rem;
+            list-style: none;
+            padding: 0;
+        }
+
+        .privacy-content ul li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .privacy-content ul li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .privacy-content strong {
+            color: white;
+        }
+        
+        .privacy-content code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #e879f9;
+            font-size: 0.9em;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(176, 38, 255, 0.1);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .privacy-link {
+            color: #e879f9;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .privacy-link:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .privacy-content {
+                padding: 1.5rem;
+            }
+            .privacy-header h1 {
+                font-size: 2.5rem;
+            }
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-effects">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
+    </div>
+
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <img src="icons/icon128.png" alt="Ubiqui Shield Logo" class="nav-logo-img">
+                <span>Ubiqui Shield</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html#features">Features</a></li>
+                <li><a href="changelog.html">Changelog</a></li>
+                <li><a href="index.html" class="btn-primary-sm">Back to Home</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="privacy-section">
+        <div class="container privacy-container">
+            <div class="privacy-header reveal">
+                <h1>Privacy <span class="text-gradient">Policy</span></h1>
+                <div class="privacy-meta">
+                    <strong>Last Updated:</strong> June 2026 &nbsp;&bull;&nbsp; <strong>Extension Version:</strong> 1.2.1
+                </div>
+                <p>Ubiqui Shield is designed with privacy as its core principle. This policy explains exactly what the extension does and does not do with your data.</p>
+            </div>
+            
+            <div class="privacy-content reveal">
+                <h2>Data Collection</h2>
+                <p><strong>Ubiqui Shield does not collect, store, transmit, or sell any personal data. Period.</strong></p>
+                <p>The extension does not:</p>
+                <ul>
+                    <li>Track your browsing activity</li>
+                    <li>Collect personal information</li>
+                    <li>Store your browsing history</li>
+                    <li>Record which websites you visit</li>
+                    <li>Transmit any data to external servers</li>
+                    <li>Report errors, crashes, or usage statistics</li>
+                    <li>Sell or share user data with any third party</li>
+                    <li>Use analytics, telemetry, or tracking services of any kind</li>
+                </ul>
+
+                <h2>Local Storage</h2>
+                <p>The extension stores your preferences locally on your device using the browser's <code>chrome.storage.local</code> API (or <code>browser.storage.local</code> on Firefox). This data never leaves your device.</p>
+                
+                <p><strong>Stored data includes:</strong></p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Protection toggle states</td>
+                            <td>Remember whether Tracker Blocking, Fingerprint Protection, HTTPS Upgrade, Script Blocking, and Cookie Cleanup are on or off</td>
+                        </tr>
+                        <tr>
+                            <td>Per-site protection overrides</td>
+                            <td>Remember if you've disabled protection for specific websites (e.g., "Shields Down" on <code>example.com</code>)</td>
+                        </tr>
+                        <tr>
+                            <td>Active tab blocked count</td>
+                            <td>Display the number of blocked trackers on your current tab in the popup</td>
+                        </tr>
+                        <tr>
+                            <td>Detected tracker list</td>
+                            <td>Display the names of tracker domains found on your current tab</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>All of this data is:</p>
+                <ul>
+                    <li>Stored locally on your device only</li>
+                    <li>Never synced to any cloud service</li>
+                    <li>Never transmitted over the network</li>
+                    <li>Automatically cleared if you uninstall the extension</li>
+                </ul>
+
+                <h2>Network Activity</h2>
+                <p><strong>Ubiqui Shield makes zero network requests of its own.</strong></p>
+                <ul>
+                    <li>The tracker blocklist (<code>rules.json</code>) and tracker database (<code>trackers.json</code>) are bundled directly inside the extension package. They are never downloaded from a remote server.</li>
+                    <li>Fingerprint protections (Canvas, WebGL, Audio, Font, Battery, Timezone) are applied dynamically in memory within the webpage context. They do not collect, log, or transmit any hardware statistics.</li>
+                    <li>The extension does not phone home, check for updates independently, or communicate with any external API.</li>
+                </ul>
+
+                <h2>Permissions Explained</h2>
+                <p>Ubiqui Shield requests the minimum set of browser permissions required to deliver its privacy protections. Here is a plain-language explanation of each:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Permission</th>
+                            <th>Why It's Needed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong><code>storage</code></strong></td>
+                            <td>To save your preferences (toggle states, per-site settings) locally on your device.</td>
+                        </tr>
+                        <tr>
+                            <td><strong><code>tabs</code></strong></td>
+                            <td>To read the active tab's URL so the popup can display the correct hostname, blocked count, and per-site toggle state. The extension does not read page content through this permission.</td>
+                        </tr>
+                        <tr>
+                            <td><strong><code>declarativeNetRequest</code></strong></td>
+                            <td>To block tracking domains at the network level using the browser's built-in rule engine. This approach is more private than legacy methods because the extension never sees or intercepts your actual web traffic — the browser blocks the requests natively.</td>
+                        </tr>
+                        <tr>
+                            <td><strong><code>declarativeNetRequestFeedback</code></strong></td>
+                            <td>To count how many tracking requests were blocked on the current tab, so the popup can display an accurate blocked counter.</td>
+                        </tr>
+                        <tr>
+                            <td><strong><code>privacy</code></strong></td>
+                            <td>To configure the WebRTC IP handling policy, preventing websites from discovering your local IP address through WebRTC peer connections.</td>
+                        </tr>
+                        <tr>
+                            <td><strong><code>scripting</code></strong></td>
+                            <td>To dynamically register the fingerprint protection script into web pages. This allows the extension to respect per-site settings (unregistering the script on whitelisted sites).</td>
+                        </tr>
+                        <tr>
+                            <td><strong><code>&lt;all_urls&gt;</code> (Host Permissions)</strong></td>
+                            <td>Required so that the content script (cosmetic ad filtering) and the fingerprint protection script can run on any website you visit. Without this, protection would only work on a manually maintained list of domains.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>Third-Party Services</h2>
+                <p>Ubiqui Shield does not integrate, communicate with, or depend on any external web services, APIs, analytics platforms, advertising networks, or third-party tracking services.</p>
+                <p>The extension is entirely self-contained.</p>
+
+                <h2>Cookie Handling</h2>
+                <p>When the "Third-Party Cookies" protection is enabled, the extension periodically removes a specific, hardcoded list of known tracking cookies from your browser. These include:</p>
+                <ul>
+                    <li><code>_ga</code>, <code>_gid</code>, <code>_gat</code> (Google Analytics)</li>
+                    <li><code>_fbp</code>, <code>_fbc</code> (Facebook Pixel)</li>
+                    <li><code>_hjSession</code>, <code>_hjSessionUser</code> (Hotjar)</li>
+                    <li><code>_uetmsclkid</code> (Microsoft/Bing Ads)</li>
+                    <li><code>__gads</code>, <code>__gpi</code> (Google Ad Services)</li>
+                    <li><code>_pin_unauth</code> (Pinterest)</li>
+                    <li><code>_tt_enable_cookie</code> (TikTok)</li>
+                </ul>
+                <p>The extension <strong>does not</strong> delete session cookies, authentication cookies, shopping cart cookies, or any cookie not on this explicit list. Your logins and website functionality are preserved.</p>
+
+                <h2>Open Source</h2>
+                <p>Ubiqui Shield is open source. You can inspect every line of code at any time to verify these claims:</p>
+                <p><strong>GitHub:</strong> <a href="https://github.com/unmukta/UbiquiShield" target="_blank" class="privacy-link">https://github.com/unmukta/UbiquiShield</a></p>
+
+                <h2>Changes to This Policy</h2>
+                <p>If this privacy policy is updated, the changes will be reflected in this document with an updated "Last Updated" date. No changes will ever introduce data collection.</p>
+
+                <h2>Contact</h2>
+                <p>For questions, concerns, or suggestions regarding this Privacy Policy, please open an issue on the <a href="https://github.com/unmukta/UbiquiShield/issues" target="_blank" class="privacy-link">GitHub repository</a> or contact the project maintainer through GitHub.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <div class="logo">
+                    <img src="icons/icon128.png" alt="Ubiqui Shield Logo" class="nav-logo-img">
+                    <span>Ubiqui Shield</span>
+                </div>
+                <p>The ultimate privacy extension for modern web browsers.</p>
+            </div>
+            <div class="footer-links">
+                <a href="changelog.html">Changelog</a>
+                <a href="https://github.com/unmukta/UbiquiShield" target="_blank">GitHub</a>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="https://github.com/unmukta/UbiquiShield/blob/main/LICENSE" target="_blank">License</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

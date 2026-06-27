@@ -10,25 +10,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Reveal animations on scroll
+    // Reveal animations using Intersection Observer (High Performance)
     const revealElements = document.querySelectorAll('.reveal');
     
-    const reveal = () => {
-        const windowHeight = window.innerHeight;
-        const elementVisible = 150;
-        
-        revealElements.forEach(element => {
-            const elementTop = element.getBoundingClientRect().top;
-            
-            if (elementTop < windowHeight - elementVisible) {
-                element.classList.add('active');
-            }
-        });
+    const revealOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.15 // Trigger when 15% of the element is visible
     };
     
-    // Initial check and event listener for scroll
-    window.addEventListener('scroll', reveal);
-    reveal(); // Trigger once on load
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target); // Stop observing once revealed
+            }
+        });
+    }, revealOptions);
+    
+    revealElements.forEach(element => {
+        revealObserver.observe(element);
+    });
     
     // Simple counter animation for stats
     const animateStatBars = () => {
