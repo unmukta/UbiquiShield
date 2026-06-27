@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Ubiqui Shield",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Modern privacy and anti-tracking extension.",
   "permissions": [
     "storage",

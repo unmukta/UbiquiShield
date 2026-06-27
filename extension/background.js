@@ -266,6 +266,7 @@ async function applyProtectionRules() {
         if (scripts && scripts.length > 0) {
           chrome.scripting.updateContentScripts([{
             id: "injected_spoofing",
+            matches: ["<all_urls>"],
             excludeMatches: excludeMatches.length > 0 ? excludeMatches : []
           }]);
         } else {

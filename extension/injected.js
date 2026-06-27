@@ -110,11 +110,9 @@
     configurable: true,
     enumerable: true
   });
-  Object.defineProperty(Navigator.prototype, "platform", {
-    get() { return "Win32"; },
-    configurable: true,
-    enumerable: true
-  });
+  // navigator.platform is intentionally NOT spoofed — overriding it to "Win32"
+  // causes a critical OS mismatch for Mac/Linux users (UA says Mac, platform says Win32)
+  // which immediately flags users as bots to anti-fraud systems like Cloudflare.
 
   // =========================================
   // CLIENT HINTS SPOOFING (Single Hook)
@@ -155,7 +153,8 @@
   // =========================================
   if (navigator.getBattery) {
     const noopFn = () => {};
-    navigator.getBattery = function() {
+    // Override on prototype so it propagates correctly into all iframes
+    Navigator.prototype.getBattery = function() {
       return Promise.resolve({
         charging: true,
         chargingTime: 0,
@@ -170,7 +169,7 @@
         dispatchEvent: () => true
       });
     };
-    hookedFunctions.add(navigator.getBattery);
+    hookedFunctions.add(Navigator.prototype.getBattery);
   }
 
   // =========================================
@@ -671,11 +670,8 @@
       hookedFunctions.add(OffscreenCanvasRenderingContext2D.prototype.measureText);
     }
 
-    hookedFunctions.add(Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth").get);
-    hookedFunctions.add(Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetHeight").get);
     hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "userAgent").get);
     hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "appVersion").get);
-    hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "platform").get);
     hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "mimeTypes").get);
     hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "plugins").get);
     hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "languages").get);
@@ -684,6 +680,10 @@
     hookedFunctions.add(Element.prototype.getBoundingClientRect);
     hookedFunctions.add(Element.prototype.getClientRects);
     if (navigator.mediaDevices) hookedFunctions.add(navigator.mediaDevices.enumerateDevices);
+    const _offsetWidthDesc = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth");
+    const _offsetHeightDesc = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetHeight");
+    if (_offsetWidthDesc && _offsetWidthDesc.get) hookedFunctions.add(_offsetWidthDesc.get);
+    if (_offsetHeightDesc && _offsetHeightDesc.get) hookedFunctions.add(_offsetHeightDesc.get);
   } catch (e) {
     console.warn("UbiquiShield: Failed to mask some hooks", e);
   }

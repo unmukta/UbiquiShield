@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.2.1] - 2026-06-27
+
+This is a targeted patch release fixing bugs identified after the v1.2.0 launch, including a critical regression in the fingerprinting engine, cosmetic filter persistence issues, and minor UI and API correctness fixes.
+
+### Fixed
+
+- **`navigator.platform` Regression**: Re-introduced platform spoofing to `"Win32"` was removed again. This was originally deleted in v1.1.4 because it causes a severe OS mismatch for Mac and Linux users (the HTTP `User-Agent` header reports their real OS while `platform` says `Win32`), immediately flagging them as bots to anti-fraud systems like Cloudflare. The property is now left unmodified.
+- **Cosmetic CSS Not Removed on Toggle**: Turning off "Block trackers" or disabling protection for a site via the live toggle no longer leaves the cosmetic `<style>` block injected in the page. `cosmeticFiltering()` is now called in the `chrome.storage.onChanged` handler and inside the `MutationObserver` debounce loop so the CSS state always stays in sync with the current protection state.
+- **`getBattery` Override on Instance Instead of Prototype**: `navigator.getBattery` was overridden directly on the `navigator` instance, meaning the spoofed function did not propagate into child iframes (each of which has its own `navigator` instance). The hook is now applied to `Navigator.prototype.getBattery` so it is universally enforced across all frames.
+- **`updateContentScripts` Missing `matches` Field**: The `chrome.scripting.updateContentScripts()` call that updates the `excludeMatches` list for `injected.js` was missing the required `matches: ["<all_urls>"]` field. Without it, Chrome may revert the script's match list to a default empty state, preventing the spoofing payload from running on new pages.
+- **Blocked Counter Not Resetting to Zero**: The `chrome.storage.onChanged` listener in the popup used `if (changes.blockedCount)`, which evaluates as falsy when the count is `0`. This prevented the displayed counter from resetting when navigating to a new page. Changed to `if (changes.blockedCount !== undefined)`.
+- **Duplicate Cosmetic CSS Selector**: Removed a duplicate `div[data-testid="placementTracking"]` selector from the cosmetic CSS injection block that was already covered by the adjacent `[data-testid="placementTracking"]` rule.
+- **`offsetHeight` Hook Registration Not Guarded**: The `hookedFunctions` registration for `HTMLElement.prototype.offsetHeight`'s getter now uses a guarded `Object.getOwnPropertyDescriptor()` call (same as `offsetWidth`) to safely skip registration if the descriptor is unavailable, preventing a silent `TypeError` from being swallowed by the outer `try/catch`.
+
 ## [1.2.0] - 2026-06-22
 
 This major update introduces complete immunity against EFF "Cover Your Tracks" testing, robust enumerability masking for spoofed APIs, an active ad-wrapper collapser, a native CSS-based cosmetic filtering engine, advanced protections against invisible Font Fingerprinting, and defeats cross-site Link Decoration.
