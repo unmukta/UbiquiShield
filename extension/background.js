@@ -269,18 +269,23 @@ async function applyProtectionRules() {
             id: "injected_spoofing",
             matches: ["<all_urls>"],
             excludeMatches: excludeMatches.length > 0 ? excludeMatches : []
-          }]);
+          }]).catch(console.error);
         } else {
-          chrome.scripting.registerContentScripts([{
+          const scriptOptions = {
             id: "injected_spoofing",
             matches: ["<all_urls>"],
             excludeMatches: excludeMatches.length > 0 ? excludeMatches : [],
             js: ["injected.js"],
             runAt: "document_start",
             world: "MAIN",
-            allFrames: true,
-            matchOriginAsFallback: true
-          }]);
+            allFrames: true
+          };
+          
+          if (!navigator.userAgent.includes("Firefox")) {
+            scriptOptions.matchOriginAsFallback = true;
+          }
+
+          chrome.scripting.registerContentScripts([scriptOptions]).catch(console.error);
         }
       });
 
@@ -343,23 +348,25 @@ async function updateBlockedCount(
 ) {
 
   try {
-    if (!chrome.declarativeNetRequest.getMatchedRules) {
-      return; // Firefox fallback: cannot count matched rules natively yet
+    let count = 0;
+    if (chrome.declarativeNetRequest.getMatchedRules) {
+      const minTime =
+        tabTimestamps[tabId] ||
+        Date.now() - 60000
+
+      const result =
+        await chrome
+          .declarativeNetRequest
+          .getMatchedRules({
+            tabId,
+            minTimeStamp: minTime
+          })
+      count = result.rulesMatchedInfo.length;
+    } else {
+      // Firefox fallback: cannot count matched rules natively yet
+      // Use the DOM-detected trackers from content.js
+      count = tabTrackers[tabId] ? tabTrackers[tabId].length : 0;
     }
-
-    const minTime =
-      tabTimestamps[tabId] ||
-      Date.now() - 60000
-
-    const result =
-      await chrome
-        .declarativeNetRequest
-        .getMatchedRules({
-          tabId,
-          minTimeStamp: minTime
-        })
-
-    const count = result.rulesMatchedInfo.length
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs && tabs[0] && tabs[0].id === tabId) {
