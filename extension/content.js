@@ -34,7 +34,7 @@ let settings =
 let siteProtectionEnabled = false
 
 
-  function cosmeticFiltering() {
+function cosmeticFiltering() {
 
   if (!settings.trackerBlocking || !siteProtectionEnabled) {
     const existingStyle = document.getElementById("ubiquishield-cosmetic");
@@ -81,7 +81,6 @@ let siteProtectionEnabled = false
 
     /* ===== Facebook & Twitter Sponsored Posts ===== */
     div[data-testid="sponsored-label"],
-    div[data-testid="placementTracking"],
 
     /* ===== Reddit Promoted ===== */
     .promotedlink, [data-is-promoted-post="true"],
@@ -211,6 +210,7 @@ function manageObserver() {
         ...changes.settings.newValue
       }
       console.log("Updated Settings:", settings)
+      cosmeticFiltering()
     }
 
     if (changes.siteSettings) {
@@ -241,6 +241,7 @@ function manageObserver() {
       }
       
       siteProtectionEnabled = !isDisabled;
+      cosmeticFiltering()
     }
     manageObserver();
   })
@@ -563,6 +564,7 @@ const observer =
 
       protectCookies();
       scanTrackers();
+      cosmeticFiltering();
 
       isScanning = false;
 

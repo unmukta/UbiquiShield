@@ -61,7 +61,7 @@
     Navigator.prototype,
     "languages",
     {
-      get() { return ["en-US", "en"]; },
+      get() { return Object.freeze(["en-US", "en"]); },
       configurable: true,
       enumerable: true
     }
@@ -110,11 +110,9 @@
     configurable: true,
     enumerable: true
   });
-  Object.defineProperty(Navigator.prototype, "platform", {
-    get() { return "Win32"; },
-    configurable: true,
-    enumerable: true
-  });
+  // navigator.platform is intentionally NOT spoofed — overriding it to "Win32"
+  // causes a critical OS mismatch for Mac/Linux users (UA says Mac, platform says Win32)
+  // which immediately flags users as bots to anti-fraud systems like Cloudflare.
 
   // =========================================
   // CLIENT HINTS SPOOFING (Single Hook)
@@ -155,7 +153,8 @@
   // =========================================
   if (navigator.getBattery) {
     const noopFn = () => {};
-    navigator.getBattery = function() {
+    // Override on prototype so it propagates correctly into all iframes
+    Navigator.prototype.getBattery = function() {
       return Promise.resolve({
         charging: true,
         chargingTime: 0,
@@ -170,7 +169,7 @@
         dispatchEvent: () => true
       });
     };
-    hookedFunctions.add(navigator.getBattery);
+    hookedFunctions.add(Navigator.prototype.getBattery);
   }
 
   // =========================================
@@ -185,7 +184,11 @@
   const wrappedDateTimeFormat = function(...args) {
     const options = args[1] ? { ...args[1] } : {};
     options.timeZone = "America/New_York";
-    return new OriginalDateTimeFormat(args[0], options);
+    // Handle both `new Intl.DateTimeFormat()` and `Intl.DateTimeFormat()` calls
+    if (new.target) {
+      return new OriginalDateTimeFormat(args[0], options);
+    }
+    return OriginalDateTimeFormat(args[0], options);
   };
   wrappedDateTimeFormat.prototype = OriginalDateTimeFormat.prototype;
   Object.setPrototypeOf(wrappedDateTimeFormat, OriginalDateTimeFormat);
@@ -487,8 +490,9 @@
   // =========================================
   if (navigator.connection) {
     const noopFn = () => {};
+    // Override on Navigator.prototype so it propagates into iframes
     Object.defineProperty(
-      navigator,
+      Navigator.prototype,
       "connection",
       {
         get() {
@@ -513,9 +517,11 @@
   // HARDWARE MEDIA DEVICE PROTECTION
   // =========================================
   if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-    const originalEnumerate = navigator.mediaDevices.enumerateDevices;
-    navigator.mediaDevices.enumerateDevices = async function() {
-      const devices = await originalEnumerate.apply(this, arguments);
+    // Capture native reference before overwriting on prototype
+    const originalEnumerateDevices = MediaDevices.prototype.enumerateDevices;
+    // Override on MediaDevices.prototype so it propagates into iframes
+    MediaDevices.prototype.enumerateDevices = async function() {
+      const devices = await originalEnumerateDevices.apply(this, arguments);
       return devices.map(device => {
         const genericLabel = device.kind === 'audioinput' ? 'Default Microphone' :
                              device.kind === 'videoinput' ? 'Default Webcam' :
@@ -608,7 +614,7 @@
   const originalGetClientRects = Element.prototype.getClientRects;
   Element.prototype.getClientRects = function() {
     const rects = originalGetClientRects.call(this);
-    if (this.tagName === "SPAN" && this.style.fontSize && rects.length > 0) {
+    if (this.tagName === "SPAN" && rects.length > 0) {
       return new Proxy(rects, {
         get(target, prop) {
           if (prop === 'length') return target.length;
@@ -671,11 +677,8 @@
       hookedFunctions.add(OffscreenCanvasRenderingContext2D.prototype.measureText);
     }
 
-    hookedFunctions.add(Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth").get);
-    hookedFunctions.add(Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetHeight").get);
     hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "userAgent").get);
     hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "appVersion").get);
-    hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "platform").get);
     hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "mimeTypes").get);
     hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "plugins").get);
     hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "languages").get);
@@ -683,7 +686,11 @@
     hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "hardwareConcurrency").get);
     hookedFunctions.add(Element.prototype.getBoundingClientRect);
     hookedFunctions.add(Element.prototype.getClientRects);
-    if (navigator.mediaDevices) hookedFunctions.add(navigator.mediaDevices.enumerateDevices);
+    if (navigator.mediaDevices && typeof MediaDevices !== "undefined") hookedFunctions.add(MediaDevices.prototype.enumerateDevices);
+    const _offsetWidthDesc = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth");
+    const _offsetHeightDesc = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetHeight");
+    if (_offsetWidthDesc && _offsetWidthDesc.get) hookedFunctions.add(_offsetWidthDesc.get);
+    if (_offsetHeightDesc && _offsetHeightDesc.get) hookedFunctions.add(_offsetHeightDesc.get);
   } catch (e) {
     console.warn("UbiquiShield: Failed to mask some hooks", e);
   }

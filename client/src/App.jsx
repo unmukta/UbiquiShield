@@ -158,7 +158,7 @@ const [
   useEffect(() => {
 
     const listener = (changes) => {
-      if (changes.blockedCount) {
+      if (changes.blockedCount !== undefined) {
         setBlockedCount(changes.blockedCount.newValue)
       }
     }

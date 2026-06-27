@@ -85,7 +85,7 @@ ubiqui_shield/
 │   ├── assets/             # Compiled React popup UI (JS/CSS bundles)
 │   └── icons/              # Extension logo icons (16/48/128px)
 │
-├── build.js                # Cross-browser build pipeline (Chrome, Firefox, Source ZIP)
+├── build.js                # Cross-browser build pipeline (Chrome, Edge, Firefox, Source ZIP)
 ├── generate_rules.js       # Script to regenerate rules.json from domain lists
 ├── ARCHITECTURE.md         # In-depth technical architecture documentation
 ├── PRIVACY.md              # Privacy policy
@@ -99,8 +99,8 @@ ubiqui_shield/
 
 ### From the Stores
 - **Chrome Web Store**: [Coming Soon]
-- **Microsoft Edge Add-ons**: [Coming Soon]
-- **Firefox Add-ons**: [Coming Soon]
+- **Microsoft Edge Add-ons**: [Install for Edge](https://microsoftedge.microsoft.com/addons/detail/ubiqui_shield/obejaefmomenidhloemimedldkhedffm)
+- **Firefox Add-ons**: [Install for Firefox](https://addons.mozilla.org/en-US/firefox/addon/ubiqui-shield/)
 
 ### From Source
 
@@ -132,10 +132,11 @@ npm run build
 npm install
 npm run build
 ```
-This generates three ready-to-upload ZIP files in the `dist/` folder:
+This generates four ready-to-upload ZIP files in the `dist/` folder:
 | File | Purpose |
 |---|---|
-| `UbiquiShield-Chrome-v[X.Y.Z].zip` | Chrome Web Store & Edge Add-ons |
+| `UbiquiShield-Chrome-v[X.Y.Z].zip` | Chrome Web Store |
+| `UbiquiShield-Edge-v[X.Y.Z].zip` | Microsoft Edge Add-ons |
 | `UbiquiShield-Firefox-v[X.Y.Z].zip` | Firefox Add-ons (patched manifest) |
 | `UbiquiShield-Source-v[X.Y.Z].zip` | Mozilla reviewer source code submission |
 
@@ -160,7 +161,7 @@ Ubiqui Shield dramatically increases user privacy and cuts down tracking vectors
 
 ## Version
 
-Current Release: **v1.2.0**
+Current Release: **v1.2.1**
 
 ## License
 

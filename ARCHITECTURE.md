@@ -1,5 +1,5 @@
 # UbiquiShield Architecture & Technical Documentation
-*(Version: v1.2.0)*
+*(Version: v1.2.1)*
 
 UbiquiShield is a modern, high-performance privacy and anti-tracking extension built for Manifest V3 (MV3). It runs natively on all Chromium-based browsers (Chrome, Edge, Brave, Opera, Vivaldi) and Mozilla Firefox. This document provides a comprehensive, in-depth look at every layer of the architecture — from the execution model and inter-process communication, down to the individual algorithms that power each protection feature.
 
@@ -548,10 +548,10 @@ const result = await chrome.declarativeNetRequest.getMatchedRules({
 const count = result.rulesMatchedInfo.length;
 ```
 
-**Feature Detection:** Firefox does not yet support `getMatchedRules`. The code includes a runtime check:
+**Feature Detection:** Firefox does not yet support `getMatchedRules`. The code includes a runtime check to fall back to the DOM-detected trackers from `content.js`:
 ```javascript
 if (!chrome.declarativeNetRequest.getMatchedRules) {
-  return; // Firefox fallback
+  count = tabTrackers[tabId] ? tabTrackers[tabId].length : 0;
 }
 ```
 
@@ -596,11 +596,13 @@ Running `npm run build` executes the following pipeline:
 ```mermaid
 flowchart LR
     A["Clean dist/"] --> B["Copy extension/ → dist/chrome/"]
+    A --> E["Copy extension/ → dist/edge/"]
     A --> C["Copy extension/ → dist/firefox/"]
     C --> D["Patch Firefox manifest.json"]
-    B --> E["ZIP → Chrome-vX.Y.Z.zip"]
-    D --> F["ZIP → Firefox-vX.Y.Z.zip"]
-    A --> G["ZIP project source → Source-vX.Y.Z.zip"]
+    B --> F["ZIP → Chrome-vX.Y.Z.zip"]
+    E --> G["ZIP → Edge-vX.Y.Z.zip"]
+    D --> H["ZIP → Firefox-vX.Y.Z.zip"]
+    A --> I["ZIP project source → Source-vX.Y.Z.zip"]
 ```
 
 ### 9.2 Firefox Manifest Patches
@@ -626,9 +628,9 @@ if (chrome.declarativeNetRequest.setExtensionActionOptions) {
   });
 }
 
-// Matched rules counter (Chrome-only)
+// Matched rules counter (Chrome-only, Firefox falls back to DOM scanner)
 if (!chrome.declarativeNetRequest.getMatchedRules) {
-  return; // Skip on Firefox
+  count = tabTrackers[tabId] ? tabTrackers[tabId].length : 0;
 }
 ```
 
@@ -636,7 +638,8 @@ if (!chrome.declarativeNetRequest.getMatchedRules) {
 
 | File | Target Store | Contents |
 |---|---|---|
-| `UbiquiShield-Chrome-vX.Y.Z.zip` | Chrome Web Store, Edge Add-ons | Unmodified `extension/` folder |
+| `UbiquiShield-Chrome-vX.Y.Z.zip` | Chrome Web Store | Unmodified `extension/` folder |
+| `UbiquiShield-Edge-vX.Y.Z.zip` | Microsoft Edge Add-ons | Unmodified `extension/` folder |
 | `UbiquiShield-Firefox-vX.Y.Z.zip` | Firefox Add-ons (AMO) | Patched manifest + same extension files |
 | `UbiquiShield-Source-vX.Y.Z.zip` | AMO source code upload | Full project source (excludes `node_modules`, `.git`, `dist`) with auto-generated `BUILD_INSTRUCTIONS.md` |
 
