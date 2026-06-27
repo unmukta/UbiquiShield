@@ -486,8 +486,9 @@
   // =========================================
   if (navigator.connection) {
     const noopFn = () => {};
+    // Override on Navigator.prototype so it propagates into iframes
     Object.defineProperty(
-      navigator,
+      Navigator.prototype,
       "connection",
       {
         get() {
@@ -512,9 +513,11 @@
   // HARDWARE MEDIA DEVICE PROTECTION
   // =========================================
   if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-    const originalEnumerate = navigator.mediaDevices.enumerateDevices;
-    navigator.mediaDevices.enumerateDevices = async function() {
-      const devices = await originalEnumerate.apply(this, arguments);
+    // Capture native reference before overwriting on prototype
+    const originalEnumerateDevices = MediaDevices.prototype.enumerateDevices;
+    // Override on MediaDevices.prototype so it propagates into iframes
+    MediaDevices.prototype.enumerateDevices = async function() {
+      const devices = await originalEnumerateDevices.apply(this, arguments);
       return devices.map(device => {
         const genericLabel = device.kind === 'audioinput' ? 'Default Microphone' :
                              device.kind === 'videoinput' ? 'Default Webcam' :
@@ -607,7 +610,7 @@
   const originalGetClientRects = Element.prototype.getClientRects;
   Element.prototype.getClientRects = function() {
     const rects = originalGetClientRects.call(this);
-    if (this.tagName === "SPAN" && this.style.fontSize && rects.length > 0) {
+    if (this.tagName === "SPAN" && rects.length > 0) {
       return new Proxy(rects, {
         get(target, prop) {
           if (prop === 'length') return target.length;
@@ -679,7 +682,7 @@
     hookedFunctions.add(Object.getOwnPropertyDescriptor(Navigator.prototype, "hardwareConcurrency").get);
     hookedFunctions.add(Element.prototype.getBoundingClientRect);
     hookedFunctions.add(Element.prototype.getClientRects);
-    if (navigator.mediaDevices) hookedFunctions.add(navigator.mediaDevices.enumerateDevices);
+    if (navigator.mediaDevices && typeof MediaDevices !== "undefined") hookedFunctions.add(MediaDevices.prototype.enumerateDevices);
     const _offsetWidthDesc = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth");
     const _offsetHeightDesc = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetHeight");
     if (_offsetWidthDesc && _offsetWidthDesc.get) hookedFunctions.add(_offsetWidthDesc.get);
