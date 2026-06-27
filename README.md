@@ -99,8 +99,8 @@ ubiqui_shield/
 
 ### From the Stores
 - **Chrome Web Store**: [Coming Soon]
-- **Microsoft Edge Add-ons**: [Coming Soon]
-- **Firefox Add-ons**: [Coming Soon]
+- **Microsoft Edge Add-ons**: [Install for Edge](https://microsoftedge.microsoft.com/addons/detail/ubiqui_shield/obejaefmomenidhloemimedldkhedffm)
+- **Firefox Add-ons**: [Install for Firefox](https://addons.mozilla.org/en-US/firefox/addon/ubiqui-shield/)
 
 ### From Source
 
