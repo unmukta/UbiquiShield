@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Install for Chrome - Ubiqui Shield</title>
+    <meta name="description" content="Step-by-step guide to install Ubiqui Shield on Google Chrome.">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .install-guide {
+            padding: 120px 0 60px;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .guide-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .guide-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .guide-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .step-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .step-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(147, 51, 234, 0.4);
+        }
+        
+        .step-number {
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+        }
+        
+        .step-content h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-main);
+        }
+        
+        .step-content p {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+        
+        .step-content code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #d8b4fe;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="background-effects">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
+    </div>
+
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <img src="icons/icon128.png" alt="Ubiqui Shield Logo" class="nav-logo-img">
+                <span>Ubiqui Shield</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html#features">Features</a></li>
+                <li><a href="index.html" class="btn-primary-sm">Back to Home</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="install-guide">
+        <div class="container guide-container">
+            <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+            
+            <div class="guide-header reveal">
+                <h1>Install for <span class="text-gradient">Google Chrome</span></h1>
+                <p>Follow these quick steps to get Ubiqui Shield running on your browser.</p>
+            </div>
+            
+            <div class="step-card reveal">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Download the Extension</h3>
+                    <p>First, download the latest compiled version of the extension to your computer.</p>
+                    <a href="https://github.com/unmukta/UbiquiShield/releases/download/1.2.1/UbiquiShield-Chrome-v1.2.1.zip" class="btn btn-primary" download>
+                        <i class="fa-solid fa-download"></i> Download Chrome ZIP
+                    </a>
+                </div>
+            </div>
+            
+            <div class="step-card reveal">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Extract the ZIP File</h3>
+                    <p>Locate the downloaded <code>UbiquiShield-Chrome.zip</code> file in your downloads folder. Right-click on it and select <strong>Extract All...</strong> to unzip its contents into a folder.</p>
+                </div>
+            </div>
+            
+            <div class="step-card reveal">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Open Chrome Extensions</h3>
+                    <p>Open a new tab in Google Chrome and type <code>chrome://extensions</code> in the address bar, then press Enter.</p>
+                </div>
+            </div>
+            
+            <div class="step-card reveal">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Enable Developer Mode</h3>
+                    <p>In the top right corner of the Extensions page, locate the <strong>Developer mode</strong> toggle switch and turn it ON.</p>
+                </div>
+            </div>
+            
+            <div class="step-card reveal">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <h3>Load the Extension</h3>
+                    <p>Click the <strong>Load unpacked</strong> button that appears in the top left corner. Select the folder where you extracted the Ubiqui Shield files in Step 2.</p>
+                    <p style="color: var(--success); margin-top: 1rem;"><i class="fa-solid fa-circle-check"></i> <strong>You're all set!</strong> Ubiqui Shield is now active and protecting your privacy.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <div class="logo">
+                    <img src="icons/icon128.png" alt="Ubiqui Shield Logo" class="nav-logo-img">
+                    <span>Ubiqui Shield</span>
+                </div>
+                <p>The ultimate privacy extension for modern web browsers.</p>
+            </div>
+            <div class="footer-links">
+                <a href="https://github.com/unmukta/UbiquiShield" target="_blank">GitHub</a>
+                <a href="https://github.com/unmukta/UbiquiShield/blob/main/PRIVACY.md" target="_blank">Privacy Policy</a>
+                <a href="https://github.com/unmukta/UbiquiShield/blob/main/LICENSE" target="_blank">License</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
