@@ -203,6 +203,8 @@
                         <li><strong>Blocked Counter Not Resetting to Zero</strong>: Fixed popup counter displaying permanently stuck values on page navigation.</li>
                         <li><strong>Duplicate Cosmetic CSS Selector</strong>: Removed a duplicate selector from the cosmetic CSS injection block.</li>
                         <li><strong><code>offsetHeight</code> Hook Registration Not Guarded</strong>: Uses a guarded property descriptor call to prevent silent TypeErrors.</li>
+                        <li><strong>Firefox Tracker Counter Bug</strong>: Firefox does not yet support <code>chrome.declarativeNetRequest.getMatchedRules</code>. The exception is now explicitly caught to trigger the fallback tracker count logic.</li>
+                        <li><strong>UI Reload Error on Restricted Pages</strong>: The popup now verifies the active tab is an HTTP/HTTPS webpage before attempting a reload when a critical setting is toggled.</li>
                     </ul>
                 </div>
             </div>
