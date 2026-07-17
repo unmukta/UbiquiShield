@@ -354,14 +354,18 @@ async function updateBlockedCount(
         tabTimestamps[tabId] ||
         Date.now() - 60000
 
-      const result =
-        await chrome
-          .declarativeNetRequest
-          .getMatchedRules({
-            tabId,
-            minTimeStamp: minTime
-          })
-      count = result.rulesMatchedInfo.length;
+      try {
+        const result =
+          await chrome
+            .declarativeNetRequest
+            .getMatchedRules({
+              tabId,
+              minTimeStamp: minTime
+            })
+        count = result.rulesMatchedInfo.length;
+      } catch (err) {
+        count = tabTrackers[tabId] ? tabTrackers[tabId].length : 0;
+      }
     } else {
       // Firefox fallback: cannot count matched rules natively yet
       // Use the DOM-detected trackers from content.js
