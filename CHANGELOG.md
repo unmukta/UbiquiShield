@@ -22,6 +22,7 @@ This is a targeted patch release fixing bugs identified after the v1.2.0 launch,
 - **Firefox: Fingerprinting Script Fails to Inject**: The `matchOriginAsFallback: true` parameter in `chrome.scripting.registerContentScripts` is unsupported in Firefox and causes the entire API call to silently fail. This left Firefox users completely unprotected against fingerprinting. The parameter is now omitted on Firefox.
 - **Firefox: Tracker Counter Shows 0**: Firefox does not yet support `chrome.declarativeNetRequest.getMatchedRules`. While a fallback was present, calling the API in Firefox MV3 throws an exception rather than returning undefined. This caused the fallback to be skipped entirely, keeping the counter at 0. The exception is now explicitly caught to trigger the fallback tracker count.
 - **UI: Reload Error on Restricted Pages**: Toggling a critical setting (e.g., "Block trackers") triggers an automatic page reload. Doing this on a restricted browser page (like `chrome://extensions`) would throw an error. The popup now verifies the active tab is an HTTP/HTTPS webpage before attempting a reload.
+- **Analytics Cookies Not Fully Deleted**: The `document.cookie` clearing script failed to remove tracking cookies that were specifically scoped to root domains (e.g., `domain=.example.com`) or subdomains, because it lacked the explicit `domain` parameter during deletion. The script now iterates through all domain combinations to guarantee complete eradication of tracking cookies.
 
 ## [1.2.0] - 2026-06-22
 

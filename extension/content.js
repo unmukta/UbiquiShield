@@ -509,8 +509,14 @@ function protectCookies() {
           shouldRemove
         ) {
 
-          document.cookie =
-            `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`
+          const domainParts = window.location.hostname.split('.');
+          while (domainParts.length > 0) {
+            const domain = domainParts.join('.');
+            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${domain}`;
+            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${domain}`;
+            domainParts.shift();
+          }
+          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 
           console.log(
             "Removed Cookie:",

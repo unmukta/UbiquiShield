@@ -205,6 +205,7 @@
                         <li><strong><code>offsetHeight</code> Hook Registration Not Guarded</strong>: Uses a guarded property descriptor call to prevent silent TypeErrors.</li>
                         <li><strong>Firefox Tracker Counter Bug</strong>: Firefox does not yet support <code>chrome.declarativeNetRequest.getMatchedRules</code>. The exception is now explicitly caught to trigger the fallback tracker count logic.</li>
                         <li><strong>UI Reload Error on Restricted Pages</strong>: The popup now verifies the active tab is an HTTP/HTTPS webpage before attempting a reload when a critical setting is toggled.</li>
+                        <li><strong>Analytics Cookies Not Fully Deleted</strong>: The <code>document.cookie</code> clearing script failed to remove tracking cookies scoped to root domains or subdomains. The script now iterates through all domain combinations to guarantee complete eradication.</li>
                     </ul>
                 </div>
             </div>
