@@ -171,7 +171,7 @@
             </a>
             <ul class="nav-links">
                 <li><a href="index.html#features">Features</a></li>
-                <li><a href="architecture.html">Architecture</a></li>
+
                 <li><a href="changelog.html">Changelog</a></li>
                 <li><a href="index.html" class="btn-primary-sm">Back to Home</a></li>
             </ul>
@@ -203,6 +203,9 @@
                         <li><strong>Blocked Counter Not Resetting to Zero</strong>: Fixed popup counter displaying permanently stuck values on page navigation.</li>
                         <li><strong>Duplicate Cosmetic CSS Selector</strong>: Removed a duplicate selector from the cosmetic CSS injection block.</li>
                         <li><strong><code>offsetHeight</code> Hook Registration Not Guarded</strong>: Uses a guarded property descriptor call to prevent silent TypeErrors.</li>
+                        <li><strong>Firefox Tracker Counter Bug</strong>: Firefox does not yet support <code>chrome.declarativeNetRequest.getMatchedRules</code>. The exception is now explicitly caught to trigger the fallback tracker count logic.</li>
+                        <li><strong>UI Reload Error on Restricted Pages</strong>: The popup now verifies the active tab is an HTTP/HTTPS webpage before attempting a reload when a critical setting is toggled.</li>
+                        <li><strong>Analytics Cookies Not Fully Deleted</strong>: The <code>document.cookie</code> clearing script failed to remove tracking cookies scoped to root domains or subdomains. The script now iterates through all domain combinations to guarantee complete eradication.</li>
                     </ul>
                 </div>
             </div>
@@ -395,7 +398,7 @@
                 <p>The ultimate privacy extension for modern web browsers.</p>
             </div>
             <div class="footer-links">
-                <a href="architecture.html">Architecture</a>
+
                 <a href="changelog.html">Changelog</a>
                 <a href="https://github.com/unmukta/UbiquiShield" target="_blank">GitHub</a>
                 <a href="privacy.html">Privacy Policy</a>

@@ -270,7 +270,7 @@ const [
         chrome.tabs.query(
           { active: true, currentWindow: true },
           (tabs) => {
-            if (tabs && tabs[0]) {
+            if (tabs && tabs[0] && tabs[0].url && tabs[0].url.startsWith("http")) {
               chrome.tabs.reload(tabs[0].id);
             }
           }
